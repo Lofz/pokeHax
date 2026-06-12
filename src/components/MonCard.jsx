@@ -23,8 +23,9 @@ function condition(p) {
  * - `lens` controla o PODER: "rocket" revela (Equipe Rocket), "oak" oculta atrás
  *   de "?" (Professor Oak — teste de conhecimento). A CONDIÇÃO, por ser sorte
  *   aleatória e não conhecimento, fica sempre à mostra.
- * - Props de `drag*` habilitam a reordenação por arrastar e soltar, só presente
- *   na fase de reordenação (depois do draft). Sem elas, a carta é estática.
+ * - `draggable` mostra a alça de reordenação (rodapé). O arrasto usa Pointer
+ *   Events (mouse + TOQUE), então funciona em desktop E mobile/iOS — onde o
+ *   drag-and-drop HTML5 nativo não dispara. Os handlers vão na alça `.reorder`.
  * - `onPick` transforma a carta num candidato clicável do draft (escolher 1).
  */
 export function MonCard({
@@ -33,10 +34,8 @@ export function MonCard({
   slot,
   draggable = false,
   dragging = false,
-  over = false,
   onDragStart,
-  onDragEnter,
-  onDrop,
+  onDragMove,
   onDragEnd,
   onPick,
 }) {
@@ -48,20 +47,13 @@ export function MonCard({
   const cls =
     "mon-card" +
     (mon.rare ? " rare" : "") +
-    (draggable ? " grab" : "") +
     (dragging ? " dragging" : "") +
-    (over ? " over" : "") +
     (pickable ? " pick" : "");
 
   return (
     <div
       className={cls}
-      draggable={draggable || undefined}
-      onDragStart={onDragStart}
-      onDragEnter={onDragEnter}
-      onDragOver={draggable ? (e) => e.preventDefault() : undefined}
-      onDrop={onDrop}
-      onDragEnd={onDragEnd}
+      data-mon-id={draggable ? mon.id : undefined}
       onClick={pickable ? onPick : undefined}
       role={pickable ? "button" : undefined}
       tabIndex={pickable ? 0 : undefined}
@@ -110,7 +102,16 @@ export function MonCard({
       </div>
 
       {draggable && (
-        <div className="reorder">
+        <div
+          className="reorder"
+          role="button"
+          tabIndex={0}
+          aria-label={`${slot}ª vaga — arraste para reordenar`}
+          onPointerDown={onDragStart}
+          onPointerMove={onDragMove}
+          onPointerUp={onDragEnd}
+          onPointerCancel={onDragEnd}
+        >
           <span className="grip" aria-hidden="true">⠿</span>
           <span className="ord-slot">{slot}ª VAGA · ARRASTE</span>
         </div>
