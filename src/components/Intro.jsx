@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { getMon } from "../data/dex";
 import { ELITE } from "../data/elite";
+import { MODE_SPRITE } from "../data/modes";
 import { MonCard } from "./MonCard";
 import { TypeChip, Sprite } from "./bits";
 
 /** Pokémon de vitrine do tutorial (Typhlosion, com um potencial alto de exemplo). */
 const DEMO = { ...getMon(157), potential: 84 };
-
-/** Retratos dos modos (artes FireRed/LeafGreen, self-hosted em public/trainers). */
-const ROCKET_SPRITE = "/trainers/Spr_FRLG_Giovanni.png";
-const OAK_SPRITE = "/trainers/Spr_FRLG_Oak.png";
 
 export function Intro({ lens, setLens, onStart }) {
   const [openElite, setOpenElite] = useState(null);
@@ -23,9 +20,8 @@ export function Intro({ lens, setLens, onStart }) {
             (dos 251 de Johto e Kanto) e você escolhe 1 para a vaga.
           </li>
           <li>
-            <b>Não curtiu os 3? Pule.</b> O pulo re-sorteia a rodada, mas é
-            limitado — 1 por rodada na Equipe Rocket, só 1 no draft inteiro no
-            Professor Oak.
+            <b>Não curtiu os 3? Pule.</b> O pulo re-sorteia os candidatos da
+            rodada — mas é limitado, e quantos você tem depende do modo.
           </li>
           <li>
             <b>Monte a ordem.</b> Com as 6 vagas preenchidas, arraste as cartas
@@ -109,13 +105,14 @@ export function Intro({ lens, setLens, onStart }) {
             aria-pressed={lens === "rocket"}
           >
             <div className="mode-head">
-              <Sprite src={ROCKET_SPRITE} alt="Giovanni" size={56} className="trainer-spr" />
+              <Sprite src={MODE_SPRITE.rocket} alt="Giovanni" size={56} className="trainer-spr" />
               <div className="mode-name">EQUIPE ROCKET</div>
             </div>
             <p>
-              Você espia os dados: poder e potencial à mostra. Decisões com
+              Você espia os dados: poder e condição à mostra. Decisões com
               informação completa.
             </p>
+            <span className="mode-skip">↻ 1 PULO POR RODADA</span>
           </button>
           <button
             className={"mode-card" + (lens === "oak" ? " on" : "")}
@@ -123,20 +120,21 @@ export function Intro({ lens, setLens, onStart }) {
             aria-pressed={lens === "oak"}
           >
             <div className="mode-head">
-              <Sprite src={OAK_SPRITE} alt="Professor Oak" size={56} className="trainer-spr" />
+              <Sprite src={MODE_SPRITE.oak} alt="Professor Oak" size={56} className="trainer-spr" />
               <div className="mode-name">PROFESSOR OAK</div>
             </div>
             <p>
-              O poder vira "?" (o potencial você ainda vê). Vale o seu
+              O poder vira "?" (a condição você ainda vê). Vale o seu
               conhecimento Pokémon para montar o time.
             </p>
+            <span className="mode-skip">↻ 1 PULO NO DRAFT TODO</span>
           </button>
         </div>
       </div>
 
       <div className="btn-row">
         <button className="btn btn-gold" onClick={onStart}>
-          ROLAR MEU TIME ▸
+          MONTAR MEU TIME ▸
         </button>
       </div>
     </section>

@@ -3,6 +3,7 @@ import { newSeed, hashSeed } from "./engine/rng";
 import { simulateBattle } from "./engine/battle";
 import { rollCandidates, TEAM_SIZE, CANDIDATES_PER_ROUND } from "./data/pool";
 import { ELITE } from "./data/elite";
+import { getMon } from "./data/dex";
 import { MonCard } from "./components/MonCard";
 import { Intro } from "./components/Intro";
 import { Bench } from "./components/Arena";
@@ -13,11 +14,48 @@ import { ChampionBox, DefeatBox } from "./components/Finale";
 const freshResults = () =>
   ELITE.map(() => ({ status: "pending", score: [0, 0], koBy: {}, feed: [] }));
 
+/**
+ * DEBUG — força a tela de vitória (Hall da Fama) para desenvolvimento rápido.
+ * Ative com `?win` na URL (só em dev) ou buildando com VITE_FORCE_WIN=1.
+ */
+const DEBUG_WIN =
+  import.meta.env.VITE_FORCE_WIN === "1" ||
+  (import.meta.env.DEV &&
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("win"));
+
+/** Monta um time + resultados fictícios de campanha vencida (só p/ o DEBUG_WIN). */
+function buildDebugWin() {
+  const LEG = new Set([144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251]);
+  const picks = [
+    [157, 96], [149, 88], [94, 73], [65, 81], [143, 67], [249, 92],
+    // Typhlosion, Dragonite, Gengar, Alakazam, Snorlax, Lugia
+  ];
+  const team = picks.map(([id, potential]) => ({ ...getMon(id), potential, rare: LEG.has(id) }));
+  const n = team.map((m) => m.name);
+  const koByPer = [
+    { [n[0]]: 3, [n[1]]: 2 },
+    { [n[2]]: 2, [n[3]]: 3 },
+    { [n[4]]: 4, [n[0]]: 1 },
+    { [n[5]]: 3, [n[1]]: 2 },
+    { [n[0]]: 2, [n[1]]: 2, [n[5]]: 2 },
+  ];
+  const losses = [1, 0, 2, 1, 3];
+  const results = ELITE.map((tr, i) => ({
+    status: "win",
+    score: [tr.team.length, losses[i]],
+    koBy: koByPer[i],
+    feed: [],
+  }));
+  return { team, results };
+}
+const DEBUG = DEBUG_WIN ? buildDebugWin() : null;
+
 export default function App() {
   const [seed, setSeed] = useState(() => newSeed());
-  const [phase, setPhase] = useState("intro"); // intro | roll | run | champion | defeat
-  const [team, setTeam] = useState([]); // preenchido pick a pick no draft
-  const [results, setResults] = useState(freshResults);
+  const [phase, setPhase] = useState(DEBUG ? "champion" : "intro"); // intro | roll | run | champion | defeat
+  const [team, setTeam] = useState(() => (DEBUG ? DEBUG.team : [])); // preenchido pick a pick no draft
+  const [results, setResults] = useState(() => (DEBUG ? DEBUG.results : freshResults()));
   const [current, setCurrent] = useState(-1);
   const [snap, setSnap] = useState(null);
   const [mode, setMode] = useState("auto"); // auto | manual
@@ -25,6 +63,7 @@ export default function App() {
   const [lens, setLens] = useState("rocket"); // rocket (revela poder) | oak (oculta)
   const [dragIdx, setDragIdx] = useState(null);
   const [overIdx, setOverIdx] = useState(null);
+  const [paused, setPaused] = useState(false); // congela o playback p/ capturar telas
   // pulos gastos por rodada (re-sorteia os candidatos daquela rodada)
   const [skips, setSkips] = useState(() => Array(TEAM_SIZE).fill(0));
   const [nextIdx, setNextIdx] = useState(null);
@@ -91,6 +130,7 @@ export default function App() {
     setEvIdx(0);
     setDragIdx(null);
     setOverIdx(null);
+    setPaused(false);
     eventsRef.current = [];
     setPhase(toPhase);
   }
@@ -120,7 +160,7 @@ export default function App() {
 
   /* playback da timeline de eventos */
   useEffect(() => {
-    if (phase !== "run" || current < 0) return;
+    if (phase !== "run" || current < 0 || paused) return;
     const evs = eventsRef.current;
     if (evIdx >= evs.length) return;
     const ev = evs[evIdx];
@@ -177,14 +217,14 @@ export default function App() {
       setEvIdx((i) => i + 1);
     }, delay);
     return () => clearTimeout(t);
-  }, [phase, current, evIdx, speed, reduced]);
+  }, [phase, current, evIdx, speed, reduced, paused]);
 
   /* encadeamento automático entre batalhas */
   useEffect(() => {
-    if (phase !== "run" || nextIdx == null || mode !== "auto") return;
+    if (phase !== "run" || nextIdx == null || mode !== "auto" || paused) return;
     const t = setTimeout(() => startBattle(nextIdx), reduced ? 100 : 1100);
     return () => clearTimeout(t);
-  }, [phase, nextIdx, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase, nextIdx, mode, paused]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const finalLoss = phase === "defeat" ? results.findIndex((r) => r.status === "loss") : -1;
 
@@ -203,7 +243,7 @@ export default function App() {
           </button>
         </h1>
         <p className="tagline">
-          Role o dado: saem 6 Pokémon. Encare a Elite dos 4 de Johto e o Campeão.
+          Drafte seu time e encare a Elite dos 4 de Johto e o Campeão.
           <br />
           Seu time leva a varrida — ou aplica o <strong>6 a 0</strong>?
         </p>
@@ -360,6 +400,9 @@ export default function App() {
                 result={results[i]}
                 live={current === i}
                 snap={snap}
+                lens={lens}
+                paused={paused}
+                onTogglePause={() => setPaused((p) => !p)}
               />
             ))}
           </div>
@@ -373,7 +416,13 @@ export default function App() {
           )}
 
           {phase === "champion" && (
-            <ChampionBox team={team} results={results} onReset={fullReset} />
+            <ChampionBox
+              team={team}
+              results={results}
+              onReset={fullReset}
+              seed={seed}
+              lens={lens}
+            />
           )}
 
           {phase === "defeat" && finalLoss >= 0 && (
