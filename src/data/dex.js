@@ -7,6 +7,16 @@
  */
 import pokedex from "./pokedex.json";
 
+/**
+ * As URLs de sprite do dataset apontam para o `raw.githubusercontent.com`, que
+ * NÃO é um CDN (rate-limit, sem garantia de cache). Reescrevemos para o
+ * jsDelivr, que serve o mesmo repositório via CDN real com CORS — robusto sob
+ * tráfego e necessário para o PNG de compartilhar do Hall da Fama.
+ */
+const RAW = "https://raw.githubusercontent.com/Purukitto/pokemon-data.json/master";
+const CDN = "https://cdn.jsdelivr.net/gh/Purukitto/pokemon-data.json@master";
+const cdn = (url) => (url ? url.replace(RAW, CDN) : null);
+
 /** Normaliza uma entrada crua do dataset para o formato usado no jogo. */
 function normalize(entry) {
   const base = entry.base ?? {};
@@ -35,9 +45,9 @@ function normalize(entry) {
     /** true quando o Pokémon NÃO possui próxima evolução */
     fullyEvolved: !entry?.evolution?.next,
     image: {
-      sprite: entry.image?.sprite ?? null,
-      thumbnail: entry.image?.thumbnail ?? null,
-      hires: entry.image?.hires ?? null,
+      sprite: cdn(entry.image?.sprite),
+      thumbnail: cdn(entry.image?.thumbnail),
+      hires: cdn(entry.image?.hires),
     },
   };
 }

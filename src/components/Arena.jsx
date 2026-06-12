@@ -1,4 +1,5 @@
-import { Sprite, HPBar } from "./bits";
+import { Sprite, HPBar, BallTray } from "./bits";
+import { TEAM_SIZE } from "../data/pool";
 
 export function Bench({ team }) {
   return (
@@ -13,23 +14,32 @@ export function Bench({ team }) {
   );
 }
 
-/** Arena viva — moldura de diálogo do Game Boy com sprites frente a frente. */
-export function Arena({ snap, feed }) {
+/**
+ * Arena viva — moldura de diálogo do Game Boy, na orientação autêntica de
+ * batalha: VOCÊ à ESQUERDA e a Elite à DIREITA. As bandejas de Pokébolas ficam
+ * acima de cada Pokémon, no estilo do jogo padrão.
+ */
+export function Arena({ snap, feed, enemyTotal }) {
+  const [enemyKO, yourKO] = snap.score; // inimigos derrubados / seus caídos
   return (
     <div className="arena">
       <div className="duel">
-        <div className="fighter">
+        <div className="fighter side-left">
+          <BallTray total={TEAM_SIZE} fainted={yourKO} className="you" />
           <div className="f-head">
-            <Sprite src={snap.pImg} alt={snap.pName} size={52} />
-            <div className="f-name you">▶ {snap.pName.toUpperCase()}</div>
+            <Sprite src={snap.pImg} alt={snap.pName} size={52} className="flip" />
+            <div className="f-name you">{snap.pName.toUpperCase()}</div>
           </div>
           <HPBar pct={snap.php} />
         </div>
+
         <div className="vs-pix">VS</div>
-        <div className="fighter foe-side">
+
+        <div className="fighter side-right">
+          <BallTray total={enemyTotal} fainted={enemyKO} className="foe" />
           <div className="f-head">
             <div className="f-name foe">{snap.eName.toUpperCase()}</div>
-            <Sprite src={snap.eImg} alt={snap.eName} size={52} className="flip" />
+            <Sprite src={snap.eImg} alt={snap.eName} size={52} />
           </div>
           <HPBar pct={snap.ehp} />
         </div>

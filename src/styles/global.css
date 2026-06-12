@@ -308,6 +308,17 @@ body { background: var(--night); }
 }
 .mode-head .mode-name { margin-bottom: 0; }
 .mode-card p { font-size: 18px; color: var(--cream-dim); }
+.mode-skip {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 5px 7px;
+}
 
 .elite-lineup { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
 .elite-card {
@@ -431,7 +442,17 @@ body { background: var(--night); }
 .match.win { border-left-color: var(--gold); }
 .match.loss { border-left-color: var(--hpR); }
 .match.champ-row { background: linear-gradient(180deg, var(--panel), #2c2147); }
-.match-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.match-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: space-between; }
+.mh-enemy { display: flex; align-items: center; gap: 14px; }
+/* ao vivo: head espelha as colunas da arena — VOCÊ ocupa toda a esquerda
+   (acima do seu Pokémon), pause no centro, Elite toda a direita */
+.match.live .match-side { order: 1; flex: 1; margin-left: 0; animation: enter-left 0.5s ease-out; }
+.match.live .pause-btn { order: 2; flex: 0 0 auto; }
+.match.live .mh-enemy { order: 3; flex: 1; justify-content: flex-end; animation: enter-right 0.5s ease-out; }
+.match.live .side-left { animation: enter-left 0.5s ease-out; }
+.match.live .side-right { animation: enter-right 0.5s ease-out; }
+@keyframes enter-left { from { transform: translateX(36px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes enter-right { from { transform: translateX(-36px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 .match-eyebrow {
   font-family: "Press Start 2P", monospace;
   font-size: 8px;
@@ -440,7 +461,7 @@ body { background: var(--night); }
   min-width: 84px;
 }
 .champ-row .match-eyebrow { color: var(--gold); }
-.match-vs { flex: 1; font-size: 22px; }
+.match-vs { font-size: 22px; }
 .match-vs em { font-style: normal; color: var(--cream-dim); font-size: 18px; margin-right: 4px; }
 .match-vs b { font-family: "Press Start 2P", monospace; font-size: 14px; }
 .match-spec {
@@ -450,14 +471,74 @@ body { background: var(--night); }
   margin-left: 10px;
   letter-spacing: 0.15em;
 }
-.match-score {
-  display: flex;
+/* identificação do lado no cabeçalho: VOCÊ (com avatar do modo) à direita */
+.match-side { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.you-tag {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+}
+
+/* resumo do confronto concluído: badge GANHOU/PERDEU + placar de KOs */
+.result-badge {
+  display: inline-flex;
   align-items: center;
   gap: 9px;
-  font-family: "Press Start 2P", monospace;
-  font-size: 16px;
+  padding: 6px 11px;
+  border-radius: 6px;
+  border: 2px solid var(--line);
+  background: var(--night);
 }
-.match-score .dash { color: var(--cream-dim); }
+.result-badge.win { border-color: var(--gold); }
+.result-badge.loss { border-color: var(--hpR); }
+.rb-tag { font-family: "Press Start 2P", monospace; font-size: 8px; letter-spacing: 0.12em; }
+.result-badge.win .rb-tag { color: var(--gold); }
+.result-badge.loss .rb-tag { color: var(--hpR); }
+.rb-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+}
+.rb-you { color: var(--hpG); }
+.rb-foe { color: var(--hpR); }
+.rb-x { color: var(--cream-dim); font-size: 8px; }
+.rb-ko { font-size: 7px; color: var(--cream-dim); letter-spacing: 0.1em; margin-left: 2px; }
+.next-tag {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: #5c537e;
+  letter-spacing: 0.12em;
+}
+
+/* botão de pausa, no cabeçalho do confronto ao vivo (lado VOCÊ) */
+.pause-btn {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  line-height: 1;
+  color: var(--hpG);
+  background: transparent;
+  border: 2px solid var(--hpG);
+  border-radius: 4px;
+  padding: 5px 7px;
+  cursor: pointer;
+  animation: blink 1.1s steps(2) infinite;
+}
+.pause-btn:hover { background: rgba(88, 216, 84, 0.14); }
+.pause-btn.on {
+  color: var(--gold);
+  border-color: var(--gold);
+  animation: none;
+}
+.pause-btn.on:hover { background: rgba(242, 182, 61, 0.14); }
+.pause-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* bandejas de Pokébolas (status do time, estilo jogo padrão) */
+.ball-tray { display: inline-flex; gap: 3px; align-items: center; }
+.pball { display: block; }
+.pball.faint { color: #5c537e; }
 .gold { color: var(--gold); }
 .red { color: var(--hpR); }
 .dimnum { color: var(--silver); }
@@ -492,10 +573,13 @@ body { background: var(--night); }
   box-shadow: inset 0 0 0 3px var(--panel);
   padding: 14px;
 }
-.duel { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 12px; }
-.fighter { flex: 1; min-width: 0; }
-.f-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.foe-side .f-head { justify-content: flex-end; }
+.duel { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+.fighter { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+/* lado direito (você): conteúdo alinhado à direita, mas a barra de HP continua
+   com largura cheia — por isso alinhamos por dentro, não com align-items */
+.side-right .f-head { justify-content: flex-end; }
+.side-right .ball-tray { justify-content: flex-end; }
+.f-head { display: flex; align-items: center; gap: 10px; }
 .f-name {
   font-family: "Press Start 2P", monospace;
   font-size: 10px;
@@ -504,13 +588,13 @@ body { background: var(--night); }
   text-overflow: ellipsis;
 }
 .f-name.you { color: var(--gold); }
-.f-name.foe { color: var(--silver); text-align: right; }
-.foe-side .hp-track { flex-direction: row-reverse; }
+.f-name.foe { color: var(--silver); }
+.side-right .hp-track { flex-direction: row-reverse; }
 .vs-pix {
   font-family: "Press Start 2P", monospace;
   font-size: 10px;
   color: var(--cream-dim);
-  padding-bottom: 14px;
+  align-self: center;
 }
 .hp-track { display: flex; align-items: center; gap: 7px; }
 .hp-label { font-family: "Press Start 2P", monospace; font-size: 7px; color: var(--hpY); }
@@ -564,30 +648,112 @@ body { background: var(--night); }
 }
 .finale-title.red { color: var(--hpR); }
 .finale-sub { color: var(--cream-dim); margin-bottom: 16px; }
-.finale-team { margin-bottom: 18px; max-width: 460px; }
-.hof-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px dashed var(--line);
-  padding: 6px 2px;
-  font-size: 21px;
+/* ---------- Hall da Fama: card compartilhável ---------- */
+.hof-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 8px; }
+.hof-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--night);
+  border: 3px solid var(--gold);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 3px var(--night), 6px 6px 0 rgba(0, 0, 0, 0.5);
+  padding: 16px;
 }
-.hof-mon { display: inline-flex; align-items: center; gap: 10px; }
-.hof-ko { color: var(--gold); }
+.hof-eyebrow {
+  display: block;
+  text-align: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--gold);
+  letter-spacing: 0.16em;
+  margin-bottom: 12px;
+}
+
+/* faixa de "palco" do Hall da Fama: arte renderizada + confete */
+.hof-stage {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  border-radius: 8px 8px 0 0;
+  background: radial-gradient(85% 130% at 50% 22%, #4a3f80 0%, #241d44 72%);
+  padding: 18px 10px 12px;
+}
+.confetti { position: absolute; width: 7px; height: 7px; border-radius: 1px; opacity: 0.9; z-index: 0; }
+.hof-band {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 8px;
+}
+.hof-fame-mon { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.hof-band > .hof-fame-mon:nth-child(even) { transform: translateY(10px); }
+.sprite.hof-art { image-rendering: auto; }
+.hof-fame-name {
+  font-family: "Press Start 2P", monospace;
+  font-size: 6px;
+  color: #e9e4ff;
+  text-align: center;
+  text-shadow: 1px 1px 0 #000;
+}
+.hof-fame-ko { font-family: "Press Start 2P", monospace; font-size: 7px; color: var(--gold); }
+.hof-fame-mvp {
+  position: absolute;
+  top: -7px;
+  right: 50%;
+  transform: translateX(50%);
+  font-size: 13px;
+  color: var(--gold);
+  text-shadow: 0 0 6px rgba(242, 182, 61, 0.7);
+  z-index: 2;
+}
+
+/* faixa de diálogo estilo Game Boy */
+.hof-ribbon {
+  text-align: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  color: var(--cream);
+  letter-spacing: 0.06em;
+  background: var(--night);
+  border: 2px solid var(--line);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 11px 8px;
+  margin-bottom: 14px;
+}
+.hof-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.hof-strip-item { font-family: "VT323", monospace; font-size: 17px; color: var(--cream); }
+.hof-strip-item b {
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: #776c52;
+  margin-right: 6px;
+  letter-spacing: 0.1em;
+}
+.hof-brand { font-family: "Press Start 2P", monospace; font-size: 9px; color: var(--silver); }
+.hof-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.hof-msg { font-family: "VT323", monospace; font-size: 17px; color: var(--cream-dim); }
 
 .foot { margin-top: 40px; color: #5c537e; font-size: 17px; }
 
 /* ---------- acessibilidade e responsivo ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .mark.live { animation: none; }
+  .mark.live, .pause-btn { animation: none; }
+  .match.live .mh-enemy, .match.live .match-side,
+  .match.live .side-left, .match.live .side-right { animation: none; }
   .hp-fill { transition: none !important; }
 }
 @media (max-width: 560px) {
   .match-eyebrow { min-width: 0; }
   .duel { flex-direction: column; align-items: stretch; }
-  .vs-pix { text-align: center; padding-bottom: 0; }
-  .f-name.foe { text-align: left; }
-  .foe-side .f-head { justify-content: flex-start; flex-direction: row-reverse; }
-  .foe-side .hp-track { flex-direction: row; }
+  .vs-pix { text-align: center; }
+  /* no mobile os dois lados empilham e alinham à esquerda */
+  .side-right { align-items: stretch; }
+  .side-right .hp-track { flex-direction: row; }
 }
