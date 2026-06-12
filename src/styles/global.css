@@ -1,0 +1,593 @@
+/* ============================================================
+   PokéHax — noite de Johto, dialeto Game Boy Color
+   ============================================================ */
+
+:root {
+  --night: #16122b;
+  --panel: #211a3d;
+  --panel2: #2a2150;
+  --cream: #f3e9cf;
+  --cream-dim: #bfb398;
+  --gold: #f2b63d;
+  --silver: #aebbcb;
+  --hpG: #58d854;
+  --hpY: #f8d030;
+  --hpR: #e85145;
+  --line: #3a3060;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { background: var(--night); }
+
+.page {
+  min-height: 100vh;
+  background: var(--night);
+  color: var(--cream);
+  font-family: "VT323", monospace;
+  font-size: 20px;
+  line-height: 1.35;
+  padding: 34px 18px 60px;
+  position: relative;
+}
+.page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.025) 0 1px,
+    transparent 1px 3px
+  );
+}
+.hdr, .page > section, .foot { max-width: 860px; margin: 0 auto; }
+
+.eyebrow {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+.title {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(34px, 7vw, 56px);
+  color: var(--cream);
+  text-shadow: 4px 4px 0 #000, 6px 6px 0 rgba(242, 182, 61, 0.25);
+  margin-bottom: 12px;
+}
+.logo-btn {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.logo-btn:hover { color: var(--gold); }
+.logo-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+.tagline { color: var(--cream-dim); font-size: 22px; margin-bottom: 30px; }
+.tagline strong { color: var(--gold); }
+
+/* ---------- sprites ---------- */
+.sprite {
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.45));
+  flex-shrink: 0;
+}
+.sprite.flip { transform: scaleX(-1); }
+/* retratos de treinador (GS): não são quadrados, então preserva a proporção */
+.sprite.trainer-spr { height: auto; object-fit: contain; }
+.sprite-fallback {
+  display: inline-block;
+  background: var(--panel2);
+  border: 2px dashed var(--line);
+  border-radius: 4px;
+}
+
+/* ---------- cartas do time ---------- */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.mon-card {
+  background: var(--panel);
+  border: 3px solid var(--cream);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(0, 0, 0, 0.45);
+  padding: 14px;
+  position: relative;
+}
+.mon-card.rare { border-color: var(--gold); }
+.star {
+  position: absolute;
+  top: -11px;
+  right: 10px;
+  background: var(--gold);
+  color: #241a05;
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  padding: 3px 6px;
+  border-radius: 3px;
+}
+.mon-top { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.mon-dex {
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: var(--cream-dim);
+  letter-spacing: 0.12em;
+  display: block;
+  margin-bottom: 5px;
+}
+.mon-name {
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+.mon-types { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: #101010;
+  padding: 4px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+.pow-row { display: flex; align-items: center; gap: 8px; }
+.pow-label { font-family: "Press Start 2P", monospace; font-size: 7px; color: var(--cream-dim); }
+.pow-rail {
+  flex: 1;
+  height: 8px;
+  background: #0e0b1d;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.pow-fill { height: 100%; background: linear-gradient(90deg, var(--silver), var(--gold)); }
+.pow-num { font-size: 18px; color: var(--silver); min-width: 34px; text-align: right; }
+.pow-row + .pow-row { margin-top: 6px; }
+
+/* condição (forma estilo Winning Eleven): seta + rótulo coloridos */
+.cond {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+.cond-arrow { display: inline-block; font-size: 11px; line-height: 1; }
+.cond-exc { color: #ff5d52; }  /* vermelha — excelente */
+.cond-boa { color: #f49a3c; }  /* laranja — boa */
+.cond-pad { color: #f8d030; }  /* amarela — padrão */
+.cond-reg { color: #6aa0f0; }  /* azul — regular */
+.cond-ruim { color: #b884d0; } /* roxa — ruim */
+
+/* ---------- draft: bandeja de vagas + candidatos ---------- */
+.draft-tray {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.tray-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 92px;
+  padding: 10px 6px;
+  border: 2px dashed var(--line);
+  border-radius: 6px;
+  background: var(--night);
+}
+.tray-slot.filled { border-style: solid; border-color: var(--cream-dim); background: var(--panel); }
+.tray-slot.active { border-style: solid; border-color: var(--gold); box-shadow: 0 0 0 2px rgba(242, 182, 61, 0.25); }
+.tray-num {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: #5c537e;
+}
+.tray-slot.active .tray-num { color: var(--gold); }
+.tray-name { font-family: "Press Start 2P", monospace; font-size: 6px; color: var(--cream); text-align: center; }
+.tray-empty { font-family: "Press Start 2P", monospace; font-size: 7px; color: #5c537e; letter-spacing: 0.1em; }
+.tray-slot.active .tray-empty { color: var(--gold); }
+
+.draft-pool {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.mon-card.pick { cursor: pointer; transition: none; }
+.mon-card.pick:hover { border-color: var(--gold); box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(242, 182, 61, 0.35); }
+.mon-card.pick:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.mon-card.pick:active { transform: translate(2px, 2px); }
+.pick-cta {
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+/* ---------- reordenar time (drag and drop) ---------- */
+.mon-card.grab { cursor: grab; }
+.mon-card.grab:active { cursor: grabbing; }
+.mon-card.dragging { opacity: 0.4; }
+.mon-card.over {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 3px var(--night), 0 0 0 3px var(--gold);
+}
+.reorder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.grip { color: var(--silver); font-size: 16px; line-height: 1; letter-spacing: 2px; }
+.ord-slot {
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: var(--cream-dim);
+  letter-spacing: 0.1em;
+}
+.reorder-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.reorder-hint { font-size: 16px; color: var(--cream-dim); }
+.lens-chip {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  padding: 6px 9px;
+  border-radius: 4px;
+  border: 2px solid var(--line);
+  color: var(--cream-dim);
+}
+.lens-chip.rocket { color: var(--hpR); border-color: var(--hpR); }
+.lens-chip.oak { color: var(--gold); border-color: var(--gold); }
+
+/* ---------- tela de introdução ---------- */
+.intro { display: flex; flex-direction: column; gap: 16px; }
+.intro-block {
+  background: var(--panel);
+  border: 3px solid var(--cream);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(0, 0, 0, 0.45);
+  padding: 18px;
+}
+.intro-eyebrow {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 0.18em;
+  margin-bottom: 14px;
+}
+.how-steps { margin: 0; padding-left: 26px; display: flex; flex-direction: column; gap: 9px; font-size: 19px; }
+.how-steps li { color: var(--cream); }
+.how-steps b { color: var(--gold); }
+.intro-split { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.intro-split > .mon-card { flex: 0 0 240px; }
+.intro-copy { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 10px; }
+.intro-copy p { font-size: 19px; color: var(--cream); }
+.intro-copy b { color: var(--gold); }
+.intro-tip { color: var(--cream-dim) !important; font-size: 16px !important; }
+
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mode-card {
+  text-align: left;
+  background: var(--night);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 14px;
+  cursor: pointer;
+  color: var(--cream);
+  font-family: "VT323", monospace;
+}
+.mode-card:hover { border-color: var(--cream-dim); }
+.mode-card.on { border-color: var(--gold); background: var(--panel2); }
+.mode-head { display: flex; align-items: center; gap: 12px; margin-bottom: 9px; }
+.mode-name {
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+  color: var(--gold);
+  margin-bottom: 9px;
+}
+.mode-head .mode-name { margin-bottom: 0; }
+.mode-card p { font-size: 18px; color: var(--cream-dim); }
+
+.elite-lineup { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+.elite-card {
+  flex: 1;
+  min-width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: var(--night);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 8px;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+.elite-card:hover { border-color: var(--cream-dim); }
+.elite-card.open { border-color: var(--gold); background: var(--panel2); }
+.elite-card.champ .elite-name { color: var(--gold); }
+.elite-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.elite-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: var(--cream-dim);
+  letter-spacing: 0.1em;
+}
+.elite-name { font-family: "Press Start 2P", monospace; font-size: 10px; color: var(--cream); }
+.elite-toggle {
+  font-family: "Press Start 2P", monospace;
+  font-size: 6px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+.elite-team {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  background: var(--night);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 14px;
+}
+.elite-mon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 84px;
+}
+.elite-mon-name { font-family: "Press Start 2P", monospace; font-size: 7px; color: var(--cream); text-align: center; }
+.elite-mon-pow {
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: var(--silver);
+  letter-spacing: 0.05em;
+}
+@media (max-width: 560px) {
+  .mode-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- botões ---------- */
+.btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 10px; }
+.btn {
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 13px 18px;
+  border-radius: 6px;
+  border: 3px solid var(--cream);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  color: var(--cream);
+  background: var(--panel);
+}
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5); }
+.btn-gold { background: var(--gold); border-color: #8a6312; color: #241a05; }
+.btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.small { font-size: 9px; padding: 9px 12px; }
+.btn:focus-visible, .seg-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- barra de controles ---------- */
+.run-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.seg { display: flex; border: 2px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg-btn {
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  color: var(--cream-dim);
+  background: transparent;
+  border: 0;
+  padding: 7px 13px;
+  cursor: pointer;
+}
+.seg-btn.on { background: var(--panel2); color: var(--gold); }
+
+/* ---------- banco do time ---------- */
+.bench { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.bench-mon {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--silver);
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  padding: 4px 9px 4px 4px;
+  background: var(--panel);
+}
+
+/* ---------- lista de confrontos ---------- */
+.matches { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+.match {
+  background: var(--panel);
+  border-left: 5px solid var(--line);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 16px;
+}
+.match.live { border-left-color: var(--hpG); }
+.match.win { border-left-color: var(--gold); }
+.match.loss { border-left-color: var(--hpR); }
+.match.champ-row { background: linear-gradient(180deg, var(--panel), #2c2147); }
+.match-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.match-eyebrow {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--cream-dim);
+  letter-spacing: 0.18em;
+  min-width: 84px;
+}
+.champ-row .match-eyebrow { color: var(--gold); }
+.match-vs { flex: 1; font-size: 22px; }
+.match-vs em { font-style: normal; color: var(--cream-dim); font-size: 18px; margin-right: 4px; }
+.match-vs b { font-family: "Press Start 2P", monospace; font-size: 14px; }
+.match-spec {
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: var(--cream-dim);
+  margin-left: 10px;
+  letter-spacing: 0.15em;
+}
+.match-score {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 16px;
+}
+.match-score .dash { color: var(--cream-dim); }
+.gold { color: var(--gold); }
+.red { color: var(--hpR); }
+.dimnum { color: var(--silver); }
+.dim { color: #5c537e; font-size: 13px; }
+.mark { font-size: 13px; }
+.mark.ok { color: var(--hpG); }
+.mark.bad { color: var(--hpR); }
+.mark.live {
+  color: var(--hpG);
+  border: 2px solid var(--hpG);
+  border-radius: 4px;
+  font-size: 9px;
+  padding: 3px 5px;
+  animation: blink 1.1s steps(2) infinite;
+}
+@keyframes blink { 50% { opacity: 0.45; } }
+
+.kos-line { margin-top: 8px; color: var(--cream-dim); font-size: 19px; }
+.kos-label {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: #776c52;
+  letter-spacing: 0.15em;
+}
+
+/* ---------- arena viva: moldura de diálogo do Game Boy ---------- */
+.arena {
+  margin-top: 14px;
+  background: var(--night);
+  border: 3px solid var(--cream);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px var(--panel);
+  padding: 14px;
+}
+.duel { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 12px; }
+.fighter { flex: 1; min-width: 0; }
+.f-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.foe-side .f-head { justify-content: flex-end; }
+.f-name {
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.f-name.you { color: var(--gold); }
+.f-name.foe { color: var(--silver); text-align: right; }
+.foe-side .hp-track { flex-direction: row-reverse; }
+.vs-pix {
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: var(--cream-dim);
+  padding-bottom: 14px;
+}
+.hp-track { display: flex; align-items: center; gap: 7px; }
+.hp-label { font-family: "Press Start 2P", monospace; font-size: 7px; color: var(--hpY); }
+.hp-rail {
+  flex: 1;
+  height: 10px;
+  background: #0e0b1d;
+  border: 2px solid var(--cream-dim);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.hp-fill { height: 100%; transition: width 0.18s linear; }
+
+.feed {
+  border-top: 2px dashed var(--line);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.feed-line { display: flex; gap: 10px; font-size: 21px; }
+.feed-line .f-turn { color: #5c537e; min-width: 32px; text-align: right; }
+.feed-line.ko-enemy { color: var(--hpG); }
+.feed-line.ko-enemy .f-dot { color: var(--gold); }
+.feed-line.ko-player { color: var(--hpR); }
+.feed-line.info { color: var(--cream-dim); }
+
+/* ---------- finais ---------- */
+.finale {
+  border: 3px solid var(--gold);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: inset 0 0 0 3px var(--night), 5px 5px 0 rgba(0, 0, 0, 0.45);
+  padding: 24px 20px;
+  margin-top: 8px;
+}
+.lose-box { border-color: var(--hpR); }
+.finale-eyebrow {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--cream-dim);
+  letter-spacing: 0.2em;
+  margin-bottom: 12px;
+}
+.finale-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(14px, 3.4vw, 20px);
+  color: var(--gold);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.finale-title.red { color: var(--hpR); }
+.finale-sub { color: var(--cream-dim); margin-bottom: 16px; }
+.finale-team { margin-bottom: 18px; max-width: 460px; }
+.hof-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed var(--line);
+  padding: 6px 2px;
+  font-size: 21px;
+}
+.hof-mon { display: inline-flex; align-items: center; gap: 10px; }
+.hof-ko { color: var(--gold); }
+
+.foot { margin-top: 40px; color: #5c537e; font-size: 17px; }
+
+/* ---------- acessibilidade e responsivo ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .mark.live { animation: none; }
+  .hp-fill { transition: none !important; }
+}
+@media (max-width: 560px) {
+  .match-eyebrow { min-width: 0; }
+  .duel { flex-direction: column; align-items: stretch; }
+  .vs-pix { text-align: center; padding-bottom: 0; }
+  .f-name.foe { text-align: left; }
+  .foe-side .f-head { justify-content: flex-start; flex-direction: row-reverse; }
+  .foe-side .hp-track { flex-direction: row; }
+}
