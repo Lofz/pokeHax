@@ -21,6 +21,21 @@ npm run build    # build de produção em dist/
 
 ```
 src/
+├── services/           ← MODO COMPETITIVO (Liga Pokémon)
+│   ├── db.js           ← persistência (hoje localStorage; API async pensada
+│   │                     para ser trocada por um backend real sem tocar na UI)
+│   ├── account.js      ← conta sem cadastro: código de 8 chars + PIN (4–6
+│   │                     dígitos, hash SHA-256). Acesso via ?conta=CODIGO
+│   ├── ranking.js      ← Elo (K=32) + divisões (Liga Poké → Liga Lendária)
+│   ├── competitive.js  ← equipe fixa (snapshot), 5 partidas/24h, batalha
+│   │                     assíncrona vs equipe salva, regra "desafiado não pontua"
+│   └── bots.js         ← 24 bots determinísticos espalhados pelas divisões
+├── components/competitive/
+│   ├── Gate.jsx        ← criar conta / entrar (código + PIN)
+│   ├── Hub.jsx         ← perfil, liga, equipe fixa, tentativas, histórico
+│   ├── OpponentSearch.jsx ← lista de adversários (equipe visível, condição não)
+│   ├── CompResult.jsx  ← veredito ranqueado (±pontos, promoção/rebaixamento)
+│   └── bits.jsx        ← LeagueBadge, Delta, TeamPeek
 ├── data/
 │   ├── pokedex.json    ← O DATASET. Única fonte de verdade: nomes, tipos,
 │   │                     stats base e URLs das sprites (251 Pokémon, Gen 1+2)
@@ -79,6 +94,35 @@ Tudo sai do `src/data/pokedex.json`:
 - **Lente** (`App.jsx`, estado `lens`):
   - *Equipe Rocket* — revela poder (BST) e potencial (IV) de cada um.
   - *Professor Oak* — oculta os números com "?": vale só o seu conhecimento.
+
+## Modo competitivo — Liga Pokémon
+
+- **Conta sem cadastro**: na primeira vez você ganha um CÓDIGO único (8
+  caracteres) e define um PIN numérico. O acesso é pelo link
+  `seusite.com/jogo?conta=CODIGO` + PIN. **Não há recuperação** — guardar o
+  link é responsabilidade do jogador (a UI avisa com insistência).
+- **Equipe fixa**: drafta-se 6 Pokémon uma única vez; depois de salva, a
+  equipe não muda (gancho para "temporadas" no futuro).
+- **5 partidas por dia**: janela móvel de 24h, contada por partida iniciada.
+- **Batalha assíncrona**: você enfrenta o *snapshot* salvo da equipe do
+  adversário — ninguém precisa estar online. O resultado é simulado e
+  **persistido no ato do desafio**; o playback é só a reprise (fechar a aba
+  não desfaz uma derrota).
+- **Visibilidade**: a composição da equipe alheia (quais 6, tipos, poder) é
+  pública; a CONDIÇÃO (potencial individual) é segredo do dono.
+- **Ranking Elo** (K=32): vencer rival mais forte rende mais, perder para
+  rival mais fraco dói mais. Divisões: Liga Poké (<1000), Grande (1000+),
+  Ultra (1200+), Master (1400+) e Lendária (1600+).
+- **Só o desafiante pontua**: ser escolhido como adversário não mexe nos seus
+  pontos — sua equipe serve apenas de "dado" para a batalha do outro.
+- **Bots de teste**: 24 contas-bot determinísticas (`services/bots.js`)
+  populam todas as divisões enquanto não há jogadores/backend de verdade.
+
+**Persistência**: tudo vive no `localStorage` (chave `pokehax:db:v1`). A API
+do `services/db.js` é assíncrona de propósito — para virar multiplayer real,
+reimplemente essas funções com `fetch()` contra um backend (Supabase, Express
+etc.) mantendo as assinaturas; UI e regras não mudam. O hash do PIN no
+cliente é só inibidor: a verificação séria nasce com o servidor.
 
 ## Próximos passos planejados
 

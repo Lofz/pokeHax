@@ -11,7 +11,7 @@ const DEMO = { ...getMon(157), potential: 84 };
 const ROCKET_SPRITE = "/trainers/Spr_FRLG_Giovanni.png";
 const OAK_SPRITE = "/trainers/Spr_FRLG_Oak.png";
 
-export function Intro({ lens, setLens, onStart }) {
+export function Intro({ lens, setLens, onStart, onCompetitive, loggedName }) {
   const [openElite, setOpenElite] = useState(null);
   return (
     <section className="intro">
@@ -138,6 +138,22 @@ export function Intro({ lens, setLens, onStart }) {
         <button className="btn btn-gold" onClick={onStart}>
           ROLAR MEU TIME ▸
         </button>
+      </div>
+
+      <div className="intro-block">
+        <div className="intro-eyebrow">LIGA POKÉMON · MODO COMPETITIVO</div>
+        <p className="comp-pitch">
+          Monte uma equipe <b>fixa</b> de 6, desafie as equipes salvas de outros
+          treinadores (sem precisar deles online) e suba de divisão no ranking
+          Elo — da <b>Liga Poké</b> à <b>Liga Lendária</b>. São{" "}
+          <b>5 partidas ranqueadas por dia</b>; sua conta é um código + PIN, sem
+          cadastro.
+        </p>
+        <div className="btn-row">
+          <button className="btn" onClick={onCompetitive}>
+            🏆 {loggedName ? `CONTINUAR COMO ${loggedName}` : "MODO COMPETITIVO"} ▸
+          </button>
+        </div>
       </div>
     </section>
   );

@@ -9,13 +9,20 @@ import { Bench } from "./components/Arena";
 import { Sprite } from "./components/bits";
 import { MatchRow } from "./components/MatchRow";
 import { ChampionBox, DefeatBox } from "./components/Finale";
+import { Gate } from "./components/competitive/Gate";
+import { Hub } from "./components/competitive/Hub";
+import { OpponentSearch } from "./components/competitive/OpponentSearch";
+import { CompResultBox } from "./components/competitive/CompResult";
+import { initCompetitive, lockTeam, playMatch, dailyStatus } from "./services/competitive";
+import { getAccount, getSessionCode, clearSession } from "./services/db";
 
-const freshResults = () =>
-  ELITE.map(() => ({ status: "pending", score: [0, 0], koBy: {}, feed: [] }));
+const freshResults = (n = ELITE.length) =>
+  Array.from({ length: n }, () => ({ status: "pending", score: [0, 0], koBy: {}, feed: [] }));
 
 export default function App() {
   const [seed, setSeed] = useState(() => newSeed());
-  const [phase, setPhase] = useState("intro"); // intro | roll | run | champion | defeat
+  // intro | roll | run | champion | defeat | gate | hub | search | compdone
+  const [phase, setPhase] = useState("intro");
   const [team, setTeam] = useState([]); // preenchido pick a pick no draft
   const [results, setResults] = useState(freshResults);
   const [current, setCurrent] = useState(-1);
@@ -30,10 +37,45 @@ export default function App() {
   const [nextIdx, setNextIdx] = useState(null);
   const eventsRef = useRef([]);
   const [evIdx, setEvIdx] = useState(0);
+
+  /* --- estado do modo competitivo --- */
+  const [account, setAccount] = useState(null); // conta logada (ou null)
+  const [gateCode, setGateCode] = useState(null); // código vindo de ?conta=
+  const [draftFor, setDraftFor] = useState("elite"); // p/ quem é o draft atual
+  const [battleMode, setBattleMode] = useState("elite"); // elite | comp
+  const [compMatch, setCompMatch] = useState(null); // resultado já persistido
+  const [compLineup, setCompLineup] = useState([]); // [treinador adversário]
+  const [compErr, setCompErr] = useState(null);
+
   const reduced =
     typeof window !== "undefined" &&
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* na carga: semeia os bots, lê ?conta= da URL e restaura a sessão */
+  useEffect(() => {
+    initCompetitive();
+    const params = new URLSearchParams(window.location.search);
+    const urlCode = (params.get("conta") || "").toUpperCase() || null;
+    (async () => {
+      const sess = getSessionCode();
+      if (sess) {
+        const acc = await getAccount(sess);
+        if (acc && !acc.isBot) {
+          setAccount(acc);
+          // link da própria conta + sessão ativa → direto ao hub
+          if (urlCode && urlCode === acc.code) {
+            setPhase("hub");
+            return;
+          }
+        }
+      }
+      if (urlCode) {
+        setGateCode(urlCode);
+        setPhase("gate");
+      }
+    })();
+  }, []);
 
   /* --- estado do draft (derivado do tamanho do time) --- */
   const draftRound = team.length; // 0..6
@@ -79,7 +121,7 @@ export default function App() {
   }
 
   /** Recomeça a jornada do zero, parando em `toPhase`. */
-  function resetJourney(toPhase) {
+  function resetJourney(toPhase, target = "elite") {
     const s = newSeed();
     setSeed(s);
     setTeam([]);
@@ -91,6 +133,10 @@ export default function App() {
     setEvIdx(0);
     setDragIdx(null);
     setOverIdx(null);
+    setDraftFor(target);
+    setBattleMode("elite");
+    setCompMatch(null);
+    setCompErr(null);
     eventsRef.current = [];
     setPhase(toPhase);
   }
@@ -98,14 +144,13 @@ export default function App() {
   const fullReset = () => resetJourney("roll");
   const goHome = () => resetJourney("intro");
 
-  function startBattle(idx) {
-    const sim = simulateBattle(team, ELITE[idx], hashSeed(seed + ":" + idx));
-    eventsRef.current = sim.events;
+  /** Inicia o playback de uma timeline já simulada (Elite ou competitivo). */
+  function beginPlayback(events, idx) {
+    eventsRef.current = events;
     setEvIdx(0);
     setCurrent(idx);
     setNextIdx(null);
-    const first = sim.events[0];
-    setSnap({ ...first });
+    setSnap({ ...events[0] });
     setResults((rs) =>
       rs.map((r, i) =>
         i === idx ? { ...r, status: "live", score: [0, 0], koBy: {}, feed: [] } : r
@@ -113,10 +158,64 @@ export default function App() {
     );
   }
 
+  function startBattle(idx) {
+    const sim = simulateBattle(team, ELITE[idx], hashSeed(seed + ":" + idx));
+    beginPlayback(sim.events, idx);
+  }
+
   function startRun() {
+    setBattleMode("elite");
     setPhase("run");
     startBattle(0);
   }
+
+  /* --- ações do modo competitivo --- */
+
+  function enterCompetitive() {
+    setPhase(account ? "hub" : "gate");
+  }
+
+  function onGateEnter(acc) {
+    setAccount(acc);
+    setGateCode(null);
+    setPhase("hub");
+  }
+
+  function logout() {
+    clearSession();
+    setAccount(null);
+    resetJourney("intro");
+  }
+
+  /** Salva o draft como equipe competitiva FIXA. */
+  async function saveCompTeam() {
+    setCompErr(null);
+    try {
+      const acc = await lockTeam(account.code, team);
+      setAccount(acc);
+      setPhase("hub");
+    } catch (ex) {
+      setCompErr(ex.message);
+    }
+  }
+
+  /**
+   * Desafio ranqueado: o serviço simula E PERSISTE o resultado de uma vez
+   * (Elo, tentativa diária, histórico) — o playback é só a reprise.
+   */
+  async function handleChallenge(opp) {
+    const res = await playMatch(account.code, opp.code);
+    setAccount(res.account);
+    setCompMatch(res);
+    setCompLineup([res.trainer]);
+    setTeam(res.account.competitive.team);
+    setResults(freshResults(1));
+    setBattleMode("comp");
+    setPhase("run");
+    beginPlayback(res.events, 0);
+  }
+
+  const lineup = battleMode === "comp" ? compLineup : ELITE;
 
   /* playback da timeline de eventos */
   useEffect(() => {
@@ -169,7 +268,8 @@ export default function App() {
           rs.map((r, i) => (i === idx ? { ...r, status: ev.win ? "win" : "loss" } : r))
         );
         setCurrent(-1);
-        if (!ev.win) setPhase("defeat");
+        if (battleMode === "comp") setPhase("compdone");
+        else if (!ev.win) setPhase("defeat");
         else if (idx === ELITE.length - 1) setPhase("champion");
         else setNextIdx(idx + 1);
       }
@@ -177,9 +277,9 @@ export default function App() {
       setEvIdx((i) => i + 1);
     }, delay);
     return () => clearTimeout(t);
-  }, [phase, current, evIdx, speed, reduced]);
+  }, [phase, current, evIdx, speed, reduced, battleMode]);
 
-  /* encadeamento automático entre batalhas */
+  /* encadeamento automático entre batalhas (só na campanha da Elite) */
   useEffect(() => {
     if (phase !== "run" || nextIdx == null || mode !== "auto") return;
     const t = setTimeout(() => startBattle(nextIdx), reduced ? 100 : 1100);
@@ -187,11 +287,15 @@ export default function App() {
   }, [phase, nextIdx, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const finalLoss = phase === "defeat" ? results.findIndex((r) => r.status === "loss") : -1;
+  const inBattleView =
+    phase === "run" || phase === "champion" || phase === "defeat" || phase === "compdone";
 
   return (
     <div className="page">
       <header className="hdr">
-        <div className="eyebrow">A JORNADA · SEED #{seed}</div>
+        <div className="eyebrow">
+          {account ? `CONTA ${account.code} · ` : ""}A JORNADA · SEED #{seed}
+        </div>
         <h1 className="title">
           <button
             type="button"
@@ -210,18 +314,49 @@ export default function App() {
       </header>
 
       {phase === "intro" && (
-        <Intro lens={lens} setLens={setLens} onStart={() => setPhase("roll")} />
+        <Intro
+          lens={lens}
+          setLens={setLens}
+          onStart={() => setPhase("roll")}
+          onCompetitive={enterCompetitive}
+          loggedName={account?.name}
+        />
+      )}
+
+      {phase === "gate" && (
+        <Gate prefillCode={gateCode} onEnter={onGateEnter} onBack={goHome} />
+      )}
+
+      {phase === "hub" && account && (
+        <Hub
+          account={account}
+          onBuildTeam={() => resetJourney("roll", "comp")}
+          onSearch={() => setPhase("search")}
+          onLogout={logout}
+        />
+      )}
+
+      {phase === "search" && account && (
+        <OpponentSearch
+          account={account}
+          onChallenge={handleChallenge}
+          onBack={() => setPhase("hub")}
+        />
       )}
 
       {phase === "roll" && (
         <section>
           <div className="reorder-bar">
             <span className={"lens-chip " + lens}>
-              MODO: {lens === "rocket" ? "EQUIPE ROCKET" : "PROFESSOR OAK"}
+              {draftFor === "comp"
+                ? "DRAFT COMPETITIVO"
+                : `MODO: ${lens === "rocket" ? "EQUIPE ROCKET" : "PROFESSOR OAK"}`}
             </span>
             <span className="reorder-hint">
               {draftComplete
-                ? "Time fechado. Arraste as cartas para reordenar quem entra primeiro."
+                ? draftFor === "comp"
+                  ? "Equipe pronta. Arraste para ordenar — depois de SALVAR, ela é FIXA."
+                  : "Time fechado. Arraste as cartas para reordenar quem entra primeiro."
                 : `Rodada ${draftRound + 1} de ${TEAM_SIZE} — escolha um Pokémon para a ${draftRound + 1}ª vaga.`}
             </span>
           </div>
@@ -271,6 +406,11 @@ export default function App() {
                     ? `resta ${skipsLeft} ${lens === "rocket" ? "nesta rodada" : "no total"}`
                     : "sem pulos"}
                 </button>
+                {draftFor === "comp" && (
+                  <button className="btn btn-ghost small" onClick={() => setPhase("hub")}>
+                    ◂ CANCELAR E VOLTAR AO HUB
+                  </button>
+                )}
               </div>
             </>
           ) : (
@@ -304,33 +444,47 @@ export default function App() {
                   />
                 ))}
               </div>
+              {compErr && <p className="gate-err">{compErr}</p>}
               <div className="btn-row">
-                <button className="btn btn-gold" onClick={startRun}>
-                  DESAFIAR A ELITE ▸
-                </button>
+                {draftFor === "comp" ? (
+                  <>
+                    <button className="btn btn-gold" onClick={saveCompTeam}>
+                      SALVAR EQUIPE FIXA ▸
+                    </button>
+                    <button className="btn btn-ghost" onClick={() => setPhase("hub")}>
+                      ◂ CANCELAR
+                    </button>
+                  </>
+                ) : (
+                  <button className="btn btn-gold" onClick={startRun}>
+                    DESAFIAR A ELITE ▸
+                  </button>
+                )}
               </div>
             </>
           )}
         </section>
       )}
 
-      {phase !== "roll" && phase !== "intro" && (
+      {inBattleView && (
         <section>
           <div className="run-bar">
-            <div className="seg">
-              <button
-                className={"seg-btn" + (mode === "manual" ? " on" : "")}
-                onClick={() => setMode("manual")}
-              >
-                Batalha a batalha
-              </button>
-              <button
-                className={"seg-btn" + (mode === "auto" ? " on" : "")}
-                onClick={() => setMode("auto")}
-              >
-                Automático
-              </button>
-            </div>
+            {battleMode === "elite" && (
+              <div className="seg">
+                <button
+                  className={"seg-btn" + (mode === "manual" ? " on" : "")}
+                  onClick={() => setMode("manual")}
+                >
+                  Batalha a batalha
+                </button>
+                <button
+                  className={"seg-btn" + (mode === "auto" ? " on" : "")}
+                  onClick={() => setMode("auto")}
+                >
+                  Automático
+                </button>
+              </div>
+            )}
             <div className="seg">
               <button
                 className={"seg-btn" + (speed === "normal" ? " on" : "")}
@@ -345,17 +499,19 @@ export default function App() {
                 Rápida
               </button>
             </div>
-            <button className="btn btn-ghost small" onClick={fullReset}>
-              NOVA JORNADA
-            </button>
+            {battleMode === "elite" && (
+              <button className="btn btn-ghost small" onClick={fullReset}>
+                NOVA JORNADA
+              </button>
+            )}
           </div>
 
           <Bench team={team} />
 
           <div className="matches">
-            {ELITE.map((tr, i) => (
+            {lineup.map((tr, i) => (
               <MatchRow
-                key={tr.name}
+                key={tr.name + "-" + i}
                 trainer={tr}
                 result={results[i]}
                 live={current === i}
@@ -382,6 +538,15 @@ export default function App() {
               result={results[finalLoss]}
               stage={finalLoss + 1}
               onReset={fullReset}
+            />
+          )}
+
+          {phase === "compdone" && compMatch && account && (
+            <CompResultBox
+              result={compMatch}
+              slotsLeft={dailyStatus(account).left}
+              onSearchAgain={() => setPhase("search")}
+              onHub={() => setPhase("hub")}
             />
           )}
         </section>

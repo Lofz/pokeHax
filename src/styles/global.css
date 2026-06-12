@@ -591,3 +591,186 @@ body { background: var(--night); }
   .foe-side .f-head { justify-content: flex-start; flex-direction: row-reverse; }
   .foe-side .hp-track { flex-direction: row; }
 }
+
+/* ============================================================
+   Modo competitivo — Liga Pokémon
+   ============================================================ */
+
+/* ---------- formulários (gate) ---------- */
+.gate, .hub, .search { display: flex; flex-direction: column; gap: 16px; }
+.gate-form { display: flex; flex-direction: column; gap: 8px; max-width: 420px; }
+.gate-tabs { margin-bottom: 14px; }
+.pix-label {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  color: var(--cream-dim);
+  margin-top: 8px;
+}
+.pix-input {
+  font-family: "VT323", monospace;
+  font-size: 22px;
+  background: var(--panel2);
+  border: 3px solid var(--cream);
+  border-radius: 6px;
+  color: var(--cream);
+  padding: 8px 12px;
+  width: 100%;
+}
+.pix-input.mono { letter-spacing: 0.25em; }
+.pix-input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.pix-input::placeholder { color: #5c537e; }
+.gate-hint { color: var(--cream-dim); font-size: 18px; margin-bottom: 10px; }
+.gate-hint code { color: var(--gold); }
+.gate-warn {
+  border: 2px dashed var(--gold);
+  border-radius: 6px;
+  background: rgba(242, 182, 61, 0.08);
+  padding: 12px;
+  margin-bottom: 14px;
+  font-size: 19px;
+}
+.gate-err { color: var(--hpR); font-size: 18px; margin: 6px 0; }
+.link-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.link-url {
+  background: var(--night);
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 16px;
+  color: var(--gold);
+  word-break: break-all;
+  user-select: all;
+}
+
+/* ---------- selo de liga / delta de pontos ---------- */
+.league-badge {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  padding: 6px 9px;
+  border-radius: 4px;
+  border: 2px solid;
+  white-space: nowrap;
+}
+.league-badge.small { font-size: 7px; padding: 4px 6px; }
+.delta { font-family: "Press Start 2P", monospace; font-size: 10px; }
+.delta-pos { color: var(--gold); }
+.delta-neg { color: var(--hpR); }
+
+/* ---------- hub ---------- */
+.hub-head { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.hub-id { flex: 1; min-width: 220px; }
+.hub-name {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(13px, 3vw, 18px);
+  margin-bottom: 8px;
+}
+.hub-code { display: flex; align-items: center; gap: 10px; color: var(--cream-dim); font-size: 17px; flex-wrap: wrap; }
+.hub-code b { color: var(--gold); letter-spacing: 0.15em; }
+.hub-rank { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.hub-rating { font-family: "Press Start 2P", monospace; font-size: 14px; color: var(--cream); }
+.hub-wl { font-size: 18px; }
+.hub-exit { align-self: flex-start; }
+.hub-team-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.hub-daily { font-size: 17px; color: var(--cream-dim); }
+.hub-daily b { color: var(--gold); }
+.comp-note { color: var(--cream-dim); font-size: 17px; margin-top: 10px; }
+.comp-note b { color: var(--cream); }
+.comp-pitch { color: var(--cream-dim); font-size: 19px; margin-bottom: 12px; }
+.comp-pitch b { color: var(--gold); }
+
+/* ---------- histórico ---------- */
+.hist { display: flex; flex-direction: column; }
+.hist-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px dashed var(--line);
+  padding: 7px 2px;
+  font-size: 19px;
+  flex-wrap: wrap;
+}
+.hist-res { font-family: "Press Start 2P", monospace; font-size: 8px; min-width: 64px; }
+.hist-opp { flex: 1; min-width: 140px; }
+.hist-score { color: var(--cream-dim); }
+.hist-date { font-size: 16px; }
+
+/* ---------- busca de adversário ---------- */
+.opp-list { display: flex; flex-direction: column; gap: 14px; }
+.opp-card {
+  background: var(--panel);
+  border: 3px solid var(--cream);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(0, 0, 0, 0.45);
+  padding: 14px;
+}
+.opp-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.opp-id { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.opp-name { font-family: "Press Start 2P", monospace; font-size: 11px; }
+.opp-stats { display: flex; align-items: baseline; gap: 12px; font-size: 17px; }
+.opp-rating { font-family: "Press Start 2P", monospace; font-size: 11px; color: var(--cream); }
+.opp-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.opp-proj { font-size: 17px; color: var(--cream-dim); }
+
+/* vitrine pública da equipe (sem condição — regra 4) */
+.team-peek {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 8px;
+}
+.peek-mon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--panel2);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 4px;
+}
+.peek-name { font-family: "Press Start 2P", monospace; font-size: 7px; text-align: center; }
+.peek-types { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+
+/* ---------- resultado ranqueado ---------- */
+.result-rank {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.result-delta .delta { font-size: 16px; }
+.result-delta { font-family: "Press Start 2P", monospace; font-size: 11px; }
+.result-rating { font-size: 20px; display: inline-flex; align-items: center; gap: 8px; }
+.result-rating b { color: var(--gold); }
+.result-league { font-family: "Press Start 2P", monospace; font-size: 10px; margin-bottom: 14px; }
+
+/* texto apagado do competitivo (o .dim lá de cima é miniatura do placar) */
+.mut { color: var(--cream-dim); }

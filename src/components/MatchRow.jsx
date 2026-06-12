@@ -11,8 +11,10 @@ export function MatchRow({ trainer, result, live, snap }) {
         <span className="match-eyebrow">{trainer.title}</span>
         <span className="match-vs">
           <em>vs</em>{" "}
-          <b style={{ color: TYPE_COLOR[trainer.spec] }}>{trainer.name}</b>
-          <span className="match-spec">{TYPE_PT[trainer.spec].toUpperCase()}</span>
+          <b style={{ color: TYPE_COLOR[trainer.spec] ?? "var(--cream)" }}>{trainer.name}</b>
+          {TYPE_PT[trainer.spec] && (
+            <span className="match-spec">{TYPE_PT[trainer.spec].toUpperCase()}</span>
+          )}
         </span>
         <span className="match-score">
           {r.status === "pending" ? (
