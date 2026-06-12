@@ -104,13 +104,12 @@ export function MonCard({
       {draggable && (
         <div
           className="reorder"
-          role="button"
-          tabIndex={0}
           aria-label={`${slot}ª vaga — arraste para reordenar`}
           onPointerDown={onDragStart}
           onPointerMove={onDragMove}
           onPointerUp={onDragEnd}
           onPointerCancel={onDragEnd}
+          onLostPointerCapture={onDragEnd}
         >
           <span className="grip" aria-hidden="true">⠿</span>
           <span className="ord-slot">{slot}ª VAGA · ARRASTE</span>

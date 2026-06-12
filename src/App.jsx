@@ -115,8 +115,9 @@ export default function App() {
   function startDrag(e, id) {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     e.preventDefault();
+    // captura o ponteiro p/ receber os moves mesmo fora da alça
     e.currentTarget.setPointerCapture?.(e.pointerId);
-    dragRef.current = { id, pointerId: e.pointerId };
+    dragRef.current = { id };
     setDragId(id);
   }
 
@@ -139,9 +140,9 @@ export default function App() {
     });
   }
 
-  function endDrag(e) {
-    if (!dragRef.current) return;
-    e.currentTarget.releasePointerCapture?.(dragRef.current.pointerId);
+  // a captura é solta automaticamente no pointerup; aqui só limpamos o estado.
+  // Sempre limpa (sem early-return), para a carta nunca ficar presa em "dragging".
+  function endDrag() {
     dragRef.current = null;
     setDragId(null);
   }

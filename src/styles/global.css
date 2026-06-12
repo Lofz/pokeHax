@@ -240,7 +240,6 @@ body { background: var(--night); }
   -webkit-user-select: none;
 }
 .reorder:active { cursor: grabbing; }
-.reorder:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
 .grip { color: var(--silver); font-size: 16px; line-height: 1; letter-spacing: 2px; }
 .ord-slot {
   font-family: "Press Start 2P", monospace;
