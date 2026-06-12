@@ -24,8 +24,9 @@ function condition(p) {
  *   de "?" (Professor Oak — teste de conhecimento). A CONDIÇÃO, por ser sorte
  *   aleatória e não conhecimento, fica sempre à mostra.
  * - `draggable` mostra a alça de reordenação (rodapé). O arrasto usa Pointer
- *   Events (mouse + TOQUE), então funciona em desktop E mobile/iOS — onde o
- *   drag-and-drop HTML5 nativo não dispara. Os handlers vão na alça `.reorder`.
+ *   Events (mouse + TOQUE) → funciona em desktop E mobile/iOS. A alça só dispara
+ *   `onDragStart` (pointerdown); o move/fim ficam no container do grid, que é
+ *   estável (a captura do ponteiro não se perde quando as cartas reordenam).
  * - `onPick` transforma a carta num candidato clicável do draft (escolher 1).
  */
 export function MonCard({
@@ -35,8 +36,6 @@ export function MonCard({
   draggable = false,
   dragging = false,
   onDragStart,
-  onDragMove,
-  onDragEnd,
   onPick,
 }) {
   const blind = lens === "oak";
@@ -106,10 +105,6 @@ export function MonCard({
           className="reorder"
           aria-label={`${slot}ª vaga — arraste para reordenar`}
           onPointerDown={onDragStart}
-          onPointerMove={onDragMove}
-          onPointerUp={onDragEnd}
-          onPointerCancel={onDragEnd}
-          onLostPointerCapture={onDragEnd}
         >
           <span className="grip" aria-hidden="true">⠿</span>
           <span className="ord-slot">{slot}ª VAGA · ARRASTE</span>

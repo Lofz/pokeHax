@@ -62,7 +62,8 @@ export default function App() {
   const [speed, setSpeed] = useState("fast"); // fast | normal
   const [lens, setLens] = useState("rocket"); // rocket (revela poder) | oak (oculta)
   const [dragId, setDragId] = useState(null); // id do Pokémon sendo arrastado
-  const dragRef = useRef(null); // { id, pointerId } — estável durante o arrasto
+  const dragRef = useRef(null); // { id } — estável durante o arrasto
+  const gridRef = useRef(null); // container do grid: captura o ponteiro aqui
   const [paused, setPaused] = useState(false); // congela o playback p/ capturar telas
   // pulos gastos por rodada (re-sorteia os candidatos daquela rodada)
   const [skips, setSkips] = useState(() => Array(TEAM_SIZE).fill(0));
@@ -115,8 +116,9 @@ export default function App() {
   function startDrag(e, id) {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     e.preventDefault();
-    // captura o ponteiro p/ receber os moves mesmo fora da alça
-    e.currentTarget.setPointerCapture?.(e.pointerId);
+    // captura no GRID (não na carta): ele não se move quando as cartas
+    // reordenam, então a captura não se perde no meio do arrasto.
+    gridRef.current?.setPointerCapture?.(e.pointerId);
     dragRef.current = { id };
     setDragId(id);
   }
@@ -346,8 +348,15 @@ export default function App() {
           ) : (
             <>
               {/* key estável por id (sem índice): o reorder ao vivo move o DOM
-                  sem remontar, preservando a captura do ponteiro durante o arrasto */}
-              <div className="team-grid">
+                  sem remontar. O grid captura o ponteiro e ouve move/fim. */}
+              <div
+                className="team-grid"
+                ref={gridRef}
+                onPointerMove={onDragMove}
+                onPointerUp={endDrag}
+                onPointerCancel={endDrag}
+                onLostPointerCapture={endDrag}
+              >
                 {team.map((m, i) => (
                   <MonCard
                     key={m.id}
@@ -357,8 +366,6 @@ export default function App() {
                     draggable
                     dragging={dragId === m.id}
                     onDragStart={(e) => startDrag(e, m.id)}
-                    onDragMove={onDragMove}
-                    onDragEnd={endDrag}
                   />
                 ))}
               </div>
