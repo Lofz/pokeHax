@@ -23,8 +23,10 @@ function condition(p) {
  * - `lens` controla o PODER: "rocket" revela (Equipe Rocket), "oak" oculta atrás
  *   de "?" (Professor Oak — teste de conhecimento). A CONDIÇÃO, por ser sorte
  *   aleatória e não conhecimento, fica sempre à mostra.
- * - Props de `drag*` habilitam a reordenação por arrastar e soltar, só presente
- *   na fase de reordenação (depois do draft). Sem elas, a carta é estática.
+ * - `draggable` mostra a alça de reordenação (rodapé). O arrasto usa Pointer
+ *   Events (mouse + TOQUE) → funciona em desktop E mobile/iOS. A alça só dispara
+ *   `onDragStart` (pointerdown); o move/fim ficam no container do grid, que é
+ *   estável (a captura do ponteiro não se perde quando as cartas reordenam).
  * - `onPick` transforma a carta num candidato clicável do draft (escolher 1).
  */
 export function MonCard({
@@ -33,11 +35,7 @@ export function MonCard({
   slot,
   draggable = false,
   dragging = false,
-  over = false,
   onDragStart,
-  onDragEnter,
-  onDrop,
-  onDragEnd,
   onPick,
 }) {
   const blind = lens === "oak";
@@ -48,20 +46,13 @@ export function MonCard({
   const cls =
     "mon-card" +
     (mon.rare ? " rare" : "") +
-    (draggable ? " grab" : "") +
     (dragging ? " dragging" : "") +
-    (over ? " over" : "") +
     (pickable ? " pick" : "");
 
   return (
     <div
       className={cls}
-      draggable={draggable || undefined}
-      onDragStart={onDragStart}
-      onDragEnter={onDragEnter}
-      onDragOver={draggable ? (e) => e.preventDefault() : undefined}
-      onDrop={onDrop}
-      onDragEnd={onDragEnd}
+      data-mon-id={draggable ? mon.id : undefined}
       onClick={pickable ? onPick : undefined}
       role={pickable ? "button" : undefined}
       tabIndex={pickable ? 0 : undefined}
@@ -110,7 +101,11 @@ export function MonCard({
       </div>
 
       {draggable && (
-        <div className="reorder">
+        <div
+          className="reorder"
+          aria-label={`${slot}ª vaga — arraste para reordenar`}
+          onPointerDown={onDragStart}
+        >
           <span className="grip" aria-hidden="true">⠿</span>
           <span className="ord-slot">{slot}ª VAGA · ARRASTE</span>
         </div>

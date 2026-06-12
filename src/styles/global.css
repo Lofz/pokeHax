@@ -223,22 +223,23 @@ body { background: var(--night); }
   text-align: center;
 }
 
-/* ---------- reordenar time (drag and drop) ---------- */
-.mon-card.grab { cursor: grab; }
-.mon-card.grab:active { cursor: grabbing; }
+/* ---------- reordenar time (alça de arrasto, Pointer Events) ---------- */
 .mon-card.dragging { opacity: 0.4; }
-.mon-card.over {
-  border-color: var(--gold);
-  box-shadow: inset 0 0 0 3px var(--night), 0 0 0 3px var(--gold);
-}
+/* a alça `.reorder` é o handle: touch-action none impede o navegador de rolar
+   a página ao arrastar (essencial no mobile); o resto da carta rola normal */
 .reorder {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-top: 10px;
   border-top: 1px solid var(--line);
-  padding-top: 8px;
+  padding: 10px 4px 2px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
+.reorder:active { cursor: grabbing; }
 .grip { color: var(--silver); font-size: 16px; line-height: 1; letter-spacing: 2px; }
 .ord-slot {
   font-family: "Press Start 2P", monospace;

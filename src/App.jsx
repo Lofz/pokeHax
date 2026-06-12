@@ -61,8 +61,9 @@ export default function App() {
   const [mode, setMode] = useState("auto"); // auto | manual
   const [speed, setSpeed] = useState("fast"); // fast | normal
   const [lens, setLens] = useState("rocket"); // rocket (revela poder) | oak (oculta)
-  const [dragIdx, setDragIdx] = useState(null);
-  const [overIdx, setOverIdx] = useState(null);
+  const [dragId, setDragId] = useState(null); // id do Pokémon sendo arrastado
+  const dragRef = useRef(null); // { id } — estável durante o arrasto
+  const gridRef = useRef(null); // container do grid: captura o ponteiro aqui
   const [paused, setPaused] = useState(false); // congela o playback p/ capturar telas
   // pulos gastos por rodada (re-sorteia os candidatos daquela rodada)
   const [skips, setSkips] = useState(() => Array(TEAM_SIZE).fill(0));
@@ -106,15 +107,46 @@ export default function App() {
     });
   }
 
-  /** Move um Pokémon da posição `from` para `to` (drag and drop). */
-  function reorderTeam(from, to) {
-    if (from == null || to == null || from === to) return;
+  /**
+   * Reordenação por Pointer Events (mouse + toque → funciona no iOS, onde o
+   * drag-and-drop HTML5 não dispara). Captura o ponteiro na alça e, a cada
+   * movimento, descobre a carta sob o dedo via elementFromPoint e move o item
+   * arrastado para a posição dela (reorder ao vivo).
+   */
+  function startDrag(e, id) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.preventDefault();
+    // captura no GRID (não na carta): ele não se move quando as cartas
+    // reordenam, então a captura não se perde no meio do arrasto.
+    gridRef.current?.setPointerCapture?.(e.pointerId);
+    dragRef.current = { id };
+    setDragId(id);
+  }
+
+  function onDragMove(e) {
+    if (!dragRef.current) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const card = el && el.closest("[data-mon-id]");
+    if (!card) return;
+    const overId = Number(card.dataset.monId);
+    const id = dragRef.current.id;
+    if (!overId || overId === id) return;
     setTeam((t) => {
+      const from = t.findIndex((m) => m.id === id);
+      const to = t.findIndex((m) => m.id === overId);
+      if (from < 0 || to < 0 || from === to) return t;
       const next = [...t];
       const [moved] = next.splice(from, 1);
       next.splice(to, 0, moved);
       return next;
     });
+  }
+
+  // a captura é solta automaticamente no pointerup; aqui só limpamos o estado.
+  // Sempre limpa (sem early-return), para a carta nunca ficar presa em "dragging".
+  function endDrag() {
+    dragRef.current = null;
+    setDragId(null);
   }
 
   /** Recomeça a jornada do zero, parando em `toPhase`. */
@@ -128,8 +160,8 @@ export default function App() {
     setSnap(null);
     setNextIdx(null);
     setEvIdx(0);
-    setDragIdx(null);
-    setOverIdx(null);
+    setDragId(null);
+    dragRef.current = null;
     setPaused(false);
     eventsRef.current = [];
     setPhase(toPhase);
@@ -315,32 +347,25 @@ export default function App() {
             </>
           ) : (
             <>
-              <div className="team-grid">
+              {/* key estável por id (sem índice): o reorder ao vivo move o DOM
+                  sem remontar. O grid captura o ponteiro e ouve move/fim. */}
+              <div
+                className="team-grid"
+                ref={gridRef}
+                onPointerMove={onDragMove}
+                onPointerUp={endDrag}
+                onPointerCancel={endDrag}
+                onLostPointerCapture={endDrag}
+              >
                 {team.map((m, i) => (
                   <MonCard
-                    key={m.id + "-" + i}
+                    key={m.id}
                     mon={m}
                     lens={lens}
                     slot={i + 1}
                     draggable
-                    dragging={dragIdx === i}
-                    over={overIdx === i && dragIdx !== i}
-                    onDragStart={(e) => {
-                      setDragIdx(i);
-                      e.dataTransfer.effectAllowed = "move";
-                      e.dataTransfer.setData("text/plain", String(i));
-                    }}
-                    onDragEnter={() => setOverIdx(i)}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      reorderTeam(dragIdx, i);
-                      setDragIdx(null);
-                      setOverIdx(null);
-                    }}
-                    onDragEnd={() => {
-                      setDragIdx(null);
-                      setOverIdx(null);
-                    }}
+                    dragging={dragId === m.id}
+                    onDragStart={(e) => startDrag(e, m.id)}
                   />
                 ))}
               </div>
