@@ -9,8 +9,9 @@ import { getMon } from "./dex";
 
 const slot = (id, lvl) => ({ ...getMon(id), lvl });
 
-/** Sprites dos treinadores (artes Gold/Silver, self-hosted em public/trainers). */
-const SPRITE_BASE = "/trainers";
+/** Sprites dos treinadores (artes Gold/Silver, self-hosted em public/trainers).
+ *  BASE_URL respeita o subcaminho do deploy (ex: /pokeHax/) — ver vite.config. */
+const SPRITE_BASE = import.meta.env.BASE_URL + "trainers";
 
 /**
  * `buff` multiplica HP e ataque do time daquele treinador (ver battle.js).
