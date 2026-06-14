@@ -4,12 +4,18 @@ import { ELITE } from "../data/elite";
 import { MODE_SPRITE } from "../data/modes";
 import { MonCard } from "./MonCard";
 import { TypeChip, Sprite } from "./bits";
+import { track } from "../analytics/track";
 
 /** Pokémon de vitrine do tutorial (Typhlosion, com um potencial alto de exemplo). */
 const DEMO = { ...getMon(157), potential: 84 };
 
 export function Intro({ lens, setLens, onStart }) {
   const [openElite, setOpenElite] = useState(null);
+  /** Troca o modo e registra a escolha (só quando muda de fato). */
+  function choose(m) {
+    if (m !== lens) track("mode_selected", { mode: m });
+    setLens(m);
+  }
   return (
     <section className="intro">
       <div className="intro-block">
@@ -101,7 +107,7 @@ export function Intro({ lens, setLens, onStart }) {
         <div className="mode-grid">
           <button
             className={"mode-card" + (lens === "rocket" ? " on" : "")}
-            onClick={() => setLens("rocket")}
+            onClick={() => choose("rocket")}
             aria-pressed={lens === "rocket"}
           >
             <div className="mode-head">
@@ -116,7 +122,7 @@ export function Intro({ lens, setLens, onStart }) {
           </button>
           <button
             className={"mode-card" + (lens === "oak" ? " on" : "")}
-            onClick={() => setLens("oak")}
+            onClick={() => choose("oak")}
             aria-pressed={lens === "oak"}
           >
             <div className="mode-head">
