@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { Sprite } from "./bits";
+import { track } from "../analytics/track";
 
 /** Confete fixo (posições determinísticas → o print sai sempre igual). */
 const CONFETTI = [
@@ -33,6 +34,7 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
 
   async function handleShare() {
     if (!cardRef.current || busy) return;
+    track("share_clicked", { mode: lens, seed });
     setBusy(true);
     setMsg("");
     try {
