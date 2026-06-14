@@ -106,7 +106,7 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
             <b>MODO</b>
             {lens === "rocket" ? "ROCKET" : "OAK"}
           </span>
-          <span className="hof-brand">PokéHax</span>
+          <span className="hof-brand">PokéHax · Lofz</span>
         </div>
       </div>
 
