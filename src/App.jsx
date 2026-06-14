@@ -10,6 +10,7 @@ import { Bench } from "./components/Arena";
 import { Sprite } from "./components/bits";
 import { MatchRow } from "./components/MatchRow";
 import { ChampionBox, DefeatBox } from "./components/Finale";
+import { SiteFooter, SupportBanner } from "./components/About";
 import { track } from "./analytics/track";
 
 const freshResults = () =>
@@ -305,6 +306,7 @@ export default function App() {
           <br />
           Seu time leva a varrida — ou aplica o <strong>6 a 0</strong>?
         </p>
+        <SupportBanner />
       </header>
 
       {phase === "intro" && (
@@ -487,10 +489,7 @@ export default function App() {
         </section>
       )}
 
-      <footer className="foot">
-        Simulação não oficial feita por fãs · dados e sprites do pokedex.json ·
-        times da Elite baseados em Pokémon Gold/Silver
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
