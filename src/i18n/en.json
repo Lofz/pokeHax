@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "title": "PokéHax — Can you sweep the Elite Four on luck?",
+    "description": "Roll the dice: 6 Pokémon come up, each with a random potential (your hax). Face the Johto Elite Four and Champion Lance. Can you pull off the 6-0?"
+  },
+  "lang": {
+    "aria": "Language",
+    "pt": "Portuguese",
+    "en": "English"
+  },
+  "header": {
+    "eyebrow": "THE JOURNEY · SEED #{seed}",
+    "logoAria": "PokéHax — back to home screen",
+    "tagline": "Draft your team and face the Johto Elite Four and the Champion.\nDoes your team get swept — or pull off the **6-0**?"
+  },
+  "roll": {
+    "modePrefix": "MODE:",
+    "hintDone": "Team locked. Drag the cards to reorder who goes in first.",
+    "hintRound": "Round {n} of {total} — pick a Pokémon for slot {n}.",
+    "trayChoosing": "CHOOSING",
+    "trayEmpty": "SLOT",
+    "skipBtn": "↻ SKIP THESE {n}",
+    "skipLeftRound": "{n} left this round",
+    "skipLeftTotal": "{n} left in total",
+    "skipNone": "no skips left",
+    "challenge": "CHALLENGE THE ELITE ▸"
+  },
+  "run": {
+    "manual": "Battle by battle",
+    "auto": "Automatic",
+    "normal": "Normal",
+    "fast": "Fast",
+    "newJourney": "NEW JOURNEY",
+    "nextBattle": "NEXT BATTLE: {name} ▸"
+  },
+  "footer": "Unofficial fan-made simulation · data and sprites from pokedex.json · Elite teams based on Pokémon Gold/Silver",
+  "feed": {
+    "start": "The battle has begun!",
+    "faint": "{name} went down! K.O. by {by}",
+    "crit": "Critical hit by {name}!",
+    "super": "{name} landed a super-effective hit!"
+  },
+  "card": {
+    "power": "POWER",
+    "condition": "CONDITION",
+    "dexNo": "No.",
+    "choose": "▸ PICK",
+    "rare": "★ RARE",
+    "slotDrag": "SLOT {n} · DRAG",
+    "slotAria": "slot {n} — drag to reorder",
+    "cond": {
+      "exc": "EXCELLENT",
+      "boa": "GOOD",
+      "pad": "STANDARD",
+      "reg": "FAIR",
+      "ruim": "POOR"
+    }
+  },
+  "intro": {
+    "howTitle": "HOW TO PLAY",
+    "step1": "**Draft your team.** Six rounds: each one offers 3 Pokémon (out of the 251 from Johto and Kanto) and you pick 1 for the slot.",
+    "step2": "**Don't like the 3? Skip.** A skip re-rolls that round's candidates — but it's limited, and how many you get depends on the mode.",
+    "step3": "**Set the order.** With all 6 slots filled, drag the cards to decide who goes in first. The sequence is strategy.",
+    "step4": "**Sweep the Elite Four + the Champion.** Five matches, and the enemies get stronger each time — Lance is the final wall. Pull off the **6-0**, or get swept.",
+    "cardEyebrow": "THE CARD",
+    "cardP1": "**POWER** is the Pokémon's base strength (the sum of its stats). The higher it is, the stronger it is by nature.",
+    "cardP2": "**CONDITION** is how that individual is doing this run — from POOR to EXCELLENT, shown by a colored arrow (Winning Eleven style). An underdog in excellent condition can surprise the Elite — that's why **every Pokémon is playable**.",
+    "cardTip": "The card above changes with the mode you choose below. ↓",
+    "enemiesTitle": "WHO YOU'LL FACE",
+    "elitePower": "POWER {bst}",
+    "toggleOpen": "▲ CLOSE",
+    "toggleClosed": "▼ SEE TEAM",
+    "modeTitle": "CHOOSE THE MODE",
+    "modeRocketName": "TEAM ROCKET",
+    "modeRocketDesc": "You peek at the data: power and condition on display. Decisions with full information.",
+    "modeRocketSkip": "↻ 1 SKIP PER ROUND",
+    "modeOakName": "PROFESSOR OAK",
+    "modeOakDesc": "Power turns into a \"?\" (you still see the condition). It's your Pokémon knowledge that builds the team.",
+    "modeOakSkip": "↻ 1 SKIP FOR THE WHOLE DRAFT",
+    "start": "BUILD MY TEAM ▸"
+  },
+  "roles": {
+    "champion": "CHAMPION"
+  },
+  "match": {
+    "you": "YOU",
+    "youAria": "You",
+    "won": "WON",
+    "lost": "LOST",
+    "ko": "K.O.",
+    "next": "NEXT",
+    "vs": "vs",
+    "pauseTitle": "Pause",
+    "resumeTitle": "Resume",
+    "pauseAria": "Pause battle",
+    "resumeAria": "Resume battle"
+  },
+  "finale": {
+    "champion": "JOHTO CHAMPION",
+    "perfect": " · PERFECT SWEEP",
+    "koSummary": " · {n} K.O.",
+    "ribbon": "WELCOME TO THE HALL OF FAME!",
+    "monKO": "{n} K.O.",
+    "seed": "SEED",
+    "mode": "MODE",
+    "modeRocket": "ROCKET",
+    "modeOak": "OAK",
+    "shareBusy": "GENERATING…",
+    "shareBtn": "SHARE ▾",
+    "shareNewJourney": "NEW JOURNEY ▸",
+    "shareTitle": "PokéHax — Johto Champion",
+    "shareText": "I swept the Elite Four 6-0! 🏆",
+    "shareFile": "pokehax-champion-{seed}",
+    "shareSaved": "Image saved! Just post it.",
+    "shareError": "Couldn't generate the image — try a screen capture.",
+    "defeatEyebrow": "END OF JOURNEY",
+    "defeatTitle": "{name} BLACKED YOU OUT",
+    "defeatSub": "Your team fell {loss}–{win} in match {stage} of 5.",
+    "defeatRetry": "TRY AGAIN ▸"
+  },
+  "types": {
+    "Normal": "Normal",
+    "Fire": "Fire",
+    "Water": "Water",
+    "Electric": "Electric",
+    "Grass": "Grass",
+    "Ice": "Ice",
+    "Fighting": "Fighting",
+    "Poison": "Poison",
+    "Ground": "Ground",
+    "Flying": "Flying",
+    "Psychic": "Psychic",
+    "Bug": "Bug",
+    "Rock": "Rock",
+    "Ghost": "Ghost",
+    "Dragon": "Dragon",
+    "Dark": "Dark",
+    "Steel": "Steel",
+    "Fairy": "Fairy"
+  }
+}

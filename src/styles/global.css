@@ -41,6 +41,30 @@ body { background: var(--night); }
   );
 }
 .hdr, .page > section, .foot { max-width: 860px; margin: 0 auto; }
+.hdr { position: relative; }
+
+/* seletor de idioma (canto superior direito do cabeçalho) */
+.lang-switch {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.lang-btn {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--cream-dim);
+  background: transparent;
+  border: 0;
+  padding: 7px 9px;
+  cursor: pointer;
+}
+.lang-btn.on { background: var(--panel2); color: var(--gold); }
+.lang-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 
 .eyebrow {
   font-family: "Press Start 2P", monospace;
@@ -68,7 +92,7 @@ body { background: var(--night); }
 .logo-btn:hover { color: var(--gold); }
 .logo-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
 .tagline { color: var(--cream-dim); font-size: 22px; margin-bottom: 30px; }
-.tagline strong { color: var(--gold); }
+.tagline strong, .tagline b { color: var(--gold); }
 
 /* ---------- sprites ---------- */
 .sprite {

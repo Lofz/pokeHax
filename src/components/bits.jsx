@@ -1,9 +1,11 @@
-import { TYPE_COLOR, TYPE_PT } from "../data/typeChart";
+import { TYPE_COLOR } from "../data/typeChart";
+import { useT } from "../i18n";
 
-export function TypeChip({ t }) {
+export function TypeChip({ t: type }) {
+  const { t } = useT();
   return (
-    <span className="chip" style={{ background: TYPE_COLOR[t] }}>
-      {TYPE_PT[t]}
+    <span className="chip" style={{ background: TYPE_COLOR[type] }}>
+      {t("types." + type)}
     </span>
   );
 }

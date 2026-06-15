@@ -10,6 +10,7 @@ import { Bench } from "./components/Arena";
 import { Sprite } from "./components/bits";
 import { MatchRow } from "./components/MatchRow";
 import { ChampionBox, DefeatBox } from "./components/Finale";
+import { useT, Rich } from "./i18n";
 
 const freshResults = () =>
   ELITE.map(() => ({ status: "pending", score: [0, 0], koBy: {}, feed: [] }));
@@ -52,6 +53,7 @@ function buildDebugWin() {
 const DEBUG = DEBUG_WIN ? buildDebugWin() : null;
 
 export default function App() {
+  const { t, lang, setLang } = useT();
   const [seed, setSeed] = useState(() => newSeed());
   const [phase, setPhase] = useState(DEBUG ? "champion" : "intro"); // intro | roll | run | champion | defeat
   const [team, setTeam] = useState(() => (DEBUG ? DEBUG.team : [])); // preenchido pick a pick no draft
@@ -199,14 +201,24 @@ export default function App() {
     const base = reduced ? 40 : speed === "fast" ? 130 : 360;
     const delay = ev.k === "faint" ? base * 3 : ev.k === "send" ? base * 1.5 : base;
 
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setSnap({ ...ev });
 
       if (ev.k === "turn" && ev.note) {
         setResults((rs) =>
           rs.map((r, i) =>
             i === current
-              ? { ...r, feed: [...r.feed, { turn: ev.turn, kind: "info", text: ev.note.text }] }
+              ? {
+                  ...r,
+                  feed: [
+                    ...r.feed,
+                    {
+                      turn: ev.turn,
+                      kind: "info",
+                      text: t("feed." + ev.note.kind, { name: ev.note.name.toUpperCase() }),
+                    },
+                  ],
+                }
               : r
           )
         );
@@ -227,7 +239,10 @@ export default function App() {
                 {
                   turn: ev.turn,
                   kind: ev.side === "e" ? "ko-enemy" : "ko-player",
-                  text: `${ev.name.toUpperCase()} caiu! K.O. de ${ev.by.toUpperCase()}`,
+                  text: t("feed.faint", {
+                    name: ev.name.toUpperCase(),
+                    by: ev.by.toUpperCase(),
+                  }),
                 },
               ],
             };
@@ -248,8 +263,8 @@ export default function App() {
 
       setEvIdx((i) => i + 1);
     }, delay);
-    return () => clearTimeout(t);
-  }, [phase, current, evIdx, speed, reduced, paused]);
+    return () => clearTimeout(timer);
+  }, [phase, current, evIdx, speed, reduced, paused, t]);
 
   /* encadeamento automático entre batalhas */
   useEffect(() => {
@@ -263,21 +278,39 @@ export default function App() {
   return (
     <div className="page">
       <header className="hdr">
-        <div className="eyebrow">A JORNADA · SEED #{seed}</div>
+        <div className="lang-switch" role="group" aria-label={t("lang.aria")}>
+          <button
+            type="button"
+            className={"lang-btn" + (lang === "pt" ? " on" : "")}
+            onClick={() => setLang("pt")}
+            aria-pressed={lang === "pt"}
+            aria-label={t("lang.pt")}
+          >
+            PT
+          </button>
+          <button
+            type="button"
+            className={"lang-btn" + (lang === "en" ? " on" : "")}
+            onClick={() => setLang("en")}
+            aria-pressed={lang === "en"}
+            aria-label={t("lang.en")}
+          >
+            EN
+          </button>
+        </div>
+        <div className="eyebrow">{t("header.eyebrow", { seed })}</div>
         <h1 className="title">
           <button
             type="button"
             className="logo-btn"
             onClick={goHome}
-            aria-label="PokéHax — voltar à tela inicial"
+            aria-label={t("header.logoAria")}
           >
             PokéHax
           </button>
         </h1>
         <p className="tagline">
-          Drafte seu time e encare a Elite dos 4 de Johto e o Campeão.
-          <br />
-          Seu time leva a varrida — ou aplica o <strong>6 a 0</strong>?
+          <Rich text={t("header.tagline")} />
         </p>
       </header>
 
@@ -289,12 +322,13 @@ export default function App() {
         <section>
           <div className="reorder-bar">
             <span className={"lens-chip " + lens}>
-              MODO: {lens === "rocket" ? "EQUIPE ROCKET" : "PROFESSOR OAK"}
+              {t("roll.modePrefix")}{" "}
+              {lens === "rocket" ? t("intro.modeRocketName") : t("intro.modeOakName")}
             </span>
             <span className="reorder-hint">
               {draftComplete
-                ? "Time fechado. Arraste as cartas para reordenar quem entra primeiro."
-                : `Rodada ${draftRound + 1} de ${TEAM_SIZE} — escolha um Pokémon para a ${draftRound + 1}ª vaga.`}
+                ? t("roll.hintDone")
+                : t("roll.hintRound", { n: draftRound + 1, total: TEAM_SIZE })}
             </span>
           </div>
 
@@ -316,7 +350,9 @@ export default function App() {
                         <span className="tray-name">{m.name.toUpperCase()}</span>
                       </>
                     ) : (
-                      <span className="tray-empty">{active ? "ESCOLHENDO" : "VAGA"}</span>
+                      <span className="tray-empty">
+                        {active ? t("roll.trayChoosing") : t("roll.trayEmpty")}
+                      </span>
                     )}
                   </div>
                 );
@@ -337,11 +373,13 @@ export default function App() {
                   onClick={doSkip}
                   disabled={!canSkip}
                 >
-                  ↻ PULAR ESTES {CANDIDATES_PER_ROUND}
+                  {t("roll.skipBtn", { n: CANDIDATES_PER_ROUND })}
                   {" — "}
                   {skipsLeft > 0
-                    ? `resta ${skipsLeft} ${lens === "rocket" ? "nesta rodada" : "no total"}`
-                    : "sem pulos"}
+                    ? lens === "rocket"
+                      ? t("roll.skipLeftRound", { n: skipsLeft })
+                      : t("roll.skipLeftTotal", { n: skipsLeft })
+                    : t("roll.skipNone")}
                 </button>
               </div>
             </>
@@ -371,7 +409,7 @@ export default function App() {
               </div>
               <div className="btn-row">
                 <button className="btn btn-gold" onClick={startRun}>
-                  DESAFIAR A ELITE ▸
+                  {t("roll.challenge")}
                 </button>
               </div>
             </>
@@ -387,13 +425,13 @@ export default function App() {
                 className={"seg-btn" + (mode === "manual" ? " on" : "")}
                 onClick={() => setMode("manual")}
               >
-                Batalha a batalha
+                {t("run.manual")}
               </button>
               <button
                 className={"seg-btn" + (mode === "auto" ? " on" : "")}
                 onClick={() => setMode("auto")}
               >
-                Automático
+                {t("run.auto")}
               </button>
             </div>
             <div className="seg">
@@ -401,17 +439,17 @@ export default function App() {
                 className={"seg-btn" + (speed === "normal" ? " on" : "")}
                 onClick={() => setSpeed("normal")}
               >
-                Normal
+                {t("run.normal")}
               </button>
               <button
                 className={"seg-btn" + (speed === "fast" ? " on" : "")}
                 onClick={() => setSpeed("fast")}
               >
-                Rápida
+                {t("run.fast")}
               </button>
             </div>
             <button className="btn btn-ghost small" onClick={fullReset}>
-              NOVA JORNADA
+              {t("run.newJourney")}
             </button>
           </div>
 
@@ -435,7 +473,7 @@ export default function App() {
           {phase === "run" && nextIdx != null && mode === "manual" && (
             <div className="btn-row">
               <button className="btn btn-gold" onClick={() => startBattle(nextIdx)}>
-                PRÓXIMA BATALHA: {ELITE[nextIdx].name} ▸
+                {t("run.nextBattle", { name: ELITE[nextIdx].name })}
               </button>
             </div>
           )}
@@ -461,10 +499,7 @@ export default function App() {
         </section>
       )}
 
-      <footer className="foot">
-        Simulação não oficial feita por fãs · dados e sprites do pokedex.json ·
-        times da Elite baseados em Pokémon Gold/Silver
-      </footer>
+      <footer className="foot">{t("footer")}</footer>
     </div>
   );
 }

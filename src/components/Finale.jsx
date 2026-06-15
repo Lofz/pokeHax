@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { Sprite } from "./bits";
+import { useT } from "../i18n";
 
 /** Confete fixo (posições determinísticas → o print sai sempre igual). */
 const CONFETTI = [
@@ -19,6 +20,7 @@ const CONFETTI = [
  * (celular) ou cai num download (desktop).
  */
 export function ChampionBox({ team, results, onReset, seed, lens }) {
+  const { t } = useT();
   const cardRef = useRef(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -42,24 +44,26 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
         backgroundColor: "#16122b",
       });
       const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], `pokehax-campeao-${seed}.png`, { type: "image/png" });
+      const file = new File([blob], t("finale.shareFile", { seed }) + ".png", {
+        type: "image/png",
+      });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: "PokéHax — Campeão de Johto",
-          text: "Apliquei o 6 a 0 na Elite dos 4! 🏆",
+          title: t("finale.shareTitle"),
+          text: t("finale.shareText"),
         });
       } else {
         const a = document.createElement("a");
         a.href = dataUrl;
         a.download = file.name;
         a.click();
-        setMsg("Imagem salva! É só postar.");
+        setMsg(t("finale.shareSaved"));
       }
     } catch (e) {
       if (e?.name !== "AbortError") {
         console.error(e);
-        setMsg("Não consegui gerar a imagem — tente um print da tela.");
+        setMsg(t("finale.shareError"));
       }
     } finally {
       setBusy(false);
@@ -70,7 +74,8 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
     <div className="hof-wrap">
       <div className="hof-card" ref={cardRef}>
         <span className="hof-eyebrow">
-          CAMPEÃO DE JOHTO{losses === 0 ? " · VARRIDA PERFEITA" : ` · ${totalKO} K.O.`}
+          {t("finale.champion")}
+          {losses === 0 ? t("finale.perfect") : t("finale.koSummary", { n: totalKO })}
         </span>
 
         <div className="hof-stage">
@@ -87,22 +92,22 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
                 {i === mvpIdx && m.ko > 0 && <span className="hof-fame-mvp">★</span>}
                 <Sprite src={m.image.thumbnail} alt={m.name} size={84} className="hof-art" />
                 <span className="hof-fame-name">{m.name.toUpperCase()}</span>
-                <span className="hof-fame-ko">{m.ko} K.O.</span>
+                <span className="hof-fame-ko">{t("finale.monKO", { n: m.ko })}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="hof-ribbon">BEM-VINDO AO HALL DA FAMA!</div>
+        <div className="hof-ribbon">{t("finale.ribbon")}</div>
 
         <div className="hof-strip">
           <span className="hof-strip-item">
-            <b>SEED</b>
+            <b>{t("finale.seed")}</b>
             {seed}
           </span>
           <span className="hof-strip-item">
-            <b>MODO</b>
-            {lens === "rocket" ? "ROCKET" : "OAK"}
+            <b>{t("finale.mode")}</b>
+            {lens === "rocket" ? t("finale.modeRocket") : t("finale.modeOak")}
           </span>
           <span className="hof-brand">PokéHax</span>
         </div>
@@ -110,10 +115,10 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
 
       <div className="hof-actions">
         <button className="btn btn-gold" onClick={handleShare} disabled={busy}>
-          {busy ? "GERANDO…" : "COMPARTILHAR ▾"}
+          {busy ? t("finale.shareBusy") : t("finale.shareBtn")}
         </button>
         <button className="btn btn-ghost" onClick={onReset}>
-          NOVA JORNADA ▸
+          {t("finale.shareNewJourney")}
         </button>
       </div>
       {msg && <div className="hof-msg">{msg}</div>}
@@ -122,15 +127,16 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
 }
 
 export function DefeatBox({ trainer, result, stage, onReset }) {
+  const { t } = useT();
   return (
     <div className="finale lose-box">
-      <div className="finale-eyebrow">FIM DE JORNADA</div>
-      <div className="finale-title red">{trainer.name} APAGOU TODAS AS LUZES</div>
+      <div className="finale-eyebrow">{t("finale.defeatEyebrow")}</div>
+      <div className="finale-title red">{t("finale.defeatTitle", { name: trainer.name })}</div>
       <p className="finale-sub">
-        Seu time caiu por {result.score[1]} a {result.score[0]} no confronto {stage} de 5.
+        {t("finale.defeatSub", { loss: result.score[1], win: result.score[0], stage })}
       </p>
       <button className="btn btn-gold" onClick={onReset}>
-        TENTAR DE NOVO ▸
+        {t("finale.defeatRetry")}
       </button>
     </div>
   );

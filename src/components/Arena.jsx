@@ -1,5 +1,6 @@
 import { Sprite, HPBar, BallTray } from "./bits";
 import { TEAM_SIZE } from "../data/pool";
+import { useT } from "../i18n";
 
 export function Bench({ team }) {
   return (
@@ -20,6 +21,7 @@ export function Bench({ team }) {
  * acima de cada Pokémon, no estilo do jogo padrão.
  */
 export function Arena({ snap, feed, enemyTotal }) {
+  const { t } = useT();
   const [enemyKO, yourKO] = snap.score; // inimigos derrubados / seus caídos
   return (
     <div className="arena">
@@ -49,7 +51,7 @@ export function Arena({ snap, feed, enemyTotal }) {
           <div className="feed-line info">
             <span className="f-turn">1'</span>
             <span className="f-dot">›</span>
-            <span>A batalha começou!</span>
+            <span>{t("feed.start")}</span>
           </div>
         )}
         {feed.slice(-7).map((f, j) => (

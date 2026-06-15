@@ -126,11 +126,12 @@ export function simulateBattle(playerTeam, trainer, seedInt) {
         A.atk * TUNING.dmg * eff * (0.82 + 0.36 * rng()) * (crit ? TUNING.critMult : 1);
       D.hp -= dmg;
 
+      // Nota estruturada (sem idioma): o componente formata com o i18n.
       if (!note && D.hp > 0) {
         if (crit && rng() < 0.4) {
-          note = { side, text: `Golpe crítico de ${A.name.toUpperCase()}!` };
+          note = { side, kind: "crit", name: A.name };
         } else if (isSuper && rng() < 0.22) {
-          note = { side, text: `${A.name.toUpperCase()} acertou um golpe super efetivo!` };
+          note = { side, kind: "super", name: A.name };
         }
       }
     }
