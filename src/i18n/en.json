@@ -33,7 +33,6 @@
     "newJourney": "NEW JOURNEY",
     "nextBattle": "NEXT BATTLE: {name} ▸"
   },
-  "footer": "Unofficial fan-made simulation · data and sprites from pokedex.json · Elite teams based on Pokémon Gold/Silver",
   "feed": {
     "start": "The battle has begun!",
     "faint": "{name} went down! K.O. by {by}",

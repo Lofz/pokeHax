@@ -33,7 +33,6 @@
     "newJourney": "NOVA JORNADA",
     "nextBattle": "PRÓXIMA BATALHA: {name} ▸"
   },
-  "footer": "Simulação não oficial feita por fãs · dados e sprites do pokedex.json · times da Elite baseados em Pokémon Gold/Silver",
   "feed": {
     "start": "A batalha começou!",
     "faint": "{name} caiu! K.O. de {by}",
