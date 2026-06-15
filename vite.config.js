@@ -1,10 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Em produção o site vive num subcaminho do GitHub Pages (lofz.github.io/pokeHax/),
-// então o build usa base "/pokeHax/". Em dev continua na raiz ("/").
-// Os assets de public/ devem ser referenciados via import.meta.env.BASE_URL.
-export default defineConfig(({ command }) => ({
+// O site é servido na RAIZ do domínio próprio (www.pokehax.com), então a base é
+// "/" — igual em dev e no build. O CNAME do GitHub Pages fica em public/CNAME.
+// (Histórico: quando morava em lofz.github.io/pokeHax/, a base do build era
+// "/pokeHax/". Se algum dia voltar a um subcaminho, reintroduzir a base.)
+export default defineConfig({
   plugins: [react()],
-  base: command === "build" ? "/pokeHax/" : "/",
-}));
+  base: "/",
+});
