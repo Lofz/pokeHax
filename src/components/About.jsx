@@ -44,9 +44,10 @@ function Icon({ id }) {
 }
 
 /**
- * Lista de redes/apoio, reaproveitada no rodapé e no modal. Com `LINKS_ACTIVE`
- * ligado, cada item é um link real; desligado, vira `<span>` não-clicável (só
- * imagem) — pra subir sem URLs ainda, sem 404.
+ * Lista de redes/apoio, reaproveitada no rodapé e no modal. Um item vira link
+ * real quando `LINKS_ACTIVE` global está ligado OU quando ele tem `active: true`
+ * (ver links.js); senão, vira `<span>` não-clicável (só imagem) — pra subir sem
+ * URLs ainda, sem 404, e liberar um link por vez.
  */
 function SocialRow({ where }) {
   const items = SOCIAL.filter((s) => s.url);
@@ -54,17 +55,18 @@ function SocialRow({ where }) {
   return (
     <div className="soc-row">
       {items.map((s) => {
+        const live = LINKS_ACTIVE || !!s.active;
         const cls =
           "soc-link" +
           (s.id === "donate" ? " soc-donate" : "") +
-          (LINKS_ACTIVE ? "" : " soc-static");
+          (live ? "" : " soc-static");
         const inner = (
           <>
             <Icon id={s.id} />
             {s.id === "donate" && <span className="soc-donate-txt">APOIAR</span>}
           </>
         );
-        return LINKS_ACTIVE ? (
+        return live ? (
           <a
             key={s.id}
             className={cls}
@@ -231,6 +233,7 @@ const CUBONE = getMon(104);
 
 export function SupportBanner() {
   if (!DONATE) return null;
+  const live = LINKS_ACTIVE || !!DONATE.active;
   const inner = (
     <>
       <span className="support-mon">
@@ -244,8 +247,8 @@ export function SupportBanner() {
       </span>
     </>
   );
-  // LINKS_ACTIVE desligado → mostra o chip como imagem (sem <a>, sem clique).
-  return LINKS_ACTIVE ? (
+  // Sem link ativo → mostra o chip como imagem (sem <a>, sem clique).
+  return live ? (
     <a
       className="support"
       href={DONATE.url}

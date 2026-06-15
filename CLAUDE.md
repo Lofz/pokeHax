@@ -61,7 +61,7 @@ Wrapper em `src/analytics/track.js` (`autocapture: false` — só os eventos aba
 
 ## Sobre / rodapé / links
 - `src/components/About.jsx` — `SupportBanner` (pedacinho de apoio compacto no canto sup. direito do cabeçalho: **Cubone** [easter egg] + balãozinho GB com pílula APOIAR; o `<a>` todo é o link de doação; só renderiza se houver URL `donate` em links.js) + `SiteFooter` (rodapé) + modal "Sobre / Privacidade" (abas, fecha no ESC/scrim, trava scroll). Ícones de marca são **SVG monocromático** (`currentColor`), não emoji; moedas são glifos CSS.
-- `src/data/links.js` — **fonte única** dos links externos: `SOCIAL` (x/tiktok/discord/donate — itens com `url` vazio somem), `LINKS_ACTIVE` (liga os cliques; **`false`** = tudo aparece mas sem `<a>`/sem clique = "só imagem", pra subir com URLs placeholder sem 404 — trocar p/ `true` ao preencher as URLs reais), `CONTACT_EMAIL`, `PRIVACY_UPDATED`.
+- `src/data/links.js` — **fonte única** dos links externos: `SOCIAL` (x/tiktok/discord/donate — itens com `url` vazio somem; item com **`active: true`** vira link clicável mesmo com `LINKS_ACTIVE` off, pra liberar um link por vez — ex.: o Ko-fi de apoio já é `active`), `LINKS_ACTIVE` (liga os cliques de **todos** de uma vez; **`false`** = o que não for `active` aparece mas sem `<a>`/sem clique = "só imagem", pra subir com URLs placeholder sem 404), `CONTACT_EMAIL`, `PRIVACY_UPDATED`.
 
 ## Roadmap / ideias em aberto
 - Error boundary no topo (evitar tela branca em produção).
