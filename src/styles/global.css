@@ -42,6 +42,28 @@ body { background: var(--night); }
 }
 .hdr, .page > section, .foot { max-width: 860px; margin: 0 auto; }
 
+/* seletor de idioma: topo do cabeçalho, à esquerda (o canto direito é do
+   Cubone de apoio, .support). Fica no fluxo normal, acima do eyebrow. */
+.lang-switch {
+  display: inline-flex;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.lang-btn {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--cream-dim);
+  background: transparent;
+  border: 0;
+  padding: 7px 9px;
+  cursor: pointer;
+}
+.lang-btn.on { background: var(--panel2); color: var(--gold); }
+.lang-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
 .eyebrow {
   font-family: "Press Start 2P", monospace;
   font-size: 9px;
@@ -68,7 +90,7 @@ body { background: var(--night); }
 .logo-btn:hover { color: var(--gold); }
 .logo-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
 .tagline { color: var(--cream-dim); font-size: 22px; margin-bottom: 30px; }
-.tagline strong { color: var(--gold); }
+.tagline strong, .tagline b { color: var(--gold); }
 
 /* ---------- sprites ---------- */
 .sprite {

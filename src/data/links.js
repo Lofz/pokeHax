@@ -28,5 +28,6 @@ export const LINKS_ACTIVE = false;
 /** Contato para feedback/erros. Deixe "" para esconder a linha no "Sobre". */
 export const CONTACT_EMAIL = "";
 
-/** Data da última revisão da Política de Privacidade (exibida no texto). */
-export const PRIVACY_UPDATED = "14 de junho de 2026";
+/** Data da última revisão da Política de Privacidade (ISO; formatada por idioma
+ *  no componente via Intl — PT: "14 de junho de 2026", EN: "June 14, 2026"). */
+export const PRIVACY_UPDATED = "2026-06-14";
