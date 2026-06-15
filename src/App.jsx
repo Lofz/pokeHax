@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { newSeed, hashSeed } from "./engine/rng";
 import { simulateBattle } from "./engine/battle";
 import { rollCandidates, TEAM_SIZE, CANDIDATES_PER_ROUND } from "./data/pool";
-import { ELITE } from "./data/elite";
+import { LEAGUES, getLeague, DEFAULT_LEAGUE_ID } from "./data/elite";
 import { getMon } from "./data/dex";
 import { MonCard } from "./components/MonCard";
 import { Intro } from "./components/Intro";
@@ -14,8 +14,8 @@ import { SiteFooter, SupportBanner } from "./components/About";
 import { track } from "./analytics/track";
 import { useT, Rich } from "./i18n";
 
-const freshResults = () =>
-  ELITE.map(() => ({ status: "pending", score: [0, 0], koBy: {}, feed: [] }));
+const freshResults = (roster) =>
+  roster.map(() => ({ status: "pending", score: [0, 0], koBy: {}, feed: [] }));
 
 /**
  * DEBUG — força a tela de vitória (Hall da Fama) para desenvolvimento rápido.
@@ -44,7 +44,8 @@ function buildDebugWin() {
     { [n[0]]: 2, [n[1]]: 2, [n[5]]: 2 },
   ];
   const losses = [1, 0, 2, 1, 3];
-  const results = ELITE.map((tr, i) => ({
+  const roster = getLeague(DEFAULT_LEAGUE_ID).roster;
+  const results = roster.map((tr, i) => ({
     status: "win",
     score: [tr.team.length, losses[i]],
     koBy: koByPer[i],
@@ -57,9 +58,13 @@ const DEBUG = DEBUG_WIN ? buildDebugWin() : null;
 export default function App() {
   const { t, lang, setLang } = useT();
   const [seed, setSeed] = useState(() => newSeed());
+  const [leagueId, setLeagueId] = useState(DEFAULT_LEAGUE_ID); // qual Elite enfrentar (carrossel)
+  const league = useMemo(() => getLeague(leagueId), [leagueId]);
   const [phase, setPhase] = useState(DEBUG ? "champion" : "intro"); // intro | roll | run | champion | defeat
   const [team, setTeam] = useState(() => (DEBUG ? DEBUG.team : [])); // preenchido pick a pick no draft
-  const [results, setResults] = useState(() => (DEBUG ? DEBUG.results : freshResults()));
+  const [results, setResults] = useState(() =>
+    DEBUG ? DEBUG.results : freshResults(getLeague(DEFAULT_LEAGUE_ID).roster)
+  );
   const [current, setCurrent] = useState(-1);
   const [snap, setSnap] = useState(null);
   const [mode, setMode] = useState("auto"); // auto | manual
@@ -160,7 +165,7 @@ export default function App() {
     setSeed(s);
     setTeam([]);
     setSkips(Array(TEAM_SIZE).fill(0));
-    setResults(freshResults());
+    setResults(freshResults(league.roster));
     setCurrent(-1);
     setSnap(null);
     setNextIdx(null);
@@ -178,8 +183,14 @@ export default function App() {
   };
   const goHome = () => resetJourney("intro");
 
+  /** Troca a liga (no carrossel da intro) e redimensiona os resultados. */
+  function chooseLeague(id) {
+    setLeagueId(id);
+    setResults(freshResults(getLeague(id).roster));
+  }
+
   function startBattle(idx) {
-    const sim = simulateBattle(team, ELITE[idx], hashSeed(seed + ":" + idx));
+    const sim = simulateBattle(team, league.roster[idx], hashSeed(seed + ":" + idx), league.playerLvl);
     eventsRef.current = sim.events;
     setEvIdx(0);
     setCurrent(idx);
@@ -270,7 +281,7 @@ export default function App() {
         track("stage_result", {
           ...common,
           stage: idx + 1, // etapa 1..5
-          trainer: ELITE[idx].name,
+          trainer: league.roster[idx].name,
           win: ev.win,
           score_for: ev.score?.[0] ?? null,
           score_against: ev.score?.[1] ?? null,
@@ -280,9 +291,9 @@ export default function App() {
         );
         setCurrent(-1);
         if (!ev.win) {
-          track("defeat", { ...common, stage: idx + 1, trainer: ELITE[idx].name });
+          track("defeat", { ...common, stage: idx + 1, trainer: league.roster[idx].name });
           setPhase("defeat");
-        } else if (idx === ELITE.length - 1) {
+        } else if (idx === league.roster.length - 1) {
           track("champion", { ...common });
           setPhase("champion");
         } else setNextIdx(idx + 1);
@@ -343,7 +354,14 @@ export default function App() {
       </header>
 
       {phase === "intro" && (
-        <Intro lens={lens} setLens={setLens} onStart={() => setPhase("roll")} />
+        <Intro
+          lens={lens}
+          setLens={setLens}
+          onStart={() => setPhase("roll")}
+          league={league}
+          leagues={LEAGUES}
+          onLeague={chooseLeague}
+        />
       )}
 
       {phase === "roll" && (
@@ -484,7 +502,7 @@ export default function App() {
           <Bench team={team} />
 
           <div className="matches">
-            {ELITE.map((tr, i) => (
+            {league.roster.map((tr, i) => (
               <MatchRow
                 key={tr.name}
                 trainer={tr}
@@ -501,7 +519,7 @@ export default function App() {
           {phase === "run" && nextIdx != null && mode === "manual" && (
             <div className="btn-row">
               <button className="btn btn-gold" onClick={() => startBattle(nextIdx)}>
-                {t("run.nextBattle", { name: ELITE[nextIdx].name })}
+                {t("run.nextBattle", { name: league.roster[nextIdx].name })}
               </button>
             </div>
           )}
@@ -513,12 +531,13 @@ export default function App() {
               onReset={fullReset}
               seed={seed}
               lens={lens}
+              region={t("leagues." + leagueId + ".region")}
             />
           )}
 
           {phase === "defeat" && finalLoss >= 0 && (
             <DefeatBox
-              trainer={ELITE[finalLoss]}
+              trainer={league.roster[finalLoss]}
               result={results[finalLoss]}
               stage={finalLoss + 1}
               onReset={fullReset}

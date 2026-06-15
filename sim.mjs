@@ -1,11 +1,16 @@
 /**
- * sim.mjs — Monte Carlo de dificuldade do PokéHax.
+ * sim.mjs — Monte Carlo de dificuldade do PokéHax (multi-liga).
  *
  * Usa a ENGINE DE BATALHA REAL (src/engine/battle.js, com os buffs atuais).
  * O draft, a normalização do dataset e os times da Elite são reconstruídos
  * aqui (são "dados/plumbing"); a simulação de combate é a do jogo.
  *
- * Rodar:  node sim.mjs [N]
+ * Cobre as DUAS ligas (Kanto e Johto) e — crucial — passa o `playerLvl` de
+ * cada uma. O nível do jogador É um lever de equilíbrio: player e inimigo têm
+ * níveis diferentes, então os fatores de nível NÃO se cancelam.
+ *
+ * Rodar:
+ *   ./node_modules/.bin/esbuild sim.mjs --bundle --platform=node --format=esm --outfile=sim.bundle.mjs && node sim.bundle.mjs 4000
  */
 import { readFileSync } from "fs";
 import { mulberry32, hashSeed } from "./src/engine/rng.js";
@@ -58,24 +63,43 @@ function rollCandidates(seed, round, pickedIds, nonce = 0) {
   return out;
 }
 
-/* ---- Elite (ids/níveis/buff espelhados de elite.js) ---- */
-const ELITE_DEF = [
-  { name: "WILL", title: "ELITE 1", spec: "Psychic", buff: 1.11, team: [[178,40],[124,41],[103,41],[80,41],[178,42]] },
-  { name: "KOGA", title: "ELITE 2", spec: "Poison", buff: 1.34, team: [[168,40],[49,41],[205,43],[89,42],[169,44]] },
-  { name: "BRUNO", title: "ELITE 3", spec: "Fighting", buff: 1.67, team: [[237,42],[106,42],[107,42],[95,43],[68,46]] },
-  { name: "KAREN", title: "ELITE 4", spec: "Dark", buff: 1.31, team: [[197,42],[45,42],[94,45],[198,44],[229,47]] },
-  { name: "LANCE", title: "CAMPEÃO", spec: "Dragon", buff: 1.02, team: [[130,44],[149,47],[149,47],[142,46],[6,46],[149,50]] },
-];
-const ELITE = ELITE_DEF.map((t) => ({ ...t, team: t.team.map(([id, lvl]) => ({ ...getMon(id), lvl })) }));
+/* ---- Ligas (ids/níveis/buff espelhados de elite.js) ---- */
+const LEAGUE_DEFS = {
+  kanto: {
+    playerLvl: 58,
+    trainers: [
+      { name: "LORELEI", buff: 1.16, team: [[87, 52], [91, 51], [80, 52], [124, 54], [131, 54]] },
+      { name: "BRUNO", buff: 1.61, team: [[95, 51], [107, 53], [106, 53], [95, 54], [68, 56]] },
+      { name: "AGATHA", buff: 1.29, team: [[94, 53], [42, 54], [93, 53], [24, 56], [94, 58]] },
+      { name: "LANCE", buff: 1.14, team: [[130, 56], [148, 54], [148, 54], [142, 58], [149, 60]] },
+      { name: "BLUE", buff: 1.17, team: [[18, 59], [65, 57], [112, 59], [59, 58], [103, 59], [9, 63]] },
+    ],
+  },
+  johto: {
+    playerLvl: 46,
+    trainers: [
+      { name: "WILL", buff: 1.11, team: [[178, 40], [124, 41], [103, 41], [80, 41], [178, 42]] },
+      { name: "KOGA", buff: 1.34, team: [[168, 40], [49, 41], [205, 43], [89, 42], [169, 44]] },
+      { name: "BRUNO", buff: 1.67, team: [[237, 42], [106, 42], [107, 42], [95, 43], [68, 46]] },
+      { name: "KAREN", buff: 1.31, team: [[197, 42], [45, 42], [94, 45], [198, 44], [229, 47]] },
+      { name: "LANCE", buff: 1.02, team: [[130, 44], [149, 47], [149, 47], [142, 46], [6, 46], [149, 50]] },
+    ],
+  },
+};
+const hydrate = (def) =>
+  def.trainers.map((t) => ({
+    name: t.name,
+    buff: t.buff,
+    team: t.team.map(([id, lvl]) => ({ ...getMon(id), lvl })),
+  }));
 
-/* ---- estratégias de draft ---- */
+/* ---- estratégias de draft (compartilhadas entre ligas) ---- */
 const score = (m) => m.bst + (m.potential - 50) * 2; // força + peso ao potencial
 const STRATS = {
   "aleatório": (c) => c[Math.floor(Math.random() * c.length)],
   "força (BST)": (c) => c.reduce((a, b) => (b.bst > a.bst ? b : a)),
   "esperto (BST+pot)": (c) => c.reduce((a, b) => (score(b) > score(a) ? b : a)),
 };
-
 function draftTeam(seed, choose) {
   const team = [];
   for (let round = 0; round < TEAM_SIZE; round++) {
@@ -85,47 +109,42 @@ function draftTeam(seed, choose) {
   return team;
 }
 
-/** Roda os 5 confrontos; devolve o estágio alcançado (0..5). 5 = campeão. */
-function runCampaign(seed, team) {
+/** Roda os confrontos de UMA liga; devolve o estágio alcançado (0..len). */
+function runCampaign(ELITE, playerLvl, seed, team) {
   for (let i = 0; i < ELITE.length; i++) {
-    const sim = simulateBattle(team, ELITE[i], hashSeed(seed + ":" + i));
+    const sim = simulateBattle(team, ELITE[i], hashSeed(seed + ":" + i), playerLvl);
     if (!sim.win) return i;
   }
   return ELITE.length;
 }
 
-/* ---- execução ---- */
-console.log(`PokéHax — Monte Carlo (${N} campanhas por estratégia)\n`);
-const labels = ELITE_DEF.map((t) => t.name);
-
-for (const [name, choose] of Object.entries(STRATS)) {
-  const hist = Array(ELITE.length + 1).fill(0); // estágio em que parou
-  for (let i = 0; i < N; i++) {
-    const seed = "S" + i;
-    const team = draftTeam(seed, choose);
-    hist[runCampaign(seed, team)]++;
+/* ---- relatório por estratégia (estado ATUAL dos buffs de elite.js) ---- */
+function report(name, ELITE, playerLvl) {
+  console.log(`\n══════ LIGA ${name.toUpperCase()} — estado atual · player lvl ${playerLvl} (${N}/estratégia) ══════`);
+  const labels = ELITE.map((t) => t.name);
+  for (const [sname, choose] of Object.entries(STRATS)) {
+    const hist = Array(ELITE.length + 1).fill(0);
+    for (let i = 0; i < N; i++) {
+      const seed = "S" + i;
+      hist[runCampaign(ELITE, playerLvl, seed, draftTeam(seed, choose))]++;
+    }
+    const champ = hist[ELITE.length];
+    console.log(`── ${sname} ──`);
+    console.log(`   CAMPEÃO: ${((champ / N) * 100).toFixed(1)}%  (${champ}/${N})`);
+    let reached = N;
+    const rows = [];
+    for (let i = 0; i < ELITE.length; i++) {
+      const won = reached - hist[i];
+      rows.push(`${labels[i]}: ${((won / reached) * 100).toFixed(0)}%`);
+      reached = won;
+    }
+    console.log(`   vitória por etapa (de quem chegou): ${rows.join("  |  ")}`);
+    console.log(`   parou em: ${labels.map((l, i) => `${l} ${((hist[i] / N) * 100).toFixed(0)}%`).join("  ")}`);
   }
-  const champ = hist[ELITE.length];
-  console.log(`── Estratégia: ${name} ──`);
-  console.log(`   CAMPEÃO: ${((champ / N) * 100).toFixed(1)}%  (${champ}/${N})`);
-  // taxa de vitória condicional por confronto (de quem chegou nele)
-  let reached = N;
-  const rows = [];
-  for (let i = 0; i < ELITE.length; i++) {
-    const won = reached - hist[i];
-    rows.push(`${labels[i]}: ${((won / reached) * 100).toFixed(0)}%`);
-    reached = won;
-  }
-  console.log(`   vitória por etapa (de quem chegou): ${rows.join("  |  ")}`);
-  // onde morreu
-  const deaths = labels.map((l, i) => `${l} ${((hist[i] / N) * 100).toFixed(0)}%`);
-  console.log(`   parou em: ${deaths.join("  ")}\n`);
 }
 
 /* ---- auto-calibração: achatar a curva de dificuldade ---- */
 const smart = STRATS["esperto (BST+pot)"];
-
-// Pré-gera N times (sortidos pela estratégia esperta), reusados em tudo.
 function makeTeams(prefix, n) {
   const arr = [];
   for (let i = 0; i < n; i++) {
@@ -134,22 +153,20 @@ function makeTeams(prefix, n) {
   }
   return arr;
 }
-// Avalia um conjunto de buffs: campeão% + passagem condicional por etapa.
-function evaluate(teams, buffs) {
+function evaluate(ELITE, playerLvl, teams, buffs) {
   let survivors = teams;
   const pass = [];
   for (let i = 0; i < ELITE.length; i++) {
     const tr = { ...ELITE[i], buff: buffs[i] };
     const next = survivors.filter(
-      ({ seed, team }) => simulateBattle(team, tr, hashSeed(seed + ":" + i)).win
+      ({ seed, team }) => simulateBattle(team, tr, hashSeed(seed + ":" + i), playerLvl).win
     );
     pass.push(survivors.length ? next.length / survivors.length : 0);
     survivors = next;
   }
   return { champ: survivors.length / teams.length, pass };
 }
-
-function calibrate(teams, target) {
+function calibrate(ELITE, playerLvl, teams, target) {
   let pop = teams;
   const buffs = [];
   for (let i = 0; i < ELITE.length; i++) {
@@ -159,7 +176,7 @@ function calibrate(teams, target) {
       const tr = { ...ELITE[i], buff: mid };
       let won = 0;
       for (const { seed, team } of pop)
-        if (simulateBattle(team, tr, hashSeed(seed + ":" + i)).win) won++;
+        if (simulateBattle(team, tr, hashSeed(seed + ":" + i), playerLvl).win) won++;
       const rate = won / pop.length;
       if (rate > target[i]) lo = mid; // fácil demais → mais buff
       else hi = mid;
@@ -167,29 +184,40 @@ function calibrate(teams, target) {
     const buff = (lo + hi) / 2;
     buffs.push(buff);
     const tr = { ...ELITE[i], buff };
-    pop = pop.filter(({ seed, team }) => simulateBattle(team, tr, hashSeed(seed + ":" + i)).win);
+    pop = pop.filter(({ seed, team }) => simulateBattle(team, tr, hashSeed(seed + ":" + i), playerLvl).win);
   }
   return buffs;
 }
 
-// Rampas-alvo: cada treinador um pouco mais difícil; Lance é o clímax.
+// Rampas-alvo: cada treinador um pouco mais difícil; o Campeão é o clímax.
 const TARGETS = {
   "ATUAL (~14%)": [0.85, 0.80, 0.74, 0.63, 0.43],
   "Médio (~24%)": [0.90, 0.85, 0.80, 0.72, 0.55],
   "Suave (~30%)": [0.91, 0.87, 0.83, 0.76, 0.62],
 };
+function autoCalibrate(name, ELITE, playerLvl, calTeams, verTeams) {
+  const labels = ELITE.map((t) => t.name);
+  console.log(`\n══════ AUTO-CALIBRAÇÃO ${name.toUpperCase()} · player lvl ${playerLvl} (estratégia esperta) ══════`);
+  for (const [tname, target] of Object.entries(TARGETS)) {
+    const buffs = calibrate(ELITE, playerLvl, calTeams, target);
+    const ver = evaluate(ELITE, playerLvl, verTeams, buffs);
+    console.log(`\n── ${tname} ──`);
+    console.log("   buffs:", buffs.map((b) => b.toFixed(2)).join("  "), `(${labels.join("…")})`);
+    console.log("   passagem:", labels.map((l, i) => `${l} ${(ver.pass[i] * 100).toFixed(0)}%`).join("  "));
+    console.log(`   CAMPEÃO (bot): ${(ver.champ * 100).toFixed(1)}%`);
+  }
+}
 
-console.log("══ Auto-calibração por nível (estratégia esperta) ══");
+/* ---- execução ---- */
+console.log(`PokéHax — Monte Carlo multi-liga\n`);
+const kanto = hydrate(LEAGUE_DEFS.kanto);
+const johto = hydrate(LEAGUE_DEFS.johto);
+
+report("kanto", kanto, LEAGUE_DEFS.kanto.playerLvl);
+report("johto", johto, LEAGUE_DEFS.johto.playerLvl);
+
+// Times compartilhados (o draft independe da liga) — reusados nas 2 calibrações.
 const calTeams = makeTeams("C", 4000);
 const verTeams = makeTeams("V", 8000);
-for (const [name, target] of Object.entries(TARGETS)) {
-  const buffs = calibrate(calTeams, target);
-  const ver = evaluate(verTeams, buffs);
-  console.log(`\n── ${name} ──`);
-  console.log("   buffs:", buffs.map((b) => b.toFixed(2)).join("  "), "(Will…Lance)");
-  console.log(
-    "   passagem:",
-    labels.map((l, i) => `${l} ${(ver.pass[i] * 100).toFixed(0)}%`).join("  ")
-  );
-  console.log(`   CAMPEÃO (bot): ${(ver.champ * 100).toFixed(1)}%`);
-}
+autoCalibrate("kanto", kanto, LEAGUE_DEFS.kanto.playerLvl, calTeams, verTeams);
+autoCalibrate("johto", johto, LEAGUE_DEFS.johto.playerLvl, calTeams, verTeams);
