@@ -1,0 +1,182 @@
+{
+  "meta": {
+    "title": "PokéHax — Você varre a Elite dos 4 na sorte?",
+    "description": "Role o dado: saem 6 Pokémon, cada um com um potencial aleatório (sua hax). Encare a Elite dos 4 de Johto e o Campeão Lance. Você aplica o 6 a 0?"
+  },
+  "lang": {
+    "aria": "Idioma",
+    "pt": "Português",
+    "en": "Inglês"
+  },
+  "header": {
+    "eyebrow": "A JORNADA · SEED #{seed}",
+    "logoAria": "PokéHax — voltar à tela inicial",
+    "tagline": "Drafte seu time e encare a Elite dos 4 de Johto e o Campeão.\nSeu time leva a varrida — ou aplica o **6 a 0**?"
+  },
+  "roll": {
+    "modePrefix": "MODO:",
+    "hintDone": "Time fechado. Arraste as cartas para reordenar quem entra primeiro.",
+    "hintRound": "Rodada {n} de {total} — escolha um Pokémon para a {n}ª vaga.",
+    "trayChoosing": "ESCOLHENDO",
+    "trayEmpty": "VAGA",
+    "skipBtn": "↻ PULAR ESTES {n}",
+    "skipLeftRound": "resta {n} nesta rodada",
+    "skipLeftTotal": "resta {n} no total",
+    "skipNone": "sem pulos",
+    "challenge": "DESAFIAR A ELITE ▸"
+  },
+  "run": {
+    "manual": "Batalha a batalha",
+    "auto": "Automático",
+    "normal": "Normal",
+    "fast": "Rápida",
+    "newJourney": "NOVA JORNADA",
+    "nextBattle": "PRÓXIMA BATALHA: {name} ▸"
+  },
+  "feed": {
+    "start": "A batalha começou!",
+    "faint": "{name} caiu! K.O. de {by}",
+    "crit": "Golpe crítico de {name}!",
+    "super": "{name} acertou um golpe super efetivo!"
+  },
+  "card": {
+    "power": "PODER",
+    "condition": "CONDIÇÃO",
+    "dexNo": "Nº",
+    "choose": "▸ ESCOLHER",
+    "rare": "★ RARO",
+    "slotDrag": "{n}ª VAGA · ARRASTE",
+    "slotAria": "{n}ª vaga — arraste para reordenar",
+    "cond": {
+      "exc": "EXCELENTE",
+      "boa": "BOA",
+      "pad": "PADRÃO",
+      "reg": "REGULAR",
+      "ruim": "RUIM"
+    }
+  },
+  "intro": {
+    "howTitle": "COMO SE JOGA",
+    "step1": "**Drafte seu time.** Seis rodadas: em cada uma saem 3 Pokémon (dos 251 de Johto e Kanto) e você escolhe 1 para a vaga.",
+    "step2": "**Não curtiu os 3? Pule.** O pulo re-sorteia os candidatos da rodada — mas é limitado, e quantos você tem depende do modo.",
+    "step3": "**Monte a ordem.** Com as 6 vagas preenchidas, arraste as cartas para decidir quem entra primeiro. A sequência é estratégia.",
+    "step4": "**Varra a Elite dos 4 + o Campeão.** Cinco confrontos, e os inimigos ficam mais fortes a cada um — o Lance é a parede final. Aplique o **6 a 0**, ou seja varrido.",
+    "cardEyebrow": "A CARTA",
+    "cardP1": "**PODER** é a força-base do Pokémon (a soma dos status). Quanto maior, mais forte ele é por natureza.",
+    "cardP2": "**CONDIÇÃO** é a forma daquele indivíduo nesta campanha — de RUIM a EXCELENTE, indicada por uma seta colorida (estilo Winning Eleven). Um azarão em condição excelente pode surpreender a Elite — por isso **todo Pokémon é jogável**.",
+    "cardTip": "A carta acima muda conforme o modo escolhido abaixo. ↓",
+    "enemiesTitle": "QUEM VOCÊ VAI ENFRENTAR",
+    "elitePower": "PODER {bst}",
+    "toggleOpen": "▲ FECHAR",
+    "toggleClosed": "▼ VER TIME",
+    "modeTitle": "ESCOLHA O MODO",
+    "modeRocketName": "EQUIPE ROCKET",
+    "modeRocketDesc": "Você espia os dados: poder e condição à mostra. Decisões com informação completa.",
+    "modeRocketSkip": "↻ 1 PULO POR RODADA",
+    "modeOakName": "PROFESSOR OAK",
+    "modeOakDesc": "O poder vira \"?\" (a condição você ainda vê). Vale o seu conhecimento Pokémon para montar o time.",
+    "modeOakSkip": "↻ 1 PULO NO DRAFT TODO",
+    "start": "MONTAR MEU TIME ▸"
+  },
+  "roles": {
+    "champion": "CAMPEÃO"
+  },
+  "match": {
+    "you": "VOCÊ",
+    "youAria": "Você",
+    "won": "GANHOU",
+    "lost": "PERDEU",
+    "ko": "K.O.",
+    "next": "A SEGUIR",
+    "vs": "vs",
+    "pauseTitle": "Pausar",
+    "resumeTitle": "Continuar",
+    "pauseAria": "Pausar batalha",
+    "resumeAria": "Continuar batalha"
+  },
+  "finale": {
+    "champion": "CAMPEÃO DE JOHTO",
+    "perfect": " · VARRIDA PERFEITA",
+    "koSummary": " · {n} K.O.",
+    "ribbon": "BEM-VINDO AO HALL DA FAMA!",
+    "monKO": "{n} K.O.",
+    "seed": "SEED",
+    "mode": "MODO",
+    "modeRocket": "ROCKET",
+    "modeOak": "OAK",
+    "shareBusy": "GERANDO…",
+    "shareBtn": "COMPARTILHAR ▾",
+    "shareNewJourney": "NOVA JORNADA ▸",
+    "shareTitle": "PokéHax — Campeão de Johto",
+    "shareText": "Apliquei o 6 a 0 na Elite dos 4! 🏆",
+    "shareFile": "pokehax-campeao-{seed}",
+    "shareSaved": "Imagem salva! É só postar.",
+    "shareError": "Não consegui gerar a imagem — tente um print da tela.",
+    "defeatEyebrow": "FIM DE JORNADA",
+    "defeatTitle": "{name} APAGOU TODAS AS LUZES",
+    "defeatSub": "Seu time caiu por {loss} a {win} no confronto {stage} de 5.",
+    "defeatRetry": "TENTAR DE NOVO ▸"
+  },
+  "about": {
+    "support": "APOIAR",
+    "donateAria": "Apoiar o projeto",
+    "banner": {
+      "help": "me ajuda?",
+      "cta": "APOIAR ▸",
+      "aria": "Apoie o PokéHax",
+      "ariaActive": "Apoie o PokéHax — feito por um fã só"
+    },
+    "footer": {
+      "about": "Sobre",
+      "privacy": "Política de Privacidade",
+      "fine": "Jogo de fã, não-comercial. Não afiliado à Nintendo, Game Freak ou The Pokémon Company. Dados e sprites são homenagem dos fãs.",
+      "credit": "▸ feito por Lofz"
+    },
+    "modal": {
+      "title": "Sobre o PokéHax",
+      "close": "Fechar",
+      "tabAbout": "SOBRE",
+      "tabPrivacy": "PRIVACIDADE"
+    },
+    "body": {
+      "p1": "**PokéHax** é um jogo de fã, **gratuito e sem fins lucrativos**, feito de forma independente por fãs da franquia. Você dá um draft num time de 6 Pokémon de Johto e Kanto e encara a Elite dos 4 + o Campeão. A pergunta é uma só: seu time aplica o **6 a 0**?",
+      "p2": "Tudo roda no seu navegador — é um site estático, sem cadastro e sem login. Feito por **Lofz**, por amor à franquia, nas horas vagas.",
+      "disclaimer": "Projeto não-oficial. **Não é afiliado, patrocinado nem endossado** pela Nintendo, Game Freak ou The Pokémon Company. \"Pokémon\", os nomes das criaturas e demais marcas pertencem aos seus respectivos donos. Sprites e dados são usados apenas para fins de homenagem e fãs.",
+      "linksTitle": "REDES E APOIO",
+      "linksIntro": "Acompanhe, mande feedback ou ajude o projeto a continuar de pé:",
+      "contact": "Contato:"
+    },
+    "privacy": {
+      "updated": "Última atualização: {date}.",
+      "p1": "O PokéHax é um site simples, sem cadastro e sem login. **Não coletamos dados pessoais** como nome, e-mail ou telefone. Seu time e suas escolhas ficam só no seu navegador.",
+      "metricsTitle": "MÉTRICAS DE USO",
+      "metrics": "Para entender como o jogo é usado e melhorá-lo, coletamos **estatísticas anônimas** (como qual modo foi escolhido e se a campanha foi concluída). Elas **não identificam você**. Para isso, são usados cookies — que você pode bloquear no navegador sem prejudicar o jogo.",
+      "ageTitle": "IDADE RECOMENDADA",
+      "age": "Recomendamos o jogo para **maiores de 13 anos**. Não coletamos intencionalmente dados de crianças.",
+      "changesTitle": "MUDANÇAS",
+      "changes": "Esta política pode ser atualizada. Quando isso acontecer, a data de \"última atualização\" no topo será alterada.",
+      "contactTitle": "CONTATO",
+      "contactQ": "Dúvidas sobre privacidade?"
+    }
+  },
+  "types": {
+    "Normal": "Normal",
+    "Fire": "Fogo",
+    "Water": "Água",
+    "Electric": "Elétrico",
+    "Grass": "Planta",
+    "Ice": "Gelo",
+    "Fighting": "Lutador",
+    "Poison": "Veneno",
+    "Ground": "Terra",
+    "Flying": "Voador",
+    "Psychic": "Psíquico",
+    "Bug": "Inseto",
+    "Rock": "Pedra",
+    "Ghost": "Fantasma",
+    "Dragon": "Dragão",
+    "Dark": "Sombrio",
+    "Steel": "Aço",
+    "Fairy": "Fada"
+  }
+}

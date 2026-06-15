@@ -62,7 +62,8 @@ export const ELITE = [
   },
   {
     name: "LANCE",
-    title: "CAMPEÃO",
+    title: "ELITE 5",
+    champion: true, // flag estável; o rótulo exibido vem do i18n (roles.champion)
     spec: "Dragon",
     buff: 1.02,
     sprite: `${SPRITE_BASE}/Spr_GS_Lance.png`,

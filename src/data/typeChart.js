@@ -1,14 +1,8 @@
 /**
- * typeChart.js — tabela de efetividade da Gen 2, cores oficiais
- * aproximadas de cada tipo e nomes em português.
+ * typeChart.js — tabela de efetividade da Gen 2 e cores oficiais
+ * aproximadas de cada tipo. Os NOMES dos tipos (PT/EN) ficam no i18n
+ * (src/i18n/*.json, namespace "types"), indexados pela chave em inglês.
  */
-
-export const TYPE_PT = {
-  Normal: "Normal", Fire: "Fogo", Water: "Água", Electric: "Elétrico", Grass: "Planta",
-  Ice: "Gelo", Fighting: "Lutador", Poison: "Veneno", Ground: "Terra", Flying: "Voador",
-  Psychic: "Psíquico", Bug: "Inseto", Rock: "Pedra", Ghost: "Fantasma", Dragon: "Dragão",
-  Dark: "Sombrio", Steel: "Aço", Fairy: "Fada",
-};
 
 export const TYPE_COLOR = {
   Normal: "#a8a090", Fire: "#f08030", Water: "#6890f0", Electric: "#f8d030", Grass: "#78c850",
