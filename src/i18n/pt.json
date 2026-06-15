@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "PokéHax — Você varre a Elite dos 4 na sorte?",
-    "description": "Role o dado: saem 6 Pokémon, cada um com um potencial aleatório (sua hax). Encare a Elite dos 4 de Johto e o Campeão Lance. Você aplica o 6 a 0?"
+    "description": "Role o dado: saem 6 Pokémon, cada um com um potencial aleatório (sua hax). Encare a Elite dos 4 e o Campeão. Você aplica o 6 a 0?"
   },
   "lang": {
     "aria": "Idioma",
@@ -11,7 +11,7 @@
   "header": {
     "eyebrow": "A JORNADA · SEED #{seed}",
     "logoAria": "PokéHax — voltar à tela inicial",
-    "tagline": "Drafte seu time e encare a Elite dos 4 de Johto e o Campeão.\nSeu time leva a varrida — ou aplica o **6 a 0**?"
+    "tagline": "Drafte seu time e encare a Elite dos 4 e o Campeão.\nSeu time leva a varrida — ou aplica o **6 a 0**?"
   },
   "roll": {
     "modePrefix": "MODO:",
@@ -60,7 +60,7 @@
     "step1": "**Drafte seu time.** Seis rodadas: em cada uma saem 3 Pokémon (dos 251 de Johto e Kanto) e você escolhe 1 para a vaga.",
     "step2": "**Não curtiu os 3? Pule.** O pulo re-sorteia os candidatos da rodada — mas é limitado, e quantos você tem depende do modo.",
     "step3": "**Monte a ordem.** Com as 6 vagas preenchidas, arraste as cartas para decidir quem entra primeiro. A sequência é estratégia.",
-    "step4": "**Varra a Elite dos 4 + o Campeão.** Cinco confrontos, e os inimigos ficam mais fortes a cada um — o Lance é a parede final. Aplique o **6 a 0**, ou seja varrido.",
+    "step4": "**Varra a Elite dos 4 + o Campeão.** Cinco confrontos, e os inimigos ficam mais fortes a cada um — o Campeão é a parede final. Aplique o **6 a 0**, ou seja varrido.",
     "cardEyebrow": "A CARTA",
     "cardP1": "**PODER** é a força-base do Pokémon (a soma dos status). Quanto maior, mais forte ele é por natureza.",
     "cardP2": "**CONDIÇÃO** é a forma daquele indivíduo nesta campanha — de RUIM a EXCELENTE, indicada por uma seta colorida (estilo Winning Eleven). Um azarão em condição excelente pode surpreender a Elite — por isso **todo Pokémon é jogável**.",
@@ -81,6 +81,13 @@
   "roles": {
     "champion": "CAMPEÃO"
   },
+  "leagues": {
+    "carouselAria": "Escolha a Liga que vai enfrentar",
+    "prevAria": "Liga anterior",
+    "nextAria": "Próxima Liga",
+    "johto": { "region": "JOHTO", "elite": "ELITE DOS 4 · JOHTO" },
+    "kanto": { "region": "KANTO", "elite": "ELITE DOS 4 · KANTO" }
+  },
   "match": {
     "you": "VOCÊ",
     "youAria": "Você",
@@ -95,7 +102,7 @@
     "resumeAria": "Continuar batalha"
   },
   "finale": {
-    "champion": "CAMPEÃO DE JOHTO",
+    "championOf": "CAMPEÃO DE {region}",
     "perfect": " · VARRIDA PERFEITA",
     "koSummary": " · {n} K.O.",
     "ribbon": "BEM-VINDO AO HALL DA FAMA!",
@@ -107,7 +114,7 @@
     "shareBusy": "GERANDO…",
     "shareBtn": "COMPARTILHAR ▾",
     "shareNewJourney": "NOVA JORNADA ▸",
-    "shareTitle": "PokéHax — Campeão de Johto",
+    "shareTitleOf": "PokéHax — Campeão de {region}",
     "shareText": "Apliquei o 6 a 0 na Elite dos 4! 🏆",
     "shareFile": "pokehax-campeao-{seed}",
     "shareSaved": "Imagem salva! É só postar.",

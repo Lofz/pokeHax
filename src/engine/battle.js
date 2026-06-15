@@ -13,6 +13,7 @@
 import { bestEff } from "../data/typeChart";
 import { mulberry32 } from "./rng";
 
+/** Nível padrão do jogador (liga de Johto). Cada liga pode sobrescrever. */
 export const PLAYER_LVL = 46;
 
 /** Fator de escala por nível (Elite sobe de ~40 até 50 no Lance). */
@@ -78,9 +79,9 @@ function toFighter(mon, lvl, buff = 1) {
  * Simula a batalha inteira e devolve { events, win, score, koBy, turns }.
  * Cada evento carrega um snapshot (nomes, ids, HP%) para a UI renderizar.
  */
-export function simulateBattle(playerTeam, trainer, seedInt) {
+export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_LVL) {
   const rng = mulberry32(seedInt);
-  const pT = playerTeam.map((m) => toFighter(m, PLAYER_LVL));
+  const pT = playerTeam.map((m) => toFighter(m, playerLvl));
   const eT = trainer.team.map((m) => toFighter(m, m.lvl, trainer.buff ?? 1));
 
   let pi = 0, ei = 0, turn = 0, pk = 0, ek = 0;

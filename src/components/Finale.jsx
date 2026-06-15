@@ -20,7 +20,7 @@ const CONFETTI = [
  * entram no print. O "Compartilhar" gera um PNG e usa o Web Share API
  * (celular) ou cai num download (desktop).
  */
-export function ChampionBox({ team, results, onReset, seed, lens }) {
+export function ChampionBox({ team, results, onReset, seed, lens, region }) {
   const { t } = useT();
   const cardRef = useRef(null);
   const [busy, setBusy] = useState(false);
@@ -52,7 +52,7 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: t("finale.shareTitle"),
+          title: t("finale.shareTitleOf", { region }),
           text: t("finale.shareText"),
         });
       } else {
@@ -76,7 +76,7 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
     <div className="hof-wrap">
       <div className="hof-card" ref={cardRef}>
         <span className="hof-eyebrow">
-          {t("finale.champion")}
+          {t("finale.championOf", { region })}
           {losses === 0 ? t("finale.perfect") : t("finale.koSummary", { n: totalKO })}
         </span>
 
