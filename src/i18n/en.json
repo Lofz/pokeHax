@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "PokéHax — Can you sweep the Elite Four on luck?",
-    "description": "Roll the dice: 6 Pokémon come up, each with a random potential (your hax). Face the Elite Four and the Champion. Can you pull off the 6-0?"
+    "title": "PokéHax — Do you know Pokémon well enough to beat the Elite Four?",
+    "description": "Draft 6 Pokémon from Kanto and Johto and prove you know the franchise: the right team and order to beat the Elite Four and the Champion. Can you pull off the 6-0?"
   },
   "lang": {
     "aria": "Language",
@@ -11,7 +11,7 @@
   "header": {
     "eyebrow": "THE JOURNEY · SEED #{seed}",
     "logoAria": "PokéHax — back to home screen",
-    "tagline": "Draft your team and face the Elite Four and the Champion.\nDoes your team get swept — or pull off the **6-0**?"
+    "tagline": "Draft your team and face the Elite Four and the Champion.\nDoes your team go down — or pull off the **6-0**?"
   },
   "roll": {
     "modePrefix": "MODE:",
@@ -60,7 +60,7 @@
     "step1": "**Draft your team.** Six rounds: each one offers 3 Pokémon (out of the 251 from Johto and Kanto) and you pick 1 for the slot.",
     "step2": "**Don't like the 3? Skip.** A skip re-rolls that round's candidates — but it's limited, and how many you get depends on the mode.",
     "step3": "**Set the order.** With all 6 slots filled, drag the cards to decide who goes in first. The sequence is strategy.",
-    "step4": "**Sweep the Elite Four + the Champion.** Five matches, and the enemies get stronger each time — the Champion is the final wall. Pull off the **6-0**, or get swept.",
+    "step4": "**Defeat the Elite Four + the Champion.** Five matches, and the enemies get stronger each time — the Champion is the final wall. Pull off the **6-0**, or go down trying.",
     "cardEyebrow": "THE CARD",
     "cardP1": "**POWER** is the Pokémon's base strength (the sum of its stats). The higher it is, the stronger it is by nature.",
     "cardP2": "**CONDITION** is how that individual is doing this run — from POOR to EXCELLENT, shown by a colored arrow (Winning Eleven style). An underdog in excellent condition can surprise the Elite — that's why **every Pokémon is playable**.",
@@ -103,7 +103,7 @@
   },
   "finale": {
     "championOf": "{region} CHAMPION",
-    "perfect": " · PERFECT SWEEP",
+    "perfect": " · PERFECT RUN",
     "koSummary": " · {n} K.O.",
     "ribbon": "WELCOME TO THE HALL OF FAME!",
     "monKO": "{n} K.O.",
@@ -115,7 +115,7 @@
     "shareBtn": "SHARE ▾",
     "shareNewJourney": "NEW JOURNEY ▸",
     "shareTitleOf": "PokéHax — {region} Champion",
-    "shareText": "I swept the Elite Four 6-0! 🏆",
+    "shareText": "I beat the Elite Four 6-0! 🏆",
     "shareFile": "pokehax-champion-{seed}",
     "shareSaved": "Image saved! Just post it.",
     "shareError": "Couldn't generate the image — try a screen capture.",

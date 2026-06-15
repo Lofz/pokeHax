@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "PokéHax — Você varre a Elite dos 4 na sorte?",
-    "description": "Role o dado: saem 6 Pokémon, cada um com um potencial aleatório (sua hax). Encare a Elite dos 4 e o Campeão. Você aplica o 6 a 0?"
+    "title": "PokéHax — Você conhece Pokémon o bastante para derrotar a Elite dos 4?",
+    "description": "Drafte 6 Pokémon de Kanto e Johto e prove que conhece a franquia: o time e a ordem certos para derrotar a Elite dos 4 e o Campeão. Você aplica o 6 a 0?"
   },
   "lang": {
     "aria": "Idioma",
@@ -11,7 +11,7 @@
   "header": {
     "eyebrow": "A JORNADA · SEED #{seed}",
     "logoAria": "PokéHax — voltar à tela inicial",
-    "tagline": "Drafte seu time e encare a Elite dos 4 e o Campeão.\nSeu time leva a varrida — ou aplica o **6 a 0**?"
+    "tagline": "Drafte seu time e encare a Elite dos 4 e o Campeão.\nSeu time cai — ou aplica o **6 a 0**?"
   },
   "roll": {
     "modePrefix": "MODO:",
@@ -60,7 +60,7 @@
     "step1": "**Drafte seu time.** Seis rodadas: em cada uma saem 3 Pokémon (dos 251 de Johto e Kanto) e você escolhe 1 para a vaga.",
     "step2": "**Não curtiu os 3? Pule.** O pulo re-sorteia os candidatos da rodada — mas é limitado, e quantos você tem depende do modo.",
     "step3": "**Monte a ordem.** Com as 6 vagas preenchidas, arraste as cartas para decidir quem entra primeiro. A sequência é estratégia.",
-    "step4": "**Varra a Elite dos 4 + o Campeão.** Cinco confrontos, e os inimigos ficam mais fortes a cada um — o Campeão é a parede final. Aplique o **6 a 0**, ou seja varrido.",
+    "step4": "**Derrote a Elite dos 4 + o Campeão.** Cinco confrontos, e os inimigos ficam mais fortes a cada um — o Campeão é a parede final. Aplique o **6 a 0**, ou caia tentando.",
     "cardEyebrow": "A CARTA",
     "cardP1": "**PODER** é a força-base do Pokémon (a soma dos status). Quanto maior, mais forte ele é por natureza.",
     "cardP2": "**CONDIÇÃO** é a forma daquele indivíduo nesta campanha — de RUIM a EXCELENTE, indicada por uma seta colorida (estilo Winning Eleven). Um azarão em condição excelente pode surpreender a Elite — por isso **todo Pokémon é jogável**.",
@@ -103,7 +103,7 @@
   },
   "finale": {
     "championOf": "CAMPEÃO DE {region}",
-    "perfect": " · VARRIDA PERFEITA",
+    "perfect": " · CAMPANHA PERFEITA",
     "koSummary": " · {n} K.O.",
     "ribbon": "BEM-VINDO AO HALL DA FAMA!",
     "monKO": "{n} K.O.",
