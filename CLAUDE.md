@@ -6,7 +6,7 @@ Pergunta-tema: "seu time aplica o **6 a 0**?". Tudo em **PT-BR**.
 
 ## Stack & comandos
 - React 18 + Vite 5. Deps de runtime extra: `html-to-image` (PNG do Hall da Fama) e `posthog-js` (analytics, **carregado sob demanda** — só baixa se houver chave).
-- `npm run dev` (raiz `/`), `npm run build` (gera `dist/`, base `/pokeHax/`). **Mantenha o build verde.**
+- `npm run dev` (raiz `/`), `npm run build` (gera `dist/`, base `/` — domínio próprio na raiz). **Mantenha o build verde.**
 - Sem testes. A validação é `npm run build` + checagem visual pelo usuário.
 
 ## Arquitetura (onde mexer)
@@ -40,7 +40,7 @@ Pergunta-tema: "seu time aplica o **6 a 0**?". Tudo em **PT-BR**.
 - **Reordenação (drag)**: usa **Pointer Events** (mouse+toque, funciona no iOS). A captura do ponteiro fica no **container do grid** (estável) — capturar na carta perde a captura quando o reorder move o DOM. Alça `.reorder` tem `touch-action: none`. NÃO usar HTML5 drag nativo (não dispara em touch).
 - **`?win`**: força a tela de campeão p/ dev; só funciona em `import.meta.env.DEV`.
 - **Sprites de Pokémon**: via jsDelivr (CORS ok). Sprites de treinador: locais em `public/trainers/`, referenciadas com `import.meta.env.BASE_URL`.
-- **Deploy**: GitHub Pages em `lofz.github.io/pokeHax/` → `vite.config.js` usa `base: "/pokeHax/"` só no build. **Se migrar p/ domínio próprio (raiz), trocar a base p/ `/`.** Workflow: `.github/workflows/deploy.yml` (push na `main`).
+- **Deploy**: GitHub Pages em **domínio próprio `www.pokehax.com` (raiz)** → `vite.config.js` usa `base: "/"`. O domínio é fixado por `public/CNAME` (→ `dist/CNAME`); **não remover** senão o deploy via Actions pode perder o custom domain. DNS no Hostinger: `A @` → 185.199.108–111.153 e `CNAME www` → `lofz.github.io`. Workflow: `.github/workflows/deploy.yml` (push na `main`). Obs.: com `base: "/"`, a URL antiga `lofz.github.io/pokeHax/` deixa de funcionar (assets na raiz) — use o domínio próprio.
 - **Analytics em produção**: a chave vem de **repo secrets** (`VITE_POSTHOG_KEY`, `VITE_POSTHOG_HOST`) injetados no passo `npm run build` do workflow. Local: `.env.local` (ver `.env.example`). Sem secret → deploy normal, analytics desligado.
 
 ## Estado do git
@@ -67,4 +67,3 @@ Wrapper em `src/analytics/track.js` (`autocapture: false` — só os eventos aba
 - Error boundary no topo (evitar tela branca em produção).
 - Reordenação por teclado (a11y) — a alça já existe.
 - Seed digitável/compartilhável via URL (`?seed=`).
-- Domínio próprio (lembrar de trocar a `base`).
