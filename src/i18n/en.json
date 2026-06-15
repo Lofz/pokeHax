@@ -118,6 +118,48 @@
     "defeatSub": "Your team fell {loss}–{win} in match {stage} of 5.",
     "defeatRetry": "TRY AGAIN ▸"
   },
+  "about": {
+    "support": "SUPPORT",
+    "donateAria": "Support the project",
+    "banner": {
+      "help": "help me out?",
+      "cta": "SUPPORT ▸",
+      "aria": "Support PokéHax",
+      "ariaActive": "Support PokéHax — made by a single fan"
+    },
+    "footer": {
+      "about": "About",
+      "privacy": "Privacy Policy",
+      "fine": "Fan game, non-commercial. Not affiliated with Nintendo, Game Freak or The Pokémon Company. Data and sprites are a fan tribute.",
+      "credit": "▸ made by Lofz"
+    },
+    "modal": {
+      "title": "About PokéHax",
+      "close": "Close",
+      "tabAbout": "ABOUT",
+      "tabPrivacy": "PRIVACY"
+    },
+    "body": {
+      "p1": "**PokéHax** is a fan game, **free and non-profit**, made independently by fans of the franchise. You draft a team of 6 Pokémon from Johto and Kanto and take on the Elite Four + the Champion. There's just one question: does your team pull off the **6-0**?",
+      "p2": "Everything runs in your browser — it's a static site, no sign-up and no login. Made by **Lofz**, out of love for the franchise, in his spare time.",
+      "disclaimer": "Unofficial project. **Not affiliated with, sponsored by, or endorsed by** Nintendo, Game Freak or The Pokémon Company. \"Pokémon\", the creature names and other trademarks belong to their respective owners. Sprites and data are used solely for fan-tribute purposes.",
+      "linksTitle": "SOCIAL & SUPPORT",
+      "linksIntro": "Follow along, send feedback, or help keep the project alive:",
+      "contact": "Contact:"
+    },
+    "privacy": {
+      "updated": "Last updated: {date}.",
+      "p1": "PokéHax is a simple site, with no sign-up and no login. **We do not collect personal data** such as name, e-mail or phone number. Your team and your choices stay only in your browser.",
+      "metricsTitle": "USAGE METRICS",
+      "metrics": "To understand how the game is used and improve it, we collect **anonymous statistics** (such as which mode was chosen and whether the run was completed). They **do not identify you**. Cookies are used for this — you can block them in your browser without affecting the game.",
+      "ageTitle": "RECOMMENDED AGE",
+      "age": "We recommend the game for those **aged 13 and over**. We do not knowingly collect data from children.",
+      "changesTitle": "CHANGES",
+      "changes": "This policy may be updated. When that happens, the \"last updated\" date at the top will change.",
+      "contactTitle": "CONTACT",
+      "contactQ": "Questions about privacy?"
+    }
+  },
   "types": {
     "Normal": "Normal",
     "Fire": "Fire",

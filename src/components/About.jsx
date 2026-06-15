@@ -3,6 +3,7 @@ import { SOCIAL, LINKS_ACTIVE, CONTACT_EMAIL, PRIVACY_UPDATED } from "../data/li
 import { getMon } from "../data/dex";
 import { Sprite } from "./bits";
 import { track } from "../analytics/track";
+import { useT, Rich } from "../i18n";
 
 /** Link de doação configurado (ou null se a URL estiver vazia em links.js). */
 const DONATE = SOCIAL.find((s) => s.id === "donate" && s.url) || null;
@@ -49,6 +50,7 @@ function Icon({ id }) {
  * imagem) — pra subir sem URLs ainda, sem 404.
  */
 function SocialRow({ where }) {
+  const { t } = useT();
   const items = SOCIAL.filter((s) => s.url);
   if (!items.length) return null;
   return (
@@ -58,10 +60,13 @@ function SocialRow({ where }) {
           "soc-link" +
           (s.id === "donate" ? " soc-donate" : "") +
           (LINKS_ACTIVE ? "" : " soc-static");
+        // Marcas (X/TikTok/Discord) ficam com o label de links.js (nomes próprios);
+        // só o "apoiar" é traduzido.
+        const label = s.id === "donate" ? t("about.donateAria") : s.label;
         const inner = (
           <>
             <Icon id={s.id} />
-            {s.id === "donate" && <span className="soc-donate-txt">APOIAR</span>}
+            {s.id === "donate" && <span className="soc-donate-txt">{t("about.support")}</span>}
           </>
         );
         return LINKS_ACTIVE ? (
@@ -71,14 +76,14 @@ function SocialRow({ where }) {
             href={s.url}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={s.label}
-            title={s.label}
+            aria-label={label}
+            title={label}
             onClick={() => track("outbound_click", { to: s.id, where })}
           >
             {inner}
           </a>
         ) : (
-          <span key={s.id} className={cls} role="img" aria-label={s.label} title={s.label}>
+          <span key={s.id} className={cls} role="img" aria-label={label} title={label}>
             {inner}
           </span>
         );
@@ -89,33 +94,19 @@ function SocialRow({ where }) {
 
 /** Conteúdo "Sobre o jogo". */
 function AboutBody() {
+  const { t } = useT();
   return (
     <div className="modal-body">
-      <p>
-        <b>PokéHax</b> é um jogo de fã, <b>gratuito e sem fins lucrativos</b>,
-        feito de forma independente por fãs da franquia. Você dá um draft num
-        time de 6 Pokémon de Johto e Kanto e encara a Elite dos 4 + o Campeão.
-        A pergunta é uma só: seu time aplica o <b>6 a 0</b>?
-      </p>
-      <p>
-        Tudo roda no seu navegador — é um site estático, sem cadastro e sem
-        login. Feito por <b>Lofz</b>, por amor à franquia, nas horas vagas.
-      </p>
-      <p className="modal-disclaimer">
-        Projeto não-oficial. <b>Não é afiliado, patrocinado nem endossado</b> pela
-        Nintendo, Game Freak ou The Pokémon Company. "Pokémon", os nomes das
-        criaturas e demais marcas pertencem aos seus respectivos donos. Sprites e
-        dados são usados apenas para fins de homenagem e fãs.
-      </p>
+      <p><Rich text={t("about.body.p1")} /></p>
+      <p><Rich text={t("about.body.p2")} /></p>
+      <p className="modal-disclaimer"><Rich text={t("about.body.disclaimer")} /></p>
 
-      <div className="modal-sec-h">REDES E APOIO</div>
-      <p className="modal-soft">
-        Acompanhe, mande feedback ou ajude o projeto a continuar de pé:
-      </p>
+      <div className="modal-sec-h">{t("about.body.linksTitle")}</div>
+      <p className="modal-soft">{t("about.body.linksIntro")}</p>
       <SocialRow where="modal" />
       {CONTACT_EMAIL && (
         <p className="modal-soft">
-          Contato:{" "}
+          {t("about.body.contact")}{" "}
           <a className="modal-a" href={"mailto:" + CONTACT_EMAIL}>
             {CONTACT_EMAIL}
           </a>
@@ -127,41 +118,31 @@ function AboutBody() {
 
 /** Conteúdo "Política de Privacidade". */
 function PrivacyBody() {
+  const { t, lang } = useT();
+  const updated = new Intl.DateTimeFormat(lang === "en" ? "en-US" : "pt-BR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(PRIVACY_UPDATED + "T00:00:00"));
   return (
     <div className="modal-body">
-      <p className="modal-soft">Última atualização: {PRIVACY_UPDATED}.</p>
-      <p>
-        O PokéHax é um site simples, sem cadastro e sem login. <b>Não coletamos
-        dados pessoais</b> como nome, e-mail ou telefone. Seu time e suas
-        escolhas ficam só no seu navegador.
-      </p>
+      <p className="modal-soft">{t("about.privacy.updated", { date: updated })}</p>
+      <p><Rich text={t("about.privacy.p1")} /></p>
 
-      <div className="modal-sec-h">MÉTRICAS DE USO</div>
-      <p>
-        Para entender como o jogo é usado e melhorá-lo, coletamos{" "}
-        <b>estatísticas anônimas</b> (como qual modo foi escolhido e se a
-        campanha foi concluída). Elas <b>não identificam você</b>. Para isso, são
-        usados cookies — que você pode bloquear no navegador sem prejudicar o
-        jogo.
-      </p>
+      <div className="modal-sec-h">{t("about.privacy.metricsTitle")}</div>
+      <p><Rich text={t("about.privacy.metrics")} /></p>
 
-      <div className="modal-sec-h">IDADE RECOMENDADA</div>
-      <p>
-        Recomendamos o jogo para <b>maiores de 13 anos</b>. Não coletamos
-        intencionalmente dados de crianças.
-      </p>
+      <div className="modal-sec-h">{t("about.privacy.ageTitle")}</div>
+      <p><Rich text={t("about.privacy.age")} /></p>
 
-      <div className="modal-sec-h">MUDANÇAS</div>
-      <p>
-        Esta política pode ser atualizada. Quando isso acontecer, a data de
-        "última atualização" no topo será alterada.
-      </p>
+      <div className="modal-sec-h">{t("about.privacy.changesTitle")}</div>
+      <p><Rich text={t("about.privacy.changes")} /></p>
 
       {CONTACT_EMAIL && (
         <>
-          <div className="modal-sec-h">CONTATO</div>
+          <div className="modal-sec-h">{t("about.privacy.contactTitle")}</div>
           <p>
-            Dúvidas sobre privacidade?{" "}
+            {t("about.privacy.contactQ")}{" "}
             <a className="modal-a" href={"mailto:" + CONTACT_EMAIL}>
               {CONTACT_EMAIL}
             </a>
@@ -175,6 +156,7 @@ function PrivacyBody() {
 
 /** Modal sobreposto, com abas "Sobre" e "Privacidade". */
 function AboutModal({ tab, setTab, onClose }) {
+  const { t } = useT();
   // fecha no ESC; trava o scroll do fundo enquanto aberto
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -193,10 +175,10 @@ function AboutModal({ tab, setTab, onClose }) {
         className="modal-card"
         role="dialog"
         aria-modal="true"
-        aria-label="Sobre o PokéHax"
+        aria-label={t("about.modal.title")}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="modal-x" onClick={onClose} aria-label="Fechar">
+        <button className="modal-x" onClick={onClose} aria-label={t("about.modal.close")}>
           ✕
         </button>
         <div className="modal-tabs">
@@ -205,14 +187,14 @@ function AboutModal({ tab, setTab, onClose }) {
             onClick={() => setTab("about")}
             aria-pressed={tab === "about"}
           >
-            SOBRE
+            {t("about.modal.tabAbout")}
           </button>
           <button
             className={"modal-tab" + (tab === "privacy" ? " on" : "")}
             onClick={() => setTab("privacy")}
             aria-pressed={tab === "privacy"}
           >
-            PRIVACIDADE
+            {t("about.modal.tabPrivacy")}
           </button>
         </div>
         {tab === "about" ? <AboutBody /> : <PrivacyBody />}
@@ -230,6 +212,7 @@ function AboutModal({ tab, setTab, onClose }) {
 const CUBONE = getMon(104);
 
 export function SupportBanner() {
+  const { t } = useT();
   if (!DONATE) return null;
   const inner = (
     <>
@@ -239,8 +222,8 @@ export function SupportBanner() {
         <Sprite src={CUBONE.image.sprite} alt="Cubone" size={46} className="support-spr" />
       </span>
       <span className="support-bubble">
-        <b>me ajuda?</b>
-        <span className="support-cta">APOIAR ▸</span>
+        <b>{t("about.banner.help")}</b>
+        <span className="support-cta">{t("about.banner.cta")}</span>
       </span>
     </>
   );
@@ -251,13 +234,13 @@ export function SupportBanner() {
       href={DONATE.url}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Apoie o PokéHax — feito por um fã só"
+      aria-label={t("about.banner.ariaActive")}
       onClick={() => track("outbound_click", { to: "donate", where: "banner" })}
     >
       {inner}
     </a>
   ) : (
-    <div className="support support-static" role="img" aria-label="Apoie o PokéHax">
+    <div className="support support-static" role="img" aria-label={t("about.banner.aria")}>
       {inner}
     </div>
   );
@@ -265,6 +248,7 @@ export function SupportBanner() {
 
 /** Rodapé do site + o modal que ele abre. É só isto que o App renderiza. */
 export function SiteFooter() {
+  const { t } = useT();
   const [open, setOpen] = useState(null); // null | "about" | "privacy"
   const show = (tab) => {
     track("about_opened", { section: tab });
@@ -274,19 +258,16 @@ export function SiteFooter() {
     <footer className="foot">
       <div className="foot-links">
         <button className="foot-btn" onClick={() => show("about")}>
-          Sobre
+          {t("about.footer.about")}
         </button>
         <span className="foot-dot">·</span>
         <button className="foot-btn" onClick={() => show("privacy")}>
-          Política de Privacidade
+          {t("about.footer.privacy")}
         </button>
       </div>
       <SocialRow where="footer" />
-      <div className="foot-fine">
-        Jogo de fã, não-comercial. Não afiliado à Nintendo, Game Freak ou The
-        Pokémon Company. Dados e sprites são homenagem dos fãs.
-      </div>
-      <div className="foot-credit">▸ feito por Lofz</div>
+      <div className="foot-fine">{t("about.footer.fine")}</div>
+      <div className="foot-credit">{t("about.footer.credit")}</div>
       {open && (
         <AboutModal tab={open} setTab={setOpen} onClose={() => setOpen(null)} />
       )}

@@ -118,6 +118,48 @@
     "defeatSub": "Seu time caiu por {loss} a {win} no confronto {stage} de 5.",
     "defeatRetry": "TENTAR DE NOVO ▸"
   },
+  "about": {
+    "support": "APOIAR",
+    "donateAria": "Apoiar o projeto",
+    "banner": {
+      "help": "me ajuda?",
+      "cta": "APOIAR ▸",
+      "aria": "Apoie o PokéHax",
+      "ariaActive": "Apoie o PokéHax — feito por um fã só"
+    },
+    "footer": {
+      "about": "Sobre",
+      "privacy": "Política de Privacidade",
+      "fine": "Jogo de fã, não-comercial. Não afiliado à Nintendo, Game Freak ou The Pokémon Company. Dados e sprites são homenagem dos fãs.",
+      "credit": "▸ feito por Lofz"
+    },
+    "modal": {
+      "title": "Sobre o PokéHax",
+      "close": "Fechar",
+      "tabAbout": "SOBRE",
+      "tabPrivacy": "PRIVACIDADE"
+    },
+    "body": {
+      "p1": "**PokéHax** é um jogo de fã, **gratuito e sem fins lucrativos**, feito de forma independente por fãs da franquia. Você dá um draft num time de 6 Pokémon de Johto e Kanto e encara a Elite dos 4 + o Campeão. A pergunta é uma só: seu time aplica o **6 a 0**?",
+      "p2": "Tudo roda no seu navegador — é um site estático, sem cadastro e sem login. Feito por **Lofz**, por amor à franquia, nas horas vagas.",
+      "disclaimer": "Projeto não-oficial. **Não é afiliado, patrocinado nem endossado** pela Nintendo, Game Freak ou The Pokémon Company. \"Pokémon\", os nomes das criaturas e demais marcas pertencem aos seus respectivos donos. Sprites e dados são usados apenas para fins de homenagem e fãs.",
+      "linksTitle": "REDES E APOIO",
+      "linksIntro": "Acompanhe, mande feedback ou ajude o projeto a continuar de pé:",
+      "contact": "Contato:"
+    },
+    "privacy": {
+      "updated": "Última atualização: {date}.",
+      "p1": "O PokéHax é um site simples, sem cadastro e sem login. **Não coletamos dados pessoais** como nome, e-mail ou telefone. Seu time e suas escolhas ficam só no seu navegador.",
+      "metricsTitle": "MÉTRICAS DE USO",
+      "metrics": "Para entender como o jogo é usado e melhorá-lo, coletamos **estatísticas anônimas** (como qual modo foi escolhido e se a campanha foi concluída). Elas **não identificam você**. Para isso, são usados cookies — que você pode bloquear no navegador sem prejudicar o jogo.",
+      "ageTitle": "IDADE RECOMENDADA",
+      "age": "Recomendamos o jogo para **maiores de 13 anos**. Não coletamos intencionalmente dados de crianças.",
+      "changesTitle": "MUDANÇAS",
+      "changes": "Esta política pode ser atualizada. Quando isso acontecer, a data de \"última atualização\" no topo será alterada.",
+      "contactTitle": "CONTATO",
+      "contactQ": "Dúvidas sobre privacidade?"
+    }
+  },
   "types": {
     "Normal": "Normal",
     "Fire": "Fogo",
