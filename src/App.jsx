@@ -10,6 +10,8 @@ import { Bench } from "./components/Arena";
 import { Sprite } from "./components/bits";
 import { MatchRow } from "./components/MatchRow";
 import { ChampionBox, DefeatBox } from "./components/Finale";
+import { SiteFooter, SupportBanner } from "./components/About";
+import { track } from "./analytics/track";
 import { useT, Rich } from "./i18n";
 
 const freshResults = () =>
@@ -72,6 +74,7 @@ export default function App() {
   const [nextIdx, setNextIdx] = useState(null);
   const eventsRef = useRef([]);
   const [evIdx, setEvIdx] = useState(0);
+  const runCount = useRef(0); // nº de partidas iniciadas nesta sessão (sequência)
   const reduced =
     typeof window !== "undefined" &&
     window.matchMedia &&
@@ -169,7 +172,10 @@ export default function App() {
     setPhase(toPhase);
   }
 
-  const fullReset = () => resetJourney("roll");
+  const fullReset = () => {
+    track("play_again", { from: phase, mode: lens });
+    resetJourney("roll");
+  };
   const goHome = () => resetJourney("intro");
 
   function startBattle(idx) {
@@ -188,6 +194,14 @@ export default function App() {
   }
 
   function startRun() {
+    runCount.current += 1;
+    track("challenge_started", {
+      mode: lens,
+      seed,
+      run_number: runCount.current, // 1ª, 2ª… partida desta sessão
+      skips_used: totalSkips,
+      team: team.map((m) => m.id),
+    });
     setPhase("run");
     startBattle(0);
   }
@@ -252,13 +266,26 @@ export default function App() {
 
       if (ev.k === "end") {
         const idx = current;
+        const common = { mode: lens, seed, run_number: runCount.current };
+        track("stage_result", {
+          ...common,
+          stage: idx + 1, // etapa 1..5
+          trainer: ELITE[idx].name,
+          win: ev.win,
+          score_for: ev.score?.[0] ?? null,
+          score_against: ev.score?.[1] ?? null,
+        });
         setResults((rs) =>
           rs.map((r, i) => (i === idx ? { ...r, status: ev.win ? "win" : "loss" } : r))
         );
         setCurrent(-1);
-        if (!ev.win) setPhase("defeat");
-        else if (idx === ELITE.length - 1) setPhase("champion");
-        else setNextIdx(idx + 1);
+        if (!ev.win) {
+          track("defeat", { ...common, stage: idx + 1, trainer: ELITE[idx].name });
+          setPhase("defeat");
+        } else if (idx === ELITE.length - 1) {
+          track("champion", { ...common });
+          setPhase("champion");
+        } else setNextIdx(idx + 1);
       }
 
       setEvIdx((i) => i + 1);
@@ -312,6 +339,7 @@ export default function App() {
         <p className="tagline">
           <Rich text={t("header.tagline")} />
         </p>
+        <SupportBanner />
       </header>
 
       {phase === "intro" && (
@@ -499,7 +527,7 @@ export default function App() {
         </section>
       )}
 
-      <footer className="foot">{t("footer")}</footer>
+      <SiteFooter />
     </div>
   );
 }

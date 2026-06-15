@@ -5,7 +5,7 @@ Você rola/draft um time de 6 Pokémon de Johto/Kanto e enfrenta a Elite dos 4 +
 Pergunta-tema: "seu time aplica o **6 a 0**?". Tudo em **PT-BR**.
 
 ## Stack & comandos
-- React 18 + Vite 5. Único dep de runtime extra: `html-to-image` (PNG do Hall da Fama).
+- React 18 + Vite 5. Deps de runtime extra: `html-to-image` (PNG do Hall da Fama) e `posthog-js` (analytics, **carregado sob demanda** — só baixa se houver chave).
 - `npm run dev` (raiz `/`), `npm run build` (gera `dist/`, base `/pokeHax/`). **Mantenha o build verde.**
 - Sem testes. A validação é `npm run build` + checagem visual pelo usuário.
 
@@ -24,6 +24,7 @@ Pergunta-tema: "seu time aplica o **6 a 0**?". Tudo em **PT-BR**.
 - `src/components/MatchRow.jsx` — resumo do confronto. Ao vivo: head inverte (você←esq, pause centro, Elite→dir) com deslize; concluído: badge GANHOU/PERDEU + KOs; pendente: "A SEGUIR".
 - `src/components/Finale.jsx` — **Hall da Fama compartilhável** (estilo GSC: palco + confete + arte `thumbnail` + faixa "BEM-VINDO..."). Botão exporta PNG via `html-to-image` (Web Share no mobile, download no desktop). `DefeatBox` simples.
 - `src/components/bits.jsx` — `TypeChip`, `HPBar`, `Sprite`, `Pokeball`, `BallTray`.
+- `src/analytics/track.js` — **wrapper de analytics agnóstico** (PostHog). Trocar de provedor = mexer só aqui. `initAnalytics()` no boot (`main.jsx`); `track(evento, props)` no resto. Liga só com `VITE_POSTHOG_KEY` E (produção OU `VITE_ANALYTICS=1` em dev) — senão é no-op. O SDK entra por import dinâmico (não vai no bundle principal nem é pré-carregado; baixa em runtime só quando ligado).
 - `src/App.jsx` — orquestra fases: `intro | roll(draft) | run | champion | defeat`. Draft, **reordenação por Pointer Events**, pause do playback, e o debug `?win`.
 - `src/styles/global.css` — TODO o estilo. Tema "noite de Johto" / Game Boy Color.
 - `sim.mjs` — **ferramenta de balanceamento** (Monte Carlo). Roda via: `./node_modules/.bin/esbuild sim.mjs --bundle --platform=node --format=esm --outfile=sim.bundle.mjs && node sim.bundle.mjs 4000`.
@@ -40,13 +41,29 @@ Pergunta-tema: "seu time aplica o **6 a 0**?". Tudo em **PT-BR**.
 - **`?win`**: força a tela de campeão p/ dev; só funciona em `import.meta.env.DEV`.
 - **Sprites de Pokémon**: via jsDelivr (CORS ok). Sprites de treinador: locais em `public/trainers/`, referenciadas com `import.meta.env.BASE_URL`.
 - **Deploy**: GitHub Pages em `lofz.github.io/pokeHax/` → `vite.config.js` usa `base: "/pokeHax/"` só no build. **Se migrar p/ domínio próprio (raiz), trocar a base p/ `/`.** Workflow: `.github/workflows/deploy.yml` (push na `main`).
+- **Analytics em produção**: a chave vem de **repo secrets** (`VITE_POSTHOG_KEY`, `VITE_POSTHOG_HOST`) injetados no passo `npm run build` do workflow. Local: `.env.local` (ver `.env.example`). Sem secret → deploy normal, analytics desligado.
 
 ## Estado do git
 - Repo: `github.com/Lofz/pokeHax`. Branch principal: `main`.
 - `versao-alfa` — checkpoint alfa (+ deploy). `fix/mobile-ordering` — reorder via Pointer Events.
 
+## Analytics (PostHog) — eventos instrumentados
+Wrapper em `src/analytics/track.js` (`autocapture: false` — só os eventos abaixo). Todos os do funil de partida carregam `mode` (`'rocket'|'oak'`).
+**Liga/desliga:** produção liga sozinha (se houver chave); **dev fica DESLIGADO** por padrão (não gasta cota) e só loga `[track:off]` no console — pra enviar de verdade em dev, `VITE_ANALYTICS=1` no `.env.local`.
+- `mode_selected{mode}` — troca de modo na intro (só quando muda).
+- `challenge_started{mode,seed,run_number,skips_used,team[]}` — clicou em DESAFIAR A ELITE. `run_number` = nª partida da sessão (→ "partidas em sequência").
+- `stage_result{mode,seed,run_number,stage,trainer,win,score_for,score_against}` — fim de cada confronto (etapa 1..5).
+- `champion{mode,seed,run_number}` / `defeat{mode,seed,run_number,stage,trainer}` — desfecho (→ win rate; abandono = `challenge_started` sem desfecho).
+- `play_again{from,mode}` — NOVA JORNADA / TENTAR DE NOVO (não dispara no clique do logo = goHome).
+- `share_clicked{mode,seed}` — botão Compartilhar do Hall da Fama.
+- `about_opened{section}` — abriu o modal do rodapé (`'about'|'privacy'`).
+- `outbound_click{to,where}` — clique em link externo (`to`: `x|tiktok|discord|donate`; `where`: `footer|modal|banner`).
+
+## Sobre / rodapé / links
+- `src/components/About.jsx` — `SupportBanner` (pedacinho de apoio compacto no canto sup. direito do cabeçalho: **Cubone** [easter egg] + balãozinho GB com pílula APOIAR; o `<a>` todo é o link de doação; só renderiza se houver URL `donate` em links.js) + `SiteFooter` (rodapé) + modal "Sobre / Privacidade" (abas, fecha no ESC/scrim, trava scroll). Ícones de marca são **SVG monocromático** (`currentColor`), não emoji; moedas são glifos CSS.
+- `src/data/links.js` — **fonte única** dos links externos: `SOCIAL` (x/tiktok/discord/donate — itens com `url` vazio somem), `LINKS_ACTIVE` (liga os cliques; **`false`** = tudo aparece mas sem `<a>`/sem clique = "só imagem", pra subir com URLs placeholder sem 404 — trocar p/ `true` ao preencher as URLs reais), `CONTACT_EMAIL`, `PRIVACY_UPDATED`.
+
 ## Roadmap / ideias em aberto
-- **Analytics** (recomendado: **PostHog** free tier, 1M eventos/mês). Instrumentar funil: `mode_selected`, `challenge_started`, `stage_result{etapa,win}`, `champion/defeat`, `play_again`, `share_clicked`. Fazer um wrapper `track()` agnóstico (trocar provedor = 1 arquivo).
 - Error boundary no topo (evitar tela branca em produção).
 - Reordenação por teclado (a11y) — a alça já existe.
 - Seed digitável/compartilhável via URL (`?seed=`).

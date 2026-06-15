@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { Sprite } from "./bits";
+import { track } from "../analytics/track";
 import { useT } from "../i18n";
 
 /** Confete fixo (posições determinísticas → o print sai sempre igual). */
@@ -35,6 +36,7 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
 
   async function handleShare() {
     if (!cardRef.current || busy) return;
+    track("share_clicked", { mode: lens, seed });
     setBusy(true);
     setMsg("");
     try {
@@ -109,7 +111,7 @@ export function ChampionBox({ team, results, onReset, seed, lens }) {
             <b>{t("finale.mode")}</b>
             {lens === "rocket" ? t("finale.modeRocket") : t("finale.modeOak")}
           </span>
-          <span className="hof-brand">PokéHax</span>
+          <span className="hof-brand">PokéHax · Lofz</span>
         </div>
       </div>
 
