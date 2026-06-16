@@ -57,8 +57,13 @@ export function BallTray({ total, fainted = 0, className = "" }) {
   );
 }
 
-/** Sprite pixelado do dataset, com fallback silencioso. */
-export function Sprite({ src, alt, size = 56, className = "" }) {
+/**
+ * Sprite pixelado, com fallback silencioso. Extras (usados no Hall da Fama):
+ *  - `fallbackSrc`: se a imagem principal falhar, troca 1× por ela (ex.:
+ *    thumbnail do CDN → sprite local same-origin). Nunca fica quebrado.
+ *  - `crossOrigin`: deixa a imagem "limpa" pro canvas do compartilhar (toPng).
+ */
+export function Sprite({ src, alt, size = 56, className = "", fallbackSrc, crossOrigin }) {
   if (!src) return <span className={"sprite-fallback " + className} style={{ width: size, height: size }} />;
   return (
     <img
@@ -69,6 +74,14 @@ export function Sprite({ src, alt, size = 56, className = "" }) {
       height={size}
       loading="lazy"
       draggable={false}
+      crossOrigin={crossOrigin}
+      onError={(e) => {
+        const img = e.currentTarget;
+        if (fallbackSrc && img.dataset.fb !== "1") {
+          img.dataset.fb = "1";
+          img.src = fallbackSrc;
+        }
+      }}
     />
   );
 }

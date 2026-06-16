@@ -8,14 +8,22 @@
 import pokedex from "./pokedex.json";
 
 /**
- * As URLs de sprite do dataset apontam para o `raw.githubusercontent.com`, que
- * NÃO é um CDN (rate-limit, sem garantia de cache). Reescrevemos para o
- * jsDelivr, que serve o mesmo repositório via CDN real com CORS — robusto sob
- * tráfego e necessário para o PNG de compartilhar do Hall da Fama.
+ * SPRITES (cartas/batalha/banco) são SELF-HOSTED em `public/mons/` — mesma
+ * origem do site. No mobile via CGNAT (5G), milhares de aparelhos compartilham
+ * um IP e o jsDelivr passava a barrar com 403 (throttle por-IP), deixando
+ * sprites quebrados; same-origin não tem esse limite e ainda mantém o canvas
+ * "limpo" pro PNG de compartilhar. São só ~250 PNGs de <1 KB.
+ *
+ * THUMBNAILS (arte maior, usados só no Hall da Fama) seguem no jsDelivr pra não
+ * pesar no repo — mas são pré-carregados durante a run (App.jsx) e têm fallback
+ * pro sprite local (Finale), então não dependem da sorte do CDN no mobile.
  */
 const RAW = "https://raw.githubusercontent.com/Purukitto/pokemon-data.json/master";
 const CDN = "https://cdn.jsdelivr.net/gh/Purukitto/pokemon-data.json@master";
 const cdn = (url) => (url ? url.replace(RAW, CDN) : null);
+/** Sprite local: reaproveita o nome do arquivo da URL do dataset (ex: 006.png). */
+const BASE = import.meta.env.BASE_URL;
+const localSprite = (url) => (url ? `${BASE}mons/${url.split("/").pop()}` : null);
 
 /** Normaliza uma entrada crua do dataset para o formato usado no jogo. */
 function normalize(entry) {
@@ -45,8 +53,8 @@ function normalize(entry) {
     /** true quando o Pokémon NÃO possui próxima evolução */
     fullyEvolved: !entry?.evolution?.next,
     image: {
-      sprite: cdn(entry.image?.sprite),
-      thumbnail: cdn(entry.image?.thumbnail),
+      sprite: localSprite(entry.image?.sprite), // self-hosted (public/mons)
+      thumbnail: cdn(entry.image?.thumbnail), // jsDelivr (preload + fallback no Finale)
       hires: cdn(entry.image?.hires),
     },
   };

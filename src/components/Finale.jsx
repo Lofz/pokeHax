@@ -40,33 +40,45 @@ export function ChampionBox({ team, results, onReset, seed, lens, region }) {
     setBusy(true);
     setMsg("");
     try {
+      // SEM cacheBust: ele re-baixava todas as imagens (ignorando o cache) na
+      // hora de gerar — no 5G isso era um burst que tomava 403 e quebrava o
+      // share. Com o cache (preload na run) + crossOrigin, reusa o que já tem.
+      // imagePlaceholder: se ainda assim faltar uma imagem, o PNG sai mesmo
+      // assim (não lança).
       const dataUrl = await toPng(cardRef.current, {
         pixelRatio: 2,
-        cacheBust: true,
         backgroundColor: "#16122b",
+        imagePlaceholder:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
       });
       const blob = await (await fetch(dataUrl)).blob();
       const file = new File([blob], t("finale.shareFile", { seed }) + ".png", {
         type: "image/png",
       });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: t("finale.shareTitleOf", { region }),
-          text: t("finale.shareText"),
-        });
-      } else {
+      const save = () => {
         const a = document.createElement("a");
         a.href = dataUrl;
         a.download = file.name;
         a.click();
         setMsg(t("finale.shareSaved"));
+      };
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: t("finale.shareTitleOf", { region }),
+            text: t("finale.shareText"),
+          });
+        } catch (err) {
+          if (err?.name === "AbortError") return; // usuário cancelou
+          save(); // share falhou (ex.: iOS perdeu o gesto do toque) → baixa o PNG
+        }
+      } else {
+        save();
       }
     } catch (e) {
-      if (e?.name !== "AbortError") {
-        console.error(e);
-        setMsg(t("finale.shareError"));
-      }
+      console.error(e); // toPng/blob falhou
+      setMsg(t("finale.shareError"));
     } finally {
       setBusy(false);
     }
@@ -92,7 +104,14 @@ export function ChampionBox({ team, results, onReset, seed, lens, region }) {
             {stats.map((m, i) => (
               <div className="hof-fame-mon" key={m.id + "-" + i}>
                 {i === mvpIdx && m.ko > 0 && <span className="hof-fame-mvp">★</span>}
-                <Sprite src={m.image.thumbnail} alt={m.name} size={84} className="hof-art" />
+                <Sprite
+                  src={m.image.thumbnail}
+                  fallbackSrc={m.image.sprite}
+                  crossOrigin="anonymous"
+                  alt={m.name}
+                  size={84}
+                  className="hof-art"
+                />
                 <span className="hof-fame-name">{m.name.toUpperCase()}</span>
                 <span className="hof-fame-ko">{t("finale.monKO", { n: m.ko })}</span>
               </div>
