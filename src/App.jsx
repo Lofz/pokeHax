@@ -311,6 +311,23 @@ export default function App() {
     return () => clearTimeout(t);
   }, [phase, nextIdx, mode, paused]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* Pré-carrega (escalonado) os thumbnails do time durante a run. Evita o burst
+     de 6 requisições no Hall da Fama (que tomava 403 do jsDelivr no 5G/CGNAT) e
+     deixa o PNG de compartilhar usar o cache. crossOrigin = canvas "limpo". */
+  useEffect(() => {
+    if (phase !== "run" || !team.length) return;
+    const urls = team.map((m) => m.image?.thumbnail).filter(Boolean);
+    let i = 0;
+    let timer = setTimeout(function tick() {
+      if (i >= urls.length) return;
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = urls[i++];
+      timer = setTimeout(tick, 1500); // 1 a cada 1,5s — a run dura bem mais
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [phase, team]);
+
   const finalLoss = phase === "defeat" ? results.findIndex((r) => r.status === "loss") : -1;
 
   return (
