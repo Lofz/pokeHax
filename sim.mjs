@@ -69,20 +69,30 @@ const LEAGUE_DEFS = {
     playerLvl: 58,
     trainers: [
       { name: "LORELEI", buff: 1.16, team: [[87, 52], [91, 51], [80, 52], [124, 54], [131, 54]] },
-      { name: "BRUNO", buff: 1.61, team: [[95, 51], [107, 53], [106, 53], [95, 54], [68, 56]] },
-      { name: "AGATHA", buff: 1.29, team: [[94, 53], [42, 54], [93, 53], [24, 56], [94, 58]] },
-      { name: "LANCE", buff: 1.14, team: [[130, 56], [148, 54], [148, 54], [142, 58], [149, 60]] },
-      { name: "BLUE", buff: 1.17, team: [[18, 59], [65, 57], [112, 59], [59, 58], [103, 59], [9, 63]] },
+      { name: "BRUNO", buff: 1.59, team: [[95, 51], [107, 53], [106, 53], [95, 54], [68, 56]] },
+      { name: "AGATHA", buff: 1.32, team: [[94, 53], [42, 54], [93, 53], [24, 56], [94, 58]] },
+      { name: "LANCE", buff: 1.18, team: [[130, 56], [148, 54], [148, 54], [142, 58], [149, 60]] },
+      { name: "BLUE", buff: 1.20, team: [[18, 59], [65, 57], [112, 59], [59, 58], [103, 59], [9, 63]] },
     ],
   },
   johto: {
     playerLvl: 46,
     trainers: [
-      { name: "WILL", buff: 1.11, team: [[178, 40], [124, 41], [103, 41], [80, 41], [178, 42]] },
-      { name: "KOGA", buff: 1.34, team: [[168, 40], [49, 41], [205, 43], [89, 42], [169, 44]] },
-      { name: "BRUNO", buff: 1.67, team: [[237, 42], [106, 42], [107, 42], [95, 43], [68, 46]] },
-      { name: "KAREN", buff: 1.31, team: [[197, 42], [45, 42], [94, 45], [198, 44], [229, 47]] },
-      { name: "LANCE", buff: 1.02, team: [[130, 44], [149, 47], [149, 47], [142, 46], [6, 46], [149, 50]] },
+      { name: "WILL", buff: 1.12, team: [[178, 40], [124, 41], [103, 41], [80, 41], [178, 42]] },
+      { name: "KOGA", buff: 1.32, team: [[168, 40], [49, 41], [205, 43], [89, 42], [169, 44]] },
+      { name: "BRUNO", buff: 1.64, team: [[237, 42], [106, 42], [107, 42], [95, 43], [68, 46]] },
+      { name: "KAREN", buff: 1.33, team: [[197, 42], [45, 42], [94, 45], [198, 44], [229, 47]] },
+      { name: "LANCE", buff: 1.05, team: [[130, 44], [149, 47], [149, 47], [142, 46], [6, 46], [149, 50]] },
+    ],
+  },
+  hoenn: {
+    playerLvl: 54,
+    trainers: [
+      { name: "SIDNEY", buff: 1.17, team: [[262, 46], [275, 48], [332, 46], [319, 48], [359, 49]] },
+      { name: "PHOEBE", buff: 1.52, team: [[356, 48], [354, 49], [302, 50], [354, 49], [356, 51]] },
+      { name: "GLACIA", buff: 1.47, team: [[363, 50], [363, 50], [362, 52], [362, 52], [365, 53]] },
+      { name: "DRAKE", buff: 1.21, team: [[372, 52], [334, 54], [330, 53], [330, 53], [373, 55]] },
+      { name: "STEVEN", buff: 1.11, team: [[227, 57], [344, 55], [306, 56], [346, 56], [348, 56], [376, 58]] },
     ],
   },
 };
@@ -212,12 +222,15 @@ function autoCalibrate(name, ELITE, playerLvl, calTeams, verTeams) {
 console.log(`PokéHax — Monte Carlo multi-liga\n`);
 const kanto = hydrate(LEAGUE_DEFS.kanto);
 const johto = hydrate(LEAGUE_DEFS.johto);
+const hoenn = hydrate(LEAGUE_DEFS.hoenn);
 
 report("kanto", kanto, LEAGUE_DEFS.kanto.playerLvl);
 report("johto", johto, LEAGUE_DEFS.johto.playerLvl);
+report("hoenn", hoenn, LEAGUE_DEFS.hoenn.playerLvl);
 
-// Times compartilhados (o draft independe da liga) — reusados nas 2 calibrações.
+// Times compartilhados (o draft independe da liga) — reusados nas calibrações.
 const calTeams = makeTeams("C", 4000);
 const verTeams = makeTeams("V", 8000);
 autoCalibrate("kanto", kanto, LEAGUE_DEFS.kanto.playerLvl, calTeams, verTeams);
 autoCalibrate("johto", johto, LEAGUE_DEFS.johto.playerLvl, calTeams, verTeams);
+autoCalibrate("hoenn", hoenn, LEAGUE_DEFS.hoenn.playerLvl, calTeams, verTeams);
