@@ -2,9 +2,9 @@
  * pool.js — regras de sorteio do draft.
  *
  * Nada de listas de nomes hardcoded: o pool é DERIVADO do dataset.
- * TODOS os 251 Pokémon entram no sorteio com peso igual — inclusive
- * não-evoluídos e fraquinhos (Charmander, Caterpie...). O que decide se um
- * azarão tem chance é o POTENCIAL sorteado por instância (ver battle.js).
+ * TODOS os Pokémon do dataset (Gen 1–3, 386) entram no sorteio com peso igual —
+ * inclusive não-evoluídos e fraquinhos (Charmander, Caterpie...). O que decide
+ * se um azarão tem chance é o POTENCIAL sorteado por instância (ver battle.js).
  *
  * Desde a v0.4 o time é montado num DRAFT: 6 rodadas, 5 candidatos por
  * rodada, e o jogador escolhe 1 por rodada.
@@ -12,8 +12,12 @@
 import { allMons } from "./dex";
 import { mulberry32, hashSeed } from "../engine/rng";
 
-/** Pokémon lendários/míticos das Gen 1 e 2 (ids da Pokédex nacional). */
-const LEGENDARY_IDS = new Set([144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251]);
+/** Pokémon lendários/míticos das Gen 1, 2 e 3 (ids da Pokédex nacional). */
+const LEGENDARY_IDS = new Set([
+  144, 145, 146, 150, 151, // Kanto
+  243, 244, 245, 249, 250, 251, // Johto
+  377, 378, 379, 380, 381, 382, 383, 384, 385, 386, // Hoenn (Regis, Lati@s, Kyogre/Groudon/Rayquaza, Jirachi, Deoxys)
+]);
 
 /** Tamanho do time / número de rodadas do draft. */
 export const TEAM_SIZE = 6;
@@ -24,7 +28,7 @@ export const CANDIDATES_PER_ROUND = 3;
 export const POTENTIAL_MIN = 50;
 export const POTENTIAL_MAX = 100;
 
-/** Pool único: todos os 251, peso igual. */
+/** Pool único: todos os Pokémon do dataset (386), peso igual. */
 export const FULL_POOL = allMons();
 
 /** Hidrata um Pokémon do pool com seu potencial e a flag de raro. */
