@@ -1,16 +1,23 @@
-import { Sprite, HPBar, BallTray } from "./bits";
+import { useState, useEffect } from "react";
+import { Sprite, HPBar, BallTray, ItemSprite } from "./bits";
 import { TEAM_SIZE } from "../data/pool";
+import { getConsumable } from "../data/consumables";
 import { useT } from "../i18n";
 
-export function Bench({ team }) {
+export function Bench({ team, consumable }) {
   return (
     <div className="bench">
-      {team.map((m, i) => (
-        <span className="bench-mon" key={m.id + "-" + i} title={m.name}>
-          <Sprite src={m.image.sprite} alt={m.name} size={34} />
-          <span className="bench-name">{m.name.toUpperCase()}</span>
-        </span>
-      ))}
+      {team.map((m, i) => {
+        const item =
+          consumable && consumable.target === m.id ? getConsumable(consumable.id) : null;
+        return (
+          <span className="bench-mon" key={m.id + "-" + i} title={m.name}>
+            <Sprite src={m.image.sprite} alt={m.name} size={34} />
+            <span className="bench-name">{m.name.toUpperCase()}</span>
+            {item && <ItemSprite id={item.id} size={16} className="bench-item" />}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -20,9 +27,23 @@ export function Bench({ team }) {
  * batalha: VOCÊ à ESQUERDA e a Elite à DIREITA. As bandejas de Pokébolas ficam
  * acima de cada Pokémon, no estilo do jogo padrão.
  */
-export function Arena({ snap, feed, enemyTotal }) {
+export function Arena({ snap, feed, enemyTotal, consumable }) {
   const { t } = useT();
   const [enemyKO, yourKO] = snap.score; // inimigos derrubados / seus caídos
+
+  // PIN de buff: aparece quando o mon ATIVO do jogador é o alvo do consumível.
+  const buff =
+    consumable && snap.pId != null && snap.pId === consumable.target
+      ? getConsumable(consumable.id)
+      : null;
+
+  // Animação da Poção: o motor marca o evento com fx:"heal". Cada disparo
+  // incrementa o contador, que vira `key` → o @keyframes re-executa.
+  const [healFx, setHealFx] = useState(0);
+  useEffect(() => {
+    if (snap?.fx === "heal") setHealFx((n) => n + 1);
+  }, [snap]);
+
   return (
     <div className="arena">
       <div className="duel">
@@ -30,7 +51,16 @@ export function Arena({ snap, feed, enemyTotal }) {
           <BallTray total={TEAM_SIZE} fainted={yourKO} className="you" />
           <div className="f-head">
             <Sprite src={snap.pImg} alt={snap.pName} size={52} className="flip" />
+            {healFx > 0 && (
+              <span key={healFx} className="fx-heal" aria-hidden="true">＋</span>
+            )}
             <div className="f-name you">{snap.pName.toUpperCase()}</div>
+            {buff && (
+              <span className={"arena-pin item-" + buff.id}>
+                <ItemSprite id={buff.id} size={13} />
+                {t("items." + buff.id + ".name")}
+              </span>
+            )}
           </div>
           <HPBar pct={snap.php} />
         </div>

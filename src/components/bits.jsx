@@ -1,4 +1,5 @@
 import { TYPE_COLOR } from "../data/typeChart";
+import { getConsumable } from "../data/consumables";
 import { useT } from "../i18n";
 
 export function TypeChip({ t: type }) {
@@ -54,6 +55,42 @@ export function BallTray({ total, fainted = 0, className = "" }) {
         <Pokeball key={i} fainted={i >= total - fainted} />
       ))}
     </span>
+  );
+}
+
+/**
+ * Ícone do consumível: uma "cápsula" (estilo dos itens X / poção) desenhada em
+ * SVG e tingida pela cor de acento do item (`--item-acc`, definido por `.item-<id>`).
+ * Vetor (não pixelado), no mesmo espírito da Pokébola em SVG.
+ *
+ * DROP-IN de sprite real: se o item tiver `image` (ver consumables.js), renderiza
+ * um <img> em vez do vetor — é só soltar o PNG em public/items/ e setar o campo.
+ */
+export function ItemSprite({ id, size = 32, className = "" }) {
+  const it = getConsumable(id);
+  if (!it) return null;
+  const cls = "item-capsule item-" + id + (className ? " " + className : "");
+  if (it.image) {
+    return (
+      <img
+        className={cls}
+        src={import.meta.env.BASE_URL + it.image}
+        alt=""
+        width={size}
+        height={size}
+        draggable={false}
+      />
+    );
+  }
+  return (
+    <svg className={cls} viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
+      <g transform="rotate(-22 16 16)">
+        <rect x="10" y="4" width="12" height="24" rx="6" fill="currentColor" stroke="#16122b" strokeWidth="2" />
+        <path d="M10 10 a6 6 0 0 1 12 0 v5 h-12 z" fill="#f3e9cf" opacity="0.5" />
+        <rect x="9" y="14" width="14" height="2.8" rx="1.4" fill="#16122b" />
+        <rect x="12.2" y="7" width="2.3" height="16" rx="1.15" fill="#ffffff" opacity="0.7" />
+      </g>
+    </svg>
   );
 }
 

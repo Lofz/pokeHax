@@ -2,10 +2,12 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { newSeed, hashSeed } from "./engine/rng";
 import { simulateBattle } from "./engine/battle";
 import { rollCandidates, TEAM_SIZE, CANDIDATES_PER_ROUND } from "./data/pool";
+import { rollConsumables, getConsumable } from "./data/consumables";
 import { LEAGUES, getLeague, DEFAULT_LEAGUE_ID } from "./data/elite";
 import { getMon } from "./data/dex";
 import { MonCard } from "./components/MonCard";
 import { Intro } from "./components/Intro";
+import { ItemPick } from "./components/ItemPick";
 import { Bench } from "./components/Arena";
 import { Sprite } from "./components/bits";
 import { MatchRow } from "./components/MatchRow";
@@ -76,6 +78,10 @@ export default function App() {
   const [paused, setPaused] = useState(false); // congela o playback p/ capturar telas
   // pulos gastos por rodada (re-sorteia os candidatos daquela rodada)
   const [skips, setSkips] = useState(() => Array(TEAM_SIZE).fill(0));
+  // consumível escolhido (etapa entre draft e reordenação): { id, target(monId) }
+  const [consumable, setConsumable] = useState(null);
+  // item selecionado aguardando a escolha do alvo (passo 2 da etapa)
+  const [pendingItem, setPendingItem] = useState(null);
   const [nextIdx, setNextIdx] = useState(null);
   const eventsRef = useRef([]);
   const [evIdx, setEvIdx] = useState(0);
@@ -97,6 +103,12 @@ export default function App() {
     [phase, seed, team, draftComplete, draftRound, roundNonce]
   );
 
+  /* --- etapa de consumível: derivada (draft feito, item ainda não escolhido) --- */
+  const itemChosen = !!consumable;
+  const itemStep = draftComplete && !itemChosen;
+  // 3 opções determinísticas por seed (sem re-sorteio).
+  const itemOptions = useMemo(() => (itemStep ? rollConsumables(seed) : []), [itemStep, seed]);
+
   /* Pulos: Equipe Rocket tem 1 por rodada; Professor Oak tem 1 no draft todo. */
   const totalSkips = skips.reduce((a, b) => a + b, 0);
   const skipsLeft = lens === "rocket" ? 1 - roundNonce : 1 - totalSkips;
@@ -116,6 +128,22 @@ export default function App() {
       return next;
     });
   }
+
+  /* --- etapa de consumível --- */
+  /** Passo 1: escolhe um item. Se mira 1 mon, vai pro passo 2; senão fixa já. */
+  function pickItem(id) {
+    const it = getConsumable(id);
+    if (it?.targeted) setPendingItem(id);
+    else setConsumable({ id, target: null });
+  }
+  /** Passo 2: aplica o item pendente ao mon escolhido → avança pra reordenação. */
+  function assignItem(monId) {
+    if (!pendingItem) return;
+    setConsumable({ id: pendingItem, target: monId });
+    setPendingItem(null);
+  }
+  /** Volta do passo 2 para as cartas de item. */
+  const cancelItem = () => setPendingItem(null);
 
   /**
    * Reordenação por Pointer Events (mouse + toque → funciona no iOS, onde o
@@ -165,6 +193,8 @@ export default function App() {
     setSeed(s);
     setTeam([]);
     setSkips(Array(TEAM_SIZE).fill(0));
+    setConsumable(null);
+    setPendingItem(null);
     setResults(freshResults(league.roster));
     setCurrent(-1);
     setSnap(null);
@@ -190,7 +220,17 @@ export default function App() {
   }
 
   function startBattle(idx) {
-    const sim = simulateBattle(team, league.roster[idx], hashSeed(seed + ":" + idx), league.playerLvl);
+    // Resolve o efeito do consumível (se houver) para o alvo escolhido.
+    const cmod = consumable
+      ? { target: consumable.target, mod: getConsumable(consumable.id)?.mod }
+      : null;
+    const sim = simulateBattle(
+      team,
+      league.roster[idx],
+      hashSeed(seed + ":" + idx),
+      league.playerLvl,
+      cmod
+    );
     eventsRef.current = sim.events;
     setEvIdx(0);
     setCurrent(idx);
@@ -212,6 +252,8 @@ export default function App() {
       run_number: runCount.current, // 1ª, 2ª… partida desta sessão
       skips_used: totalSkips,
       team: team.map((m) => m.id),
+      item: consumable?.id ?? null,
+      item_target: consumable?.target ?? null,
     });
     setPhase("run");
     startBattle(0);
@@ -277,7 +319,9 @@ export default function App() {
 
       if (ev.k === "end") {
         const idx = current;
-        const common = { mode: lens, seed, run_number: runCount.current };
+        // `item` = perk usado nesta run (null se nenhum). Vai em stage_result,
+        // champion e defeat via o spread de `common` → "qual perk no jogo X".
+        const common = { mode: lens, seed, run_number: runCount.current, item: consumable?.id ?? null };
         track("stage_result", {
           ...common,
           stage: idx + 1, // etapa 1..5
@@ -389,9 +433,13 @@ export default function App() {
               {lens === "rocket" ? t("intro.modeRocketName") : t("intro.modeOakName")}
             </span>
             <span className="reorder-hint">
-              {draftComplete
-                ? t("roll.hintDone")
-                : t("roll.hintRound", { n: draftRound + 1, total: TEAM_SIZE })}
+              {!draftComplete
+                ? t("roll.hintRound", { n: draftRound + 1, total: TEAM_SIZE })
+                : itemStep
+                ? pendingItem
+                  ? t("items.applyHint")
+                  : t("items.hint")
+                : t("roll.hintDone")}
             </span>
           </div>
 
@@ -446,6 +494,15 @@ export default function App() {
                 </button>
               </div>
             </>
+          ) : itemStep ? (
+            <ItemPick
+              options={itemOptions}
+              team={team}
+              pending={pendingItem}
+              onPick={pickItem}
+              onAssign={assignItem}
+              onCancel={cancelItem}
+            />
           ) : (
             <>
               {/* key estável por id (sem índice): o reorder ao vivo move o DOM
@@ -467,6 +524,11 @@ export default function App() {
                     draggable
                     dragging={dragId === m.id}
                     onDragStart={(e) => startDrag(e, m.id)}
+                    itemBadge={
+                      consumable && consumable.target === m.id
+                        ? getConsumable(consumable.id)
+                        : null
+                    }
                   />
                 ))}
               </div>
@@ -516,7 +578,7 @@ export default function App() {
             </button>
           </div>
 
-          <Bench team={team} />
+          <Bench team={team} consumable={consumable} />
 
           <div className="matches">
             {league.roster.map((tr, i) => (
@@ -527,6 +589,7 @@ export default function App() {
                 live={current === i}
                 snap={snap}
                 lens={lens}
+                consumable={consumable}
                 paused={paused}
                 onTogglePause={() => setPaused((p) => !p)}
               />

@@ -4,7 +4,7 @@ import { Arena } from "./Arena";
 import { Sprite } from "./bits";
 import { useT } from "../i18n";
 
-export function MatchRow({ trainer, result, live, snap, lens, paused, onTogglePause }) {
+export function MatchRow({ trainer, result, live, snap, lens, consumable, paused, onTogglePause }) {
   const { t } = useT();
   const r = result;
   return (
@@ -69,7 +69,14 @@ export function MatchRow({ trainer, result, live, snap, lens, paused, onTogglePa
         </div>
       )}
 
-      {live && snap && <Arena snap={snap} feed={r.feed} enemyTotal={trainer.team.length} />}
+      {live && snap && (
+        <Arena
+          snap={snap}
+          feed={r.feed}
+          enemyTotal={trainer.team.length}
+          consumable={consumable}
+        />
+      )}
     </div>
   );
 }
