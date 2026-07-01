@@ -90,7 +90,7 @@
     "cardP1": "**PODER** é a força-base do Pokémon (a soma dos status). Quanto maior, mais forte ele é por natureza.",
     "cardP2": "**CONDIÇÃO** é a forma daquele indivíduo nesta campanha — de RUIM a EXCELENTE, indicada por uma seta colorida (estilo Winning Eleven). Um azarão em condição excelente pode surpreender a Elite — por isso **todo Pokémon é jogável**.",
     "cardTip": "A carta acima muda conforme o modo escolhido abaixo. ↓",
-    "enemiesTitle": "QUEM VOCÊ VAI ENFRENTAR",
+    "enemiesTitle": "ESCOLHA SEU OPONENTE",
     "elitePower": "PODER {bst}",
     "toggleOpen": "▲ FECHAR",
     "toggleClosed": "▼ VER TIME",
