@@ -55,6 +55,7 @@ export function Intro({ lens, setLens, onStart, league, leagues, onLeague }) {
         <ol className="how-steps">
           <li><Rich text={t("intro.step1")} /></li>
           <li><Rich text={t("intro.step2")} /></li>
+          <li><Rich text={t("intro.stepItem")} /></li>
           <li><Rich text={t("intro.step3")} /></li>
           <li><Rich text={t("intro.step4")} /></li>
         </ol>

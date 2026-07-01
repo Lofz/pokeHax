@@ -1,4 +1,4 @@
-import { TypeChip, Sprite } from "./bits";
+import { TypeChip, Sprite, ItemSprite } from "./bits";
 import { useT } from "../i18n";
 
 /**
@@ -38,6 +38,7 @@ export function MonCard({
   dragging = false,
   onDragStart,
   onPick,
+  itemBadge = null,
 }) {
   const { t } = useT();
   const blind = lens === "oak";
@@ -49,7 +50,8 @@ export function MonCard({
     "mon-card" +
     (mon.rare ? " rare" : "") +
     (dragging ? " dragging" : "") +
-    (pickable ? " pick" : "");
+    (pickable ? " pick" : "") +
+    (itemBadge ? " has-item item-" + itemBadge.id : ""); // heartbeat na cor do item
 
   return (
     <div
@@ -70,6 +72,12 @@ export function MonCard({
       }
     >
       {mon.rare && <span className="star">{t("card.rare")}</span>}
+      {itemBadge && (
+        <span className={"item-badge item-" + itemBadge.id} title={t("items." + itemBadge.id + ".name")}>
+          <ItemSprite id={itemBadge.id} size={14} />
+          {t("items." + itemBadge.id + ".name")}
+        </span>
+      )}
       <div className="mon-top">
         <Sprite src={mon.image.sprite} alt={mon.name} size={64} />
         <div className="mon-id">

@@ -55,23 +55,31 @@ function withPotential(value, ceil, p) {
  * `buff` multiplica HP e ataque — usado só pelos OPONENTES para compensar o
  * draft (você monta um time bem mais forte que 6 sorteados). 1 = sem buff.
  * Cada treinador define o seu em elite.js, formando uma rampa de dificuldade.
+ *
+ * `mod` é o efeito de um CONSUMÍVEL (só o alvo do jogador recebe; ver
+ * consumables.js). Chaves lidas aqui: atkMul, hpMul, alwaysFirst, dmgTakenMul,
+ * heal ({ threshold, frac }). Ausente = fighter neutro.
  */
-function toFighter(mon, lvl, buff = 1) {
+function toFighter(mon, lvl, buff = 1, mod = null) {
   const f = lvlFactor(lvl);
   const p = ((mon.potential ?? 50) - 50) / 50; // 0 = canônico, 1 = potencial 100
   const hp = withPotential(mon.stats.hp, POTENTIAL.hpCeil, p);
   const atk = withPotential(Math.max(mon.stats.atk, mon.stats.spa), POTENTIAL.atkCeil, p);
   const spe = withPotential(mon.stats.spe, POTENTIAL.speCeil, p);
-  const max = (hp * TUNING.hpBase + TUNING.hpFlat) * f * buff;
+  const max = (hp * TUNING.hpBase + TUNING.hpFlat) * f * buff * (mod?.hpMul ?? 1);
   return {
     id: mon.id,
     name: mon.name,
     types: mon.types,
     image: mon.image,
-    atk: atk * f * buff,
+    atk: atk * f * buff * (mod?.atkMul ?? 1),
     spe,
     hp: max,
     max,
+    // efeitos de consumível aplicados no loop de turno:
+    alwaysFirst: !!mod?.alwaysFirst,
+    dmgTakenMul: mod?.dmgTakenMul ?? 1,
+    heal: mod?.heal ? { ...mod.heal, used: false } : null,
   };
 }
 
@@ -79,9 +87,13 @@ function toFighter(mon, lvl, buff = 1) {
  * Simula a batalha inteira e devolve { events, win, score, koBy, turns }.
  * Cada evento carrega um snapshot (nomes, ids, HP%) para a UI renderizar.
  */
-export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_LVL) {
+export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_LVL, consumable = null) {
   const rng = mulberry32(seedInt);
-  const pT = playerTeam.map((m) => toFighter(m, playerLvl));
+  // O consumível (se houver) só afeta o mon do jogador cujo id === alvo.
+  // Ids do time são únicos (o draft não repete) → alvo estável mesmo após reordenar.
+  const pT = playerTeam.map((m) =>
+    toFighter(m, playerLvl, 1, consumable && consumable.target === m.id ? consumable.mod : null)
+  );
   const eT = trainer.team.map((m) => toFighter(m, m.lvl, trainer.buff ?? 1));
 
   let pi = 0, ei = 0, turn = 0, pk = 0, ek = 0;
@@ -108,9 +120,15 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
     const Pm = pT[pi];
     const Em = eT[ei];
 
-    // Speed real decide quem age primeiro (com sorte no desempate)
-    const seq =
-      rng() * (Pm.spe + Em.spe) < Pm.spe ? ["p", "e"] : ["e", "p"];
+    // Ordem do turno: X-Speed (alwaysFirst) força a prioridade; senão a Speed
+    // real decide (com sorte no desempate). Só o jogador ganha esse mod.
+    const seq = Pm.alwaysFirst
+      ? ["p", "e"]
+      : Em.alwaysFirst
+      ? ["e", "p"]
+      : rng() * (Pm.spe + Em.spe) < Pm.spe
+      ? ["p", "e"]
+      : ["e", "p"];
 
     let note = null;
     for (const side of seq) {
@@ -125,7 +143,7 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
       const crit = rng() < TUNING.critChance;
       const dmg =
         A.atk * TUNING.dmg * eff * (0.82 + 0.36 * rng()) * (crit ? TUNING.critMult : 1);
-      D.hp -= dmg;
+      D.hp -= dmg * (D.dmgTakenMul ?? 1); // X-Defesa tanka parte do dano
 
       // Nota estruturada (sem idioma): o componente formata com o i18n.
       if (!note && D.hp > 0) {
@@ -137,7 +155,17 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
       }
     }
 
-    events.push({ k: "turn", note, ...snap() });
+    // Poção: 1×/batalha, ao cair abaixo do limiar, o mon ativo do jogador cura.
+    // Não consome rng → batalhas SEM item mantêm o stream idêntico ao anterior.
+    let fx = null;
+    if (Pm.heal && !Pm.heal.used && Pm.hp > 0 && Pm.hp / Pm.max < Pm.heal.threshold) {
+      Pm.hp = Math.min(Pm.max, Pm.hp + Pm.heal.frac * Pm.max);
+      Pm.heal.used = true;
+      fx = "heal";
+      if (!note) note = { side: "p", kind: "heal", name: Pm.name };
+    }
+
+    events.push({ k: "turn", note, fx, ...snap() });
 
     if (Em.hp <= 0) {
       pk++;

@@ -1038,6 +1038,8 @@ body { background: var(--night); }
   .match.live .mh-enemy, .match.live .match-side,
   .match.live .side-left, .match.live .side-right { animation: none; }
   .hp-fill { transition: none !important; }
+  .fx-heal { display: none; }
+  .mon-card.has-item { animation: none; }
 }
 @media (max-width: 560px) {
   .match-eyebrow { min-width: 0; }
@@ -1046,4 +1048,166 @@ body { background: var(--night); }
   /* no mobile os dois lados empilham e alinham à esquerda */
   .side-right { align-items: stretch; }
   .side-right .hp-track { flex-direction: row; }
+}
+
+/* ============================================================
+   Consumíveis (itens) — etapa de escolha, selos e FX de batalha
+   ============================================================ */
+/* Acento por item (glifo/selo/pin herdam via var --item-acc). */
+.item-potion { --item-acc: var(--hpG); }
+.item-xspeed { --item-acc: #6aa0f0; }
+.item-xattack { --item-acc: var(--hpR); }
+.item-xdefense { --item-acc: var(--gold); }
+
+/* Ícone do item: sprite real (public/items) ou cápsula SVG de fallback.
+   O SVG é tingido pelo acento (--item-acc); a sprite é pixelada como as demais. */
+.item-capsule { color: var(--item-acc, var(--gold)); filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.5)); flex: none; }
+img.item-capsule { image-rendering: pixelated; object-fit: contain; }
+
+/* Passo 1 — cartas de item (centralizadas no bloco) */
+.item-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.item-card {
+  flex: 0 1 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  background: var(--panel);
+  border: 3px solid var(--cream);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(0, 0, 0, 0.45);
+  padding: 18px 14px;
+  cursor: pointer;
+  color: var(--cream);
+  font-family: "VT323", monospace;
+}
+.item-card:hover { border-color: var(--item-acc, var(--gold)); box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(0, 0, 0, 0.45), 0 0 16px -4px var(--item-acc, var(--gold)); }
+.item-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.item-card:active { transform: translate(2px, 2px); }
+/* medalhão com anel/brilho na cor do item */
+.item-emblem {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--item-acc, var(--gold));
+  background: radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.3));
+  box-shadow: 0 0 14px -3px var(--item-acc, var(--gold)), inset 0 0 8px -4px var(--item-acc, var(--gold));
+}
+.item-name { font-family: "Press Start 2P", monospace; font-size: 11px; color: var(--gold); }
+.item-desc { font-size: 17px; color: var(--cream-dim); flex: 1; }
+.item-card .pick-cta { width: 100%; margin-top: 4px; }
+
+/* Passo 2 — item escolhido + alvo */
+.item-chosen {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: var(--gold);
+  border: 2px solid var(--item-acc, var(--gold));
+  border-radius: 4px;
+  padding: 7px 10px;
+  margin-bottom: 14px;
+}
+.target-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.target-mon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 3px solid var(--cream);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(0, 0, 0, 0.45);
+  padding: 12px 8px;
+  cursor: pointer;
+  color: var(--cream);
+  font-family: "VT323", monospace;
+}
+.target-mon:hover { border-color: var(--gold); }
+.target-mon:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.target-mon:active { transform: translate(2px, 2px); }
+.target-name { font-family: "Press Start 2P", monospace; font-size: 8px; text-align: center; }
+.target-cta { font-family: "Press Start 2P", monospace; font-size: 7px; color: var(--gold); letter-spacing: 0.08em; }
+
+/* Selo do item na carta (reordenação): chip escuro com acento do item */
+.item-badge {
+  position: absolute;
+  top: -11px;
+  left: 10px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--night);
+  color: var(--item-acc, var(--gold));
+  border: 2px solid var(--item-acc, var(--gold));
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  padding: 3px 6px;
+  border-radius: 3px;
+}
+
+/* Heartbeat: a carta pulsa na cor do item depois de aplicado */
+.mon-card.has-item { animation: item-heartbeat 1.7s ease-in-out infinite; }
+@keyframes item-heartbeat {
+  0%, 100% { box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(0, 0, 0, 0.45), 0 0 0 0 transparent; }
+  50% { box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(0, 0, 0, 0.45), 0 0 13px 1px var(--item-acc, var(--gold)); }
+}
+
+/* Marcador do item no Bench (durante a run) */
+.bench-item { margin-left: 1px; }
+
+/* PIN de buff ao vivo na arena: fica DENTRO do .f-head (ao lado do nome), então
+   a altura da linha é ditada pelo sprite e a barra de HP não desalinha. */
+.arena-pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  white-space: nowrap;
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  color: var(--item-acc, var(--gold));
+  border: 1px solid var(--item-acc, var(--gold));
+  border-radius: 4px;
+  padding: 3px 6px;
+  background: rgba(0, 0, 0, 0.25);
+}
+/* deixa o nome encolher (reticências) para dar espaço ao pin quando presente */
+.f-name { min-width: 0; }
+
+/* Animação da Poção: "＋" flutuante sobre o seu Pokémon */
+.side-left .f-head { position: relative; }
+.fx-heal {
+  position: absolute;
+  left: 30px;
+  top: -8px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 18px;
+  color: var(--hpG);
+  text-shadow: 0 0 6px rgba(88, 216, 84, 0.9);
+  pointer-events: none;
+  animation: fx-heal 0.9s ease-out forwards;
+}
+@keyframes fx-heal {
+  0% { opacity: 0; transform: translateY(6px) scale(0.6); }
+  25% { opacity: 1; transform: translateY(-2px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-22px) scale(1); }
 }

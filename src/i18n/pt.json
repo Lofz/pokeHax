@@ -37,7 +37,31 @@
     "start": "A batalha começou!",
     "faint": "{name} caiu! K.O. de {by}",
     "crit": "Golpe crítico de {name}!",
-    "super": "{name} acertou um golpe super efetivo!"
+    "super": "{name} acertou um golpe super efetivo!",
+    "heal": "{name} se recuperou!"
+  },
+  "items": {
+    "hint": "Escolha 1 item para levar na jornada — vale nas 5 batalhas.",
+    "applyHint": "Em qual Pokémon aplicar o item?",
+    "pickCta": "▸ ESCOLHER",
+    "applyCta": "▸ APLICAR",
+    "swap": "‹ TROCAR ITEM",
+    "potion": {
+      "name": "POÇÃO",
+      "desc": "Cura o Pokémon uma vez por batalha quando o HP cai abaixo de 20%."
+    },
+    "xspeed": {
+      "name": "X-SPEED",
+      "desc": "Velocidade máxima: este Pokémon sempre ataca primeiro."
+    },
+    "xattack": {
+      "name": "X-ATAQUE",
+      "desc": "+25% de ataque em todas as batalhas."
+    },
+    "xdefense": {
+      "name": "X-DEFESA",
+      "desc": "Recebe 20% menos dano em todas as batalhas."
+    }
   },
   "card": {
     "power": "PODER",
@@ -59,13 +83,14 @@
     "howTitle": "COMO SE JOGA",
     "step1": "**Drafte seu time.** Seis rodadas: em cada uma saem 3 Pokémon (dos 386 de Kanto, Johto e Hoenn) e você escolhe 1 para a vaga.",
     "step2": "**Não curtiu os 3? Pule.** O pulo re-sorteia os candidatos da rodada — mas é limitado, e quantos você tem depende do modo.",
+    "stepItem": "**Escolha um item.** Com o time fechado, entra 1 consumível: escolha 1 entre 3 e aplique a um Pokémon — o efeito vale nas 5 batalhas.",
     "step3": "**Monte a ordem.** Com as 6 vagas preenchidas, arraste as cartas para decidir quem entra primeiro. A sequência é estratégia.",
     "step4": "**Derrote a Elite dos 4 + o Campeão.** Cinco confrontos, e os inimigos ficam mais fortes a cada um — o Campeão é a parede final. Aplique o **6 a 0**, ou caia tentando.",
     "cardEyebrow": "A CARTA",
     "cardP1": "**PODER** é a força-base do Pokémon (a soma dos status). Quanto maior, mais forte ele é por natureza.",
     "cardP2": "**CONDIÇÃO** é a forma daquele indivíduo nesta campanha — de RUIM a EXCELENTE, indicada por uma seta colorida (estilo Winning Eleven). Um azarão em condição excelente pode surpreender a Elite — por isso **todo Pokémon é jogável**.",
     "cardTip": "A carta acima muda conforme o modo escolhido abaixo. ↓",
-    "enemiesTitle": "QUEM VOCÊ VAI ENFRENTAR",
+    "enemiesTitle": "ESCOLHA SEU OPONENTE",
     "elitePower": "PODER {bst}",
     "toggleOpen": "▲ FECHAR",
     "toggleClosed": "▼ VER TIME",

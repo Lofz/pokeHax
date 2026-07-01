@@ -37,7 +37,31 @@
     "start": "The battle has begun!",
     "faint": "{name} went down! K.O. by {by}",
     "crit": "Critical hit by {name}!",
-    "super": "{name} landed a super-effective hit!"
+    "super": "{name} landed a super-effective hit!",
+    "heal": "{name} recovered some HP!"
+  },
+  "items": {
+    "hint": "Pick 1 item to carry on your journey — it lasts all 5 battles.",
+    "applyHint": "Which Pokémon gets the item?",
+    "pickCta": "▸ PICK",
+    "applyCta": "▸ APPLY",
+    "swap": "‹ SWAP ITEM",
+    "potion": {
+      "name": "POTION",
+      "desc": "Heals the Pokémon once per battle when its HP drops below 20%."
+    },
+    "xspeed": {
+      "name": "X-SPEED",
+      "desc": "Max speed: this Pokémon always strikes first."
+    },
+    "xattack": {
+      "name": "X-ATTACK",
+      "desc": "+25% attack in every battle."
+    },
+    "xdefense": {
+      "name": "X-DEFENSE",
+      "desc": "Takes 20% less damage in every battle."
+    }
   },
   "card": {
     "power": "POWER",
@@ -59,13 +83,14 @@
     "howTitle": "HOW TO PLAY",
     "step1": "**Draft your team.** Six rounds: each one offers 3 Pokémon (out of the 386 from Kanto, Johto and Hoenn) and you pick 1 for the slot.",
     "step2": "**Don't like the 3? Skip.** A skip re-rolls that round's candidates — but it's limited, and how many you get depends on the mode.",
+    "stepItem": "**Choose an item.** With your team locked, a consumable comes in: pick 1 of 3 and apply it to a Pokémon — the effect lasts all 5 battles.",
     "step3": "**Set the order.** With all 6 slots filled, drag the cards to decide who goes in first. The sequence is strategy.",
     "step4": "**Defeat the Elite Four + the Champion.** Five matches, and the enemies get stronger each time — the Champion is the final wall. Pull off the **6-0**, or go down trying.",
     "cardEyebrow": "THE CARD",
     "cardP1": "**POWER** is the Pokémon's base strength (the sum of its stats). The higher it is, the stronger it is by nature.",
     "cardP2": "**CONDITION** is how that individual is doing this run — from POOR to EXCELLENT, shown by a colored arrow (Winning Eleven style). An underdog in excellent condition can surprise the Elite — that's why **every Pokémon is playable**.",
     "cardTip": "The card above changes with the mode you choose below. ↓",
-    "enemiesTitle": "WHO YOU'LL FACE",
+    "enemiesTitle": "CHOOSE YOUR OPPONENT",
     "elitePower": "POWER {bst}",
     "toggleOpen": "▲ CLOSE",
     "toggleClosed": "▼ SEE TEAM",
