@@ -4,7 +4,7 @@ import { Arena } from "./Arena";
 import { Sprite } from "./bits";
 import { useT } from "../i18n";
 
-export function MatchRow({ trainer, result, live, snap, lens, consumable, paused, onTogglePause }) {
+export function MatchRow({ trainer, result, live, snap, lens, consumable, paused, onTogglePause, tickMs }) {
   const { t } = useT();
   const r = result;
   return (
@@ -75,6 +75,7 @@ export function MatchRow({ trainer, result, live, snap, lens, consumable, paused
           feed={r.feed}
           enemyTotal={trainer.team.length}
           consumable={consumable}
+          tickMs={tickMs}
         />
       )}
     </div>

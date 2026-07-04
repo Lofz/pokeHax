@@ -91,6 +91,11 @@ export default function App() {
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Duração de 1 tick do playback — também dá o compasso das animações da
+  // Arena (vira a CSS var --tick). A "rápida" é o padrão do jogo; com os FX
+  // ela roda a 220ms (era 130ms) pra cada golpe ainda ser legível.
+  const tickMs = reduced ? 40 : speed === "fast" ? 220 : 360;
+
   /* --- estado do draft (derivado do tamanho do time) --- */
   const draftRound = team.length; // 0..6
   const draftComplete = draftRound >= TEAM_SIZE;
@@ -292,8 +297,13 @@ export default function App() {
     const evs = eventsRef.current;
     if (evIdx >= evs.length) return;
     const ev = evs[evIdx];
-    const base = reduced ? 40 : speed === "fast" ? 130 : 360;
-    const delay = ev.k === "faint" ? base * 3 : ev.k === "send" ? base * 1.5 : base;
+    // O delay diz quanto tempo o evento ANTERIOR fica em cena antes deste
+    // aparecer. Depois de um send/faint o próximo evento espera mais: é a
+    // janela pra animação de entrada (Pokébola) / K.O. (recall) terminar.
+    const prev = evIdx > 0 ? evs[evIdx - 1] : null;
+    let mult = ev.k === "faint" ? 3 : ev.k === "send" ? 1.5 : 1;
+    if (prev && (prev.k === "send" || prev.k === "faint")) mult = Math.max(mult, 2.2);
+    const delay = tickMs * mult;
 
     const timer = setTimeout(() => {
       setSnap({ ...ev });
@@ -622,6 +632,7 @@ export default function App() {
                 consumable={consumable}
                 paused={paused}
                 onTogglePause={() => setPaused((p) => !p)}
+                tickMs={tickMs}
               />
             ))}
           </div>

@@ -114,7 +114,7 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
     turn,
   });
 
-  events.push({ k: "send", ...snap() });
+  events.push({ k: "send", side: "both", ...snap() });
 
   while (pi < pT.length && ei < eT.length && turn < TUNING.maxTurns) {
     turn++;
@@ -174,12 +174,12 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
       koBy[Pm.name] = (koBy[Pm.name] || 0) + 1;
       events.push({ k: "faint", side: "e", name: Em.name, by: Pm.name, ...snap(), score: [pk, ek] });
       ei++;
-      if (ei < eT.length) events.push({ k: "send", ...snap() });
+      if (ei < eT.length) events.push({ k: "send", side: "e", ...snap() });
     } else if (Pm.hp <= 0) {
       ek++;
       events.push({ k: "faint", side: "p", name: Pm.name, by: Em.name, ...snap(), score: [pk, ek] });
       pi++;
-      if (pi < pT.length) events.push({ k: "send", ...snap() });
+      if (pi < pT.length) events.push({ k: "send", side: "p", ...snap() });
     }
   }
 

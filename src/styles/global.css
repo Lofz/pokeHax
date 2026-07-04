@@ -632,6 +632,9 @@ body { background: var(--night); }
   border-radius: 8px;
   box-shadow: inset 0 0 0 3px var(--panel);
   padding: 14px;
+  /* palco dos FX: âncora do flash de abertura e clipe das Pokébolas voando */
+  position: relative;
+  overflow: hidden;
 }
 .duel { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
 .fighter { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
@@ -1276,8 +1279,11 @@ body { background: var(--night); }
   .match.live .mh-enemy, .match.live .match-side,
   .match.live .side-left, .match.live .side-right { animation: none; }
   .hp-fill { transition: none !important; }
-  .fx-heal { display: none; }
   .mon-card.has-item { animation: none; }
+  /* FX de batalha: sem flashes; sprites ficam estáticos */
+  .mon-slot, .duel .f-head .sprite,
+  .arena::after, .pball.faint, .result-badge, .hp-fill.low { animation: none !important; }
+  .fx-ball, .fx-heal-burst { display: none; }
   /* tutorial: sem micro-animações (o autoavanço também é desligado no JS) */
   .htp-stage, .htp-arrow, .htp-reel-track, .htp-dots3 i, .htp-mode-card,
   .htp-card.pick, .htp-cursor, .htp-skip, .htp-slots i.fill, .htp-items .pick,
@@ -1442,21 +1448,133 @@ img.item-capsule { image-rendering: pixelated; object-fit: contain; }
 /* deixa o nome encolher (reticências) para dar espaço ao pin quando presente */
 .f-name { min-width: 0; }
 
-/* Animação da Poção: "＋" flutuante sobre o seu Pokémon */
+/* Animação da Poção: chuvinha de "＋" + brilho verde sobre o seu Pokémon
+   (o burst vive DENTRO do .mon-slot do jogador; ver Arena.jsx) */
 .side-left .f-head { position: relative; }
-.fx-heal {
+.fx-heal-burst { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.fx-heal-burst i {
   position: absolute;
-  left: 30px;
-  top: -8px;
   font-family: "Press Start 2P", monospace;
-  font-size: 18px;
+  font-style: normal;
   color: var(--hpG);
   text-shadow: 0 0 6px rgba(88, 216, 84, 0.9);
-  pointer-events: none;
+  opacity: 0;
   animation: fx-heal 0.9s ease-out forwards;
+}
+.fx-heal-burst i:nth-child(2) { left: 2px; top: -8px; font-size: 15px; }
+.fx-heal-burst i:nth-child(3) { left: 26px; top: 2px; font-size: 10px; animation-delay: 0.16s; }
+.fx-heal-burst i:nth-child(4) { left: 38px; top: -12px; font-size: 12px; animation-delay: 0.32s; }
+.fx-heal-burst .glow {
+  inset: -6px;
+  font-size: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(88, 216, 84, 0.55), transparent 70%);
+  text-shadow: none;
+  animation: fx-heal-glow 0.9s ease-out forwards;
 }
 @keyframes fx-heal {
   0% { opacity: 0; transform: translateY(6px) scale(0.6); }
   25% { opacity: 1; transform: translateY(-2px) scale(1.1); }
   100% { opacity: 0; transform: translateY(-22px) scale(1); }
+}
+@keyframes fx-heal-glow {
+  0% { opacity: 0; transform: scale(0.5); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+
+/* ============================================================
+   FX DE BATALHA — animações da Arena, cadência = var(--tick)
+   (o tick do playback; o modo rápido comprime tudo junto).
+   Só momentos de CENA: entrada (Pokébola + materialização),
+   K.O. (recall) e idle bob. Golpes de turno não animam de
+   propósito — lunge/blink/impacto ficaram exagerados no ritmo
+   do playback (testado e removido; ver histórico da branch).
+   ============================================================ */
+.mon-slot { position: relative; display: inline-flex; flex: none; transform-origin: 50% 88%; }
+
+/* de onde a Pokébola de entrada vem, em cada lado */
+.side-left { --bx: -34px; }
+.side-right { --bx: 34px; }
+
+/* idle: respiração de 2px — usa a propriedade `translate`, que não
+   briga com o scaleX(-1) do .flip (que vive em `transform`) */
+.duel .f-head .sprite { animation: idle-bob 1.6s steps(2, end) infinite; }
+.side-right .f-head .sprite { animation-delay: -0.8s; }
+@keyframes idle-bob { 50% { translate: 0 -2px; } }
+
+/* ---- entrada: Pokébola voa, abre em flash, o mon materializa ---- */
+.mon-slot.act-enter { animation: fx-enter calc(var(--tick, 360ms) * 1.7) linear both; }
+@keyframes fx-enter {
+  0%, 42% { opacity: 0; transform: scale(0); filter: brightness(0) invert(1); }
+  43%, 60% { opacity: 1; transform: scale(0.55); filter: brightness(0) invert(1); }
+  61%, 82% { opacity: 1; transform: scale(1); filter: brightness(0) invert(1); }
+  100% { opacity: 1; transform: scale(1); filter: brightness(1) invert(0); }
+}
+.fx-ball {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  animation: fx-ball calc(var(--tick, 360ms) * 0.85) linear both;
+}
+.fx-ball svg { display: block; }
+@keyframes fx-ball {
+  0% { opacity: 1; transform: translate(var(--bx), -30px) rotate(0turn) scale(0.9); }
+  45% { opacity: 1; transform: translate(calc(var(--bx) * 0.45), -22px) rotate(0.5turn); }
+  80% { opacity: 1; transform: translate(0, 0) rotate(1turn) scale(1); }
+  100% { opacity: 0; transform: translate(0, 0) rotate(1turn) scale(2.4); }
+}
+
+/* ---- K.O.: acinzenta, verga… e é sugado de volta pra bola ---- */
+.mon-slot.act-faint { animation: fx-faint calc(var(--tick, 360ms) * 1.9) linear both; }
+@keyframes fx-faint {
+  0%, 8% { opacity: 1; transform: none; filter: none; }
+  22%, 55% { opacity: 1; transform: translateY(4px) scale(1, 0.9); filter: grayscale(1) brightness(0.75); }
+  70% { opacity: 1; transform: translateY(2px) scale(0.9); filter: grayscale(1) brightness(0.75); }
+  100% { opacity: 0; transform: translateY(-30px) scale(0.05); filter: grayscale(1) brightness(2); }
+}
+
+/* ---- abertura de confronto: flash duplo estilo Game Boy ---- */
+.arena::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: var(--cream);
+  opacity: 0;
+  animation: arena-open calc(var(--tick, 360ms) * 1.6) steps(1, end) both;
+}
+@keyframes arena-open {
+  0%, 12% { opacity: 0; }
+  13%, 30% { opacity: 0.85; }
+  31%, 44% { opacity: 0; }
+  45%, 60% { opacity: 0.85; }
+  61%, 100% { opacity: 0; }
+}
+
+/* ---- placar vivo ---- */
+/* a bola recém-perdida "estampa" o X (anima ao montar) */
+.pball.faint { animation: ballx-in 0.35s steps(2, end); }
+@keyframes ballx-in { 0% { transform: scale(1.8); opacity: 0.2; } }
+/* HP na zona vermelha pisca (o bipe de HP baixo em forma visual) */
+.hp-fill.low { animation: blink 0.8s steps(2, end) infinite; }
+/* badge GANHOU/PERDEU pipoca ao aparecer */
+.result-badge { animation: badge-pop 0.4s steps(3, end); }
+@keyframes badge-pop {
+  0% { transform: scale(1.5); opacity: 0; }
+  60% { transform: scale(0.92); opacity: 1; }
+}
+
+/* no mobile os lados empilham → a Pokébola de entrada vem de mais longe.
+   Vem DEPOIS das definições base de --bx de propósito (cascata). */
+@media (max-width: 560px) {
+  .side-left { --bx: -60px; }
+  .side-right { --bx: 60px; }
 }
