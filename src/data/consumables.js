@@ -13,15 +13,21 @@
  *                 "items/potion.png"). Se presente, `ItemSprite` usa o <img> no
  *                 lugar da cápsula SVG. Drop-in: solte o PNG e aponte aqui.
  *  - `targeted` — se precisa escolher 1 mon (todos, por ora).
+ *  - `evoOnly`  — (opcional) só entra no sorteio se o time tiver um mon que ainda
+ *                 pode evoluir (Doce Raro). Ver `rollConsumables(seed,{canEvolve})`.
+ *  - `evolves`  — (opcional) item INSTANTÂNEO: ao aplicar, evolui o mon-alvo em vez
+ *                 de virar um buff de batalha (não tem `mod`; o App faz a troca).
  *  - `mod`      — COMO o item altera o "fighter" do alvo. É lido em battle.js
  *                 (toFighter + loop de turno). Chaves suportadas:
  *                   atkMul       — multiplica o ataque final.
  *                   hpMul        — multiplica o HP máximo (e enche o HP).
  *                   alwaysFirst  — o mon sempre age primeiro no turno.
  *                   dmgTakenMul  — multiplica o dano RECEBIDO (<1 = tanka mais).
+ *                   critBonus    — soma à chance de crítico do mon (0.15 = +15%).
  *                   heal         — { threshold, frac }: 1×/batalha, ao cair
  *                                  abaixo de `threshold` (fração do HP máx),
  *                                  cura `frac` do HP máx.
+ *  Itens SEM `mod` (ex.: Doce Raro) não deixam rastro na batalha (sem pin/selo).
  */
 import { mulberry32, hashSeed } from "../engine/rng";
 
@@ -36,6 +42,8 @@ export const CONSUMABLES = [
   { id: "xspeed", icon: "»", image: "items/x-speed.png", targeted: true, mod: { alwaysFirst: true } },
   { id: "xattack", icon: "▲", image: "items/x-attack.png", targeted: true, mod: { atkMul: 1.25 } },
   { id: "xdefense", icon: "◆", image: "items/x-defense.png", targeted: true, mod: { dmgTakenMul: 0.8 } },
+  { id: "scopelens", icon: "◎", image: "items/scope-lens.png", targeted: true, mod: { critBonus: 0.15 } },
+  { id: "rarecandy", icon: "★", image: "items/rare-candy.png", targeted: true, evoOnly: true, evolves: true },
 ];
 
 const BY_ID = Object.fromEntries(CONSUMABLES.map((c) => [c.id, c]));
@@ -46,14 +54,14 @@ export function getConsumable(id) {
 }
 
 /**
- * Sorteia N opções de item, determinístico por seed. Usa um stream de RNG
- * PRÓPRIO (`item:<seed>`) para não colidir com o do draft. Fisher-Yates sobre
- * uma cópia do arsenal → sem repetição. Se o arsenal tiver menos que N itens,
- * devolve todos.
+ * Sorteia N opções de item, determinístico por (seed, canEvolve). Usa um stream
+ * de RNG PRÓPRIO (`item:<seed>`) para não colidir com o do draft. Itens `evoOnly`
+ * (Doce Raro) só entram no pool se `canEvolve` — assim não aparecem quando não há
+ * alvo válido. Fisher-Yates sobre a cópia do pool → sem repetição.
  */
-export function rollConsumables(seed, n = OPTIONS_PER_ROLL) {
+export function rollConsumables(seed, { canEvolve = false, n = OPTIONS_PER_ROLL } = {}) {
   const rng = mulberry32(hashSeed(`item:${seed}`));
-  const pool = [...CONSUMABLES];
+  const pool = CONSUMABLES.filter((c) => !c.evoOnly || canEvolve);
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];

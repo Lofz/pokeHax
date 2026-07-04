@@ -3,6 +3,7 @@ import { getMon } from "../data/dex";
 import { MODE_SPRITE } from "../data/modes";
 import { MonCard } from "./MonCard";
 import { TypeChip, Sprite } from "./bits";
+import { HowToPlay } from "./HowToPlay";
 import { track } from "../analytics/track";
 import { useT, Rich } from "../i18n";
 
@@ -52,13 +53,7 @@ export function Intro({ lens, setLens, onStart, league, leagues, onLeague }) {
     <section className="intro">
       <div className="intro-block">
         <div className="intro-eyebrow">{t("intro.howTitle")}</div>
-        <ol className="how-steps">
-          <li><Rich text={t("intro.step1")} /></li>
-          <li><Rich text={t("intro.step2")} /></li>
-          <li><Rich text={t("intro.stepItem")} /></li>
-          <li><Rich text={t("intro.step3")} /></li>
-          <li><Rich text={t("intro.step4")} /></li>
-        </ol>
+        <HowToPlay />
       </div>
 
       <div className="intro-block intro-split">

@@ -14,7 +14,7 @@ export function Bench({ team, consumable }) {
           <span className="bench-mon" key={m.id + "-" + i} title={m.name}>
             <Sprite src={m.image.sprite} alt={m.name} size={34} />
             <span className="bench-name">{m.name.toUpperCase()}</span>
-            {item && <ItemSprite id={item.id} size={16} className="bench-item" />}
+            {item?.mod && <ItemSprite id={item.id} size={16} className="bench-item" />}
           </span>
         );
       })}
@@ -55,7 +55,7 @@ export function Arena({ snap, feed, enemyTotal, consumable }) {
               <span key={healFx} className="fx-heal" aria-hidden="true">＋</span>
             )}
             <div className="f-name you">{snap.pName.toUpperCase()}</div>
-            {buff && (
+            {buff?.mod && (
               <span className={"arena-pin item-" + buff.id}>
                 <ItemSprite id={buff.id} size={13} />
                 {t("items." + buff.id + ".name")}

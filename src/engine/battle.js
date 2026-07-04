@@ -58,7 +58,7 @@ function withPotential(value, ceil, p) {
  *
  * `mod` é o efeito de um CONSUMÍVEL (só o alvo do jogador recebe; ver
  * consumables.js). Chaves lidas aqui: atkMul, hpMul, alwaysFirst, dmgTakenMul,
- * heal ({ threshold, frac }). Ausente = fighter neutro.
+ * critBonus, heal ({ threshold, frac }). Ausente = fighter neutro.
  */
 function toFighter(mon, lvl, buff = 1, mod = null) {
   const f = lvlFactor(lvl);
@@ -79,6 +79,7 @@ function toFighter(mon, lvl, buff = 1, mod = null) {
     // efeitos de consumível aplicados no loop de turno:
     alwaysFirst: !!mod?.alwaysFirst,
     dmgTakenMul: mod?.dmgTakenMul ?? 1,
+    critBonus: mod?.critBonus ?? 0,
     heal: mod?.heal ? { ...mod.heal, used: false } : null,
   };
 }
@@ -140,7 +141,8 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
       const isSuper = eff >= 2;
       if (eff === 0) eff = TUNING.immuneFloor;
 
-      const crit = rng() < TUNING.critChance;
+      // Lente de Mira: só o jogador tem critBonus (inimigo = 0) → sem rng extra.
+      const crit = rng() < TUNING.critChance + (A.critBonus ?? 0);
       const dmg =
         A.atk * TUNING.dmg * eff * (0.82 + 0.36 * rng()) * (crit ? TUNING.critMult : 1);
       D.hp -= dmg * (D.dmgTakenMul ?? 1); // X-Defesa tanka parte do dano

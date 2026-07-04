@@ -43,8 +43,11 @@
   "items": {
     "hint": "Pick 1 item to carry on your journey — it lasts all 5 battles.",
     "applyHint": "Which Pokémon gets the item?",
+    "applyHintEvo": "Which Pokémon gets the Rare Candy? (only ones that can still evolve)",
     "pickCta": "▸ PICK",
     "applyCta": "▸ APPLY",
+    "evolveCta": "▸ EVOLVE",
+    "evoNote": "can't evolve",
     "swap": "‹ SWAP ITEM",
     "potion": {
       "name": "POTION",
@@ -61,6 +64,14 @@
     "xdefense": {
       "name": "X-DEFENSE",
       "desc": "Takes 20% less damage in every battle."
+    },
+    "scopelens": {
+      "name": "SCOPE LENS",
+      "desc": "Raises the critical-hit chance in every battle."
+    },
+    "rarecandy": {
+      "name": "RARE CANDY",
+      "desc": "Evolves a Pokémon that can still evolve, keeping its condition."
     }
   },
   "card": {
@@ -81,11 +92,24 @@
   },
   "intro": {
     "howTitle": "HOW TO PLAY",
-    "step1": "**Draft your team.** Six rounds: each one offers 3 Pokémon (out of the 386 from Kanto, Johto and Hoenn) and you pick 1 for the slot.",
-    "step2": "**Don't like the 3? Skip.** A skip re-rolls that round's candidates — but it's limited, and how many you get depends on the mode.",
-    "stepItem": "**Choose an item.** With your team locked, a consumable comes in: pick 1 of 3 and apply it to a Pokémon — the effect lasts all 5 battles.",
-    "step3": "**Set the order.** With all 6 slots filled, drag the cards to decide who goes in first. The sequence is strategy.",
-    "step4": "**Defeat the Elite Four + the Champion.** Five matches, and the enemies get stronger each time — the Champion is the final wall. Pull off the **6-0**, or go down trying.",
+    "tutorial": {
+      "subtitle": "From picking your opponent to the final challenge — step by step.",
+      "prev": "Previous",
+      "next": "Next",
+      "dotAria": "Go to step {n}",
+      "modeRocket": "ROCKET",
+      "modeOak": "OAK",
+      "skip": "SKIP",
+      "go": "CHALLENGE",
+      "steps": {
+        "opponent": { "t": "1 · PICK YOUR OPPONENT", "d": "Swipe the carousel and pick a League: Johto, Kanto or Hoenn." },
+        "mode": { "t": "2 · PICK A MODE", "d": "Rocket shows everything; Oak hides power. Each mode gives you some skips." },
+        "draft": { "t": "3 · DRAFT YOUR TEAM", "d": "Six rounds: 3 Pokémon show up, you take 1. Don't like them? Skip (it's limited)." },
+        "item": { "t": "4 · PICK AN ITEM", "d": "With the team set, grab 1 consumable and apply it to a Pokémon." },
+        "order": { "t": "5 · SET THE ORDER", "d": "Drag the cards to decide who leads. The order is your strategy." },
+        "start": { "t": "6 · CHALLENGE THE ELITE", "d": "Five bouts against the Elite Four + Champion. Win them all!" }
+      }
+    },
     "cardEyebrow": "THE CARD",
     "cardP1": "**POWER** is the Pokémon's base strength (the sum of its stats). The higher it is, the stronger it is by nature.",
     "cardP2": "**CONDITION** is how that individual is doing this run — from POOR to EXCELLENT, shown by a colored arrow (Winning Eleven style). An underdog in excellent condition can surprise the Elite — that's why **every Pokémon is playable**.",

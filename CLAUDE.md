@@ -21,6 +21,7 @@ Pergunta-tema: "seu time aplica o **6 a 0**?". Tudo em **PT-BR**.
 - `src/engine/battle.js` — `simulateBattle` (gera timeline de eventos). `PLAYER_LVL=46`, `TUNING`, e `POTENTIAL` (**rubber-band**: lança os fracos pro teto, fortes ganham só +15% global). `buff` do treinador multiplica HP/atk do inimigo. **Consumível**: `simulateBattle(...,consumable)` aplica o `mod` (de `consumables.js`) só ao mon do jogador cujo id === `consumable.target` (`toFighter(mon,lvl,buff,mod)`); a cura da Poção marca o evento `turn` com `fx:"heal"` (a Arena anima).
 - `src/components/MonCard.jsx` — carta. **CONDIÇÃO** (estilo Winning Eleven: triângulo ▲ girado + cor) no lugar do número de potencial. Alça de arraste `.reorder`.
 - `src/components/Intro.jsx` — tutorial, carta-exemplo, scouting da Elite (expansível), escolha de modo (com chip de pulos).
+- `src/components/HowToPlay.jsx` — **é o conteúdo do bloco COMO SE JOGA** (substituiu a antiga lista de tópicos): um **storyboard animado inline** (animação CSS nativa, NÃO gif) do fluxo da intro: oponente → modo → draft → item → ordem → desafiar. Autoavança (pausa no hover), navegável (‹ › + pontinhos); respeita `prefers-reduced-motion`. Legendas em i18n `intro.tutorial.*`.
 - `src/components/ItemPick.jsx` — **etapa de consumível** (corpo): passo 1 escolhe 1 de 3 itens, passo 2 escolhe o Pokémon-alvo (ou "trocar item"). Cabeçalho fica no App.
 - `src/components/Arena.jsx` — batalha ao vivo: **VOCÊ à esquerda, Elite à direita** (orientação autêntica), bandejas de Pokébolas acima de cada mon. **PIN de buff** quando o mon-alvo do item está ativo (`snap.pId===target`) + **FX da Poção** (`snap.fx==="heal"`). Também exporta `Bench` (marca o mon-alvo com o glifo do item).
 - `src/components/MatchRow.jsx` — resumo do confronto. Ao vivo: head inverte (você←esq, pause centro, Elite→dir) com deslize; concluído: badge GANHOU/PERDEU + KOs; pendente: "A SEGUIR".
@@ -59,7 +60,7 @@ Wrapper em `src/analytics/track.js` (`autocapture: false` — só os eventos aba
 - `play_again{from,mode}` — NOVA JORNADA / TENTAR DE NOVO (não dispara no clique do logo = goHome).
 - `share_clicked{mode,seed}` — botão Compartilhar do Hall da Fama.
 - `about_opened{section}` — abriu o modal do rodapé (`'about'|'privacy'`).
-- `outbound_click{to,where}` — clique em link externo (`to`: `x|tiktok|discord|donate`; `where`: `footer|modal|banner`).
+- `outbound_click{to,where}` — clique em link externo (`to`: `tiktok|discord|donate`; `where`: `footer|modal|banner`).
 
 ## Sobre / rodapé / links
 - `src/components/About.jsx` — `SupportBanner` (pedacinho de apoio compacto no canto sup. direito do cabeçalho: **Cubone** [easter egg] + balãozinho GB com pílula APOIAR; o `<a>` todo é o link de doação; só renderiza se houver URL `donate` em links.js) + `SiteFooter` (rodapé) + modal "Sobre / Privacidade" (abas, fecha no ESC/scrim, trava scroll). Ícones de marca são **SVG monocromático** (`currentColor`), não emoji; moedas são glifos CSS.
