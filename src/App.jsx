@@ -308,23 +308,23 @@ export default function App() {
     const timer = setTimeout(() => {
       setSnap({ ...ev });
 
-      if (ev.k === "turn" && ev.note) {
+      if (ev.k === "turn" && ev.notes?.length) {
+        // Feed ESTRUTURADO: os nomes vão marcados por lado ("you"/"foe") e o
+        // Arena monta o texto com o i18n, colorindo cada nome pelo dono.
+        const sideOf = (s) => (s === "p" ? "you" : "foe");
+        const lines = ev.notes.map((n) => ({
+          turn: ev.turn,
+          kind: n.kind,
+          key: n.kind,
+          vars: {
+            name: { text: n.name.toUpperCase(), side: sideOf(n.side) },
+            ...(n.target
+              ? { target: { text: n.target.toUpperCase(), side: sideOf(n.side === "p" ? "e" : "p") } }
+              : {}),
+          },
+        }));
         setResults((rs) =>
-          rs.map((r, i) =>
-            i === current
-              ? {
-                  ...r,
-                  feed: [
-                    ...r.feed,
-                    {
-                      turn: ev.turn,
-                      kind: "info",
-                      text: t("feed." + ev.note.kind, { name: ev.note.name.toUpperCase() }),
-                    },
-                  ],
-                }
-              : r
-          )
+          rs.map((r, i) => (i === current ? { ...r, feed: [...r.feed, ...lines] } : r))
         );
       }
 
@@ -343,10 +343,12 @@ export default function App() {
                 {
                   turn: ev.turn,
                   kind: ev.side === "e" ? "ko-enemy" : "ko-player",
-                  text: t("feed.faint", {
-                    name: ev.name.toUpperCase(),
-                    by: ev.by.toUpperCase(),
-                  }),
+                  key: "faint",
+                  score: ev.score, // vira o chip de placar na linha do K.O.
+                  vars: {
+                    name: { text: ev.name.toUpperCase(), side: ev.side === "p" ? "you" : "foe" },
+                    by: { text: ev.by.toUpperCase(), side: ev.side === "p" ? "foe" : "you" },
+                  },
                 },
               ],
             };
@@ -383,7 +385,7 @@ export default function App() {
       setEvIdx((i) => i + 1);
     }, delay);
     return () => clearTimeout(timer);
-  }, [phase, current, evIdx, speed, reduced, paused, t]);
+  }, [phase, current, evIdx, speed, reduced, paused]);
 
   /* encadeamento automático entre batalhas */
   useEffect(() => {

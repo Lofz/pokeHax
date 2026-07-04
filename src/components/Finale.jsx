@@ -147,18 +147,43 @@ export function ChampionBox({ team, results, onReset, seed, lens, region }) {
   );
 }
 
+/**
+ * Derrota — o vencedor posa: o ace (arte `thumbnail` da Pokédex, como no Hall
+ * da Fama) atrás e o treinador na frente. O ace é o ÚLTIMO do time — nos
+ * rosters da Elite ele fecha a lista.
+ */
 export function DefeatBox({ trainer, result, stage, onReset }) {
   const { t } = useT();
+  const ace = trainer.team[trainer.team.length - 1];
   return (
     <div className="finale lose-box">
-      <div className="finale-eyebrow">{t("finale.defeatEyebrow")}</div>
-      <div className="finale-title red">{t("finale.defeatTitle", { name: trainer.name })}</div>
-      <p className="finale-sub">
-        {t("finale.defeatSub", { loss: result.score[1], win: result.score[0], stage })}
-      </p>
-      <button className="btn btn-gold" onClick={onReset}>
-        {t("finale.defeatRetry")}
-      </button>
+      <div className="lose-flex">
+        <div className="lose-art" aria-hidden="true">
+          <Sprite
+            src={ace.image.thumbnail}
+            fallbackSrc={ace.image.sprite}
+            alt=""
+            size={96}
+            className="lose-mon"
+          />
+          <Sprite
+            src={trainer.sprite}
+            alt={trainer.name}
+            size={62}
+            className="trainer-spr lose-trainer"
+          />
+        </div>
+        <div className="lose-body">
+          <div className="finale-eyebrow">{t("finale.defeatEyebrow")}</div>
+          <div className="finale-title red">{t("finale.defeatTitle", { name: trainer.name })}</div>
+          <p className="finale-sub">
+            {t("finale.defeatSub", { loss: result.score[1], win: result.score[0], stage })}
+          </p>
+          <button className="btn btn-gold" onClick={onReset}>
+            {t("finale.defeatRetry")}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

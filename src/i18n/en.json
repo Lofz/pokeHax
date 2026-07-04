@@ -35,9 +35,10 @@
   },
   "feed": {
     "start": "The battle has begun!",
-    "faint": "{name} went down! K.O. by {by}",
-    "crit": "Critical hit by {name}!",
-    "super": "{name} landed a super-effective hit!",
+    "faint": "{by} takes down {name}!",
+    "crit": "Critical hit by {name} on {target}!",
+    "super": "{name} hits {target} head-on — super effective!",
+    "weak": "{name} barely scratches {target} — not very effective…",
     "heal": "{name} recovered some HP!"
   },
   "items": {
@@ -170,7 +171,7 @@
     "shareSaved": "Image saved! Just post it.",
     "shareError": "Couldn't generate the image — try a screen capture.",
     "defeatEyebrow": "END OF JOURNEY",
-    "defeatTitle": "{name} BLACKED YOU OUT",
+    "defeatTitle": "{name} WON THE BATTLE",
     "defeatSub": "Your team fell {loss}–{win} in match {stage} of 5.",
     "defeatRetry": "TRY AGAIN ▸"
   },

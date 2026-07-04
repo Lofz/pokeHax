@@ -4,6 +4,43 @@ import { TEAM_SIZE } from "../data/pool";
 import { getConsumable } from "../data/consumables";
 import { useT } from "../i18n";
 
+/** Glifo de cada tipo de linha do feed (geométricos, não emoji). */
+const FEED_DOT = {
+  "ko-enemy": "◓",
+  "ko-player": "✕",
+  crit: "★",
+  super: "▲",
+  weak: "▽",
+  heal: "＋",
+  info: "›",
+};
+
+/**
+ * Texto de uma linha do feed com os NOMES coloridos pelo dono. As entradas são
+ * estruturadas (key + vars com {text, side}); interpolamos pelo i18n usando um
+ * marcador U+0000 em volta de cada nome e fatiamos de volta em <b> por lado —
+ * assim a ordem das palavras continua 100% na mão da tradução.
+ */
+function FeedText({ f }) {
+  const { t } = useT();
+  const vars = {};
+  for (const [k, v] of Object.entries(f.vars || {})) {
+    vars[k] = "\u0000" + v.side + ":" + v.text + "\u0000";
+  }
+  return t("feed." + f.key, vars)
+    .split("\u0000")
+    .map((seg, i) => {
+      const m = /^(you|foe):([\s\S]*)$/.exec(seg);
+      return m ? (
+        <b key={i} className={"fd-" + m[1]}>
+          {m[2]}
+        </b>
+      ) : (
+        <span key={i}>{seg}</span>
+      );
+    });
+}
+
 export function Bench({ team, consumable }) {
   return (
     <div className="bench">
@@ -122,10 +159,15 @@ export function Arena({ snap, feed, enemyTotal, consumable, tickMs = 360 }) {
         {feed.slice(-7).map((f, j) => (
           <div key={j} className={"feed-line " + f.kind}>
             <span className="f-turn">{f.turn}'</span>
-            <span className="f-dot">
-              {f.kind === "ko-enemy" ? "◓" : f.kind === "ko-player" ? "✕" : "›"}
+            <span className="f-dot">{FEED_DOT[f.kind] || "›"}</span>
+            <span className="f-text">
+              <FeedText f={f} />
+              {f.score && (
+                <span className="fd-score">
+                  {f.score[0]}×{f.score[1]}
+                </span>
+              )}
             </span>
-            <span>{f.text}</span>
           </div>
         ))}
       </div>

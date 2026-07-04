@@ -555,17 +555,19 @@ body { background: var(--night); }
 .rb-tag { font-family: "Press Start 2P", monospace; font-size: 8px; letter-spacing: 0.12em; }
 .result-badge.win .rb-tag { color: var(--gold); }
 .result-badge.loss .rb-tag { color: var(--hpR); }
-.rb-score {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: "Press Start 2P", monospace;
-  font-size: 12px;
+/* insígnia redonda do resultado: ★ (vitória) / ✕ (derrota) */
+.rb-ins {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 9px;
+  flex: none;
 }
-.rb-you { color: var(--hpG); }
-.rb-foe { color: var(--hpR); }
-.rb-x { color: var(--cream-dim); font-size: 8px; }
-.rb-ko { font-size: 7px; color: var(--cream-dim); letter-spacing: 0.1em; margin-left: 2px; }
+.result-badge.win .rb-ins { color: var(--gold); background: rgba(242, 182, 61, 0.12); }
+.result-badge.loss .rb-ins { color: var(--hpR); background: rgba(232, 81, 69, 0.12); }
 .next-tag {
   font-family: "Press Start 2P", monospace;
   font-size: 8px;
@@ -680,10 +682,30 @@ body { background: var(--night); }
 }
 .feed-line { display: flex; gap: 10px; font-size: 21px; }
 .feed-line .f-turn { color: #5c537e; min-width: 32px; text-align: right; }
-.feed-line.ko-enemy { color: var(--hpG); }
+/* nas linhas de K.O. o texto fica neutro — quem conta a história são os
+   NOMES coloridos por dono (.fd-you/.fd-foe) e o glifo do lado */
 .feed-line.ko-enemy .f-dot { color: var(--gold); }
-.feed-line.ko-player { color: var(--hpR); }
+.feed-line.ko-player .f-dot { color: var(--hpR); }
+.feed-line.crit { color: var(--gold); }
+.feed-line.super .f-dot { color: var(--hpG); }
+.feed-line.weak { opacity: 0.75; }
+.feed-line.heal { color: var(--hpG); }
 .feed-line.info { color: var(--cream-dim); }
+/* nomes por dono: você = verde, Elite = vermelho */
+.fd-you { color: var(--hpG); font-weight: 400; }
+.fd-foe { color: var(--hpR); font-weight: 400; }
+/* chip de placar no fim da linha de K.O. */
+.fd-score {
+  margin-left: 8px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  color: var(--cream-dim);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 1px 5px;
+  vertical-align: 2px;
+  white-space: nowrap;
+}
 
 /* ---------- finais ---------- */
 .finale {
@@ -711,6 +733,15 @@ body { background: var(--night); }
 }
 .finale-title.red { color: var(--hpR); }
 .finale-sub { color: var(--cream-dim); margin-bottom: 16px; }
+
+/* derrota: o vencedor posa — ace (arte da Pokédex) atrás, treinador na frente */
+.lose-flex { display: flex; align-items: center; gap: 20px; }
+.lose-art { position: relative; flex: none; width: 118px; height: 106px; }
+.lose-art .lose-mon { position: absolute; right: 0; top: 0; }
+.lose-art .lose-trainer { position: absolute; left: 0; bottom: 0; z-index: 1; }
+@media (max-width: 560px) {
+  .lose-flex { flex-direction: column; text-align: center; }
+}
 /* ---------- Hall da Fama: card compartilhável ---------- */
 .hof-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 8px; }
 .hof-card {

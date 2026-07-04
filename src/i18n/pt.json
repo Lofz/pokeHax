@@ -35,9 +35,10 @@
   },
   "feed": {
     "start": "A batalha começou!",
-    "faint": "{name} caiu! K.O. de {by}",
-    "crit": "Golpe crítico de {name}!",
-    "super": "{name} acertou um golpe super efetivo!",
+    "faint": "{by} derruba {name}!",
+    "crit": "Golpe crítico de {name} em {target}!",
+    "super": "{name} acerta {target} em cheio — super efetivo!",
+    "weak": "{name} mal arranha {target} — pouco efetivo…",
     "heal": "{name} se recuperou!"
   },
   "items": {
@@ -170,7 +171,7 @@
     "shareSaved": "Imagem salva! É só postar.",
     "shareError": "Não consegui gerar a imagem — tente um print da tela.",
     "defeatEyebrow": "FIM DE JORNADA",
-    "defeatTitle": "{name} APAGOU TODAS AS LUZES",
+    "defeatTitle": "{name} VENCEU O COMBATE",
     "defeatSub": "Seu time caiu por {loss} a {win} no confronto {stage} de 5.",
     "defeatRetry": "TENTAR DE NOVO ▸"
   },
