@@ -8,4 +8,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   base: "/",
+  // Respeita a env PORT (ferramentas de preview/CI atribuem porta por ela);
+  // sem PORT, cai no padrão do Vite (5173).
+  server: process.env.PORT ? { port: Number(process.env.PORT) } : undefined,
 });

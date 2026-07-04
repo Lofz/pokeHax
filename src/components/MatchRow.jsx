@@ -4,7 +4,7 @@ import { Arena } from "./Arena";
 import { Sprite } from "./bits";
 import { useT } from "../i18n";
 
-export function MatchRow({ trainer, result, live, snap, lens, consumable, paused, onTogglePause }) {
+export function MatchRow({ trainer, result, live, snap, lens, consumable, paused, onTogglePause, tickMs }) {
   const { t } = useT();
   const r = result;
   return (
@@ -47,13 +47,10 @@ export function MatchRow({ trainer, result, live, snap, lens, consumable, paused
           )}
           {(r.status === "win" || r.status === "loss") && (
             <span className={"result-badge " + r.status}>
-              <span className="rb-tag">{r.status === "win" ? t("match.won") : t("match.lost")}</span>
-              <span className="rb-score">
-                <b className="rb-you">{r.score[0]}</b>
-                <span className="rb-x">×</span>
-                <b className="rb-foe">{r.score[1]}</b>
-                <span className="rb-ko">{t("match.ko")}</span>
+              <span className="rb-ins" aria-hidden="true">
+                {r.status === "win" ? "★" : "✕"}
               </span>
+              <span className="rb-tag">{r.status === "win" ? t("match.won") : t("match.lost")}</span>
             </span>
           )}
           {r.status === "pending" && <span className="next-tag">{t("match.next")}</span>}
@@ -75,6 +72,7 @@ export function MatchRow({ trainer, result, live, snap, lens, consumable, paused
           feed={r.feed}
           enemyTotal={trainer.team.length}
           consumable={consumable}
+          tickMs={tickMs}
         />
       )}
     </div>

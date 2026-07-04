@@ -1,8 +1,45 @@
 import { useState, useEffect } from "react";
-import { Sprite, HPBar, BallTray, ItemSprite } from "./bits";
+import { Sprite, HPBar, BallTray, ItemSprite, Pokeball } from "./bits";
 import { TEAM_SIZE } from "../data/pool";
 import { getConsumable } from "../data/consumables";
 import { useT } from "../i18n";
+
+/** Glifo de cada tipo de linha do feed (geométricos, não emoji). */
+const FEED_DOT = {
+  "ko-enemy": "◓",
+  "ko-player": "✕",
+  crit: "★",
+  super: "▲",
+  weak: "▽",
+  heal: "＋",
+  info: "›",
+};
+
+/**
+ * Texto de uma linha do feed com os NOMES coloridos pelo dono. As entradas são
+ * estruturadas (key + vars com {text, side}); interpolamos pelo i18n usando um
+ * marcador U+0000 em volta de cada nome e fatiamos de volta em <b> por lado —
+ * assim a ordem das palavras continua 100% na mão da tradução.
+ */
+function FeedText({ f }) {
+  const { t } = useT();
+  const vars = {};
+  for (const [k, v] of Object.entries(f.vars || {})) {
+    vars[k] = "\u0000" + v.side + ":" + v.text + "\u0000";
+  }
+  return t("feed." + f.key, vars)
+    .split("\u0000")
+    .map((seg, i) => {
+      const m = /^(you|foe):([\s\S]*)$/.exec(seg);
+      return m ? (
+        <b key={i} className={"fd-" + m[1]}>
+          {m[2]}
+        </b>
+      ) : (
+        <span key={i}>{seg}</span>
+      );
+    });
+}
 
 export function Bench({ team, consumable }) {
   return (
@@ -26,8 +63,16 @@ export function Bench({ team, consumable }) {
  * Arena viva — moldura de diálogo do Game Boy, na orientação autêntica de
  * batalha: VOCÊ à ESQUERDA e a Elite à DIREITA. As bandejas de Pokébolas ficam
  * acima de cada Pokémon, no estilo do jogo padrão.
+ *
+ * FX: cada snapshot do motor é um "ato" (contador fxs.n). O número entra nas
+ * keys dos elementos de efeito → o React remonta → o @keyframes re-executa.
+ * Só momentos de CENA animam: entrada (Pokébola + materialização, em `send`),
+ * K.O. (recall, em `faint`), cura da Poção e o idle bob. Golpes de turno NÃO
+ * animam de propósito — testamos lunge/blink/impacto e, no ritmo do playback,
+ * ficou exagerado. A cadência vem da CSS var --tick (= tick do playback; ver
+ * App), então o modo rápido comprime as animações junto.
  */
-export function Arena({ snap, feed, enemyTotal, consumable }) {
+export function Arena({ snap, feed, enemyTotal, consumable, tickMs = 360 }) {
   const { t } = useT();
   const [enemyKO, yourKO] = snap.score; // inimigos derrubados / seus caídos
 
@@ -37,23 +82,50 @@ export function Arena({ snap, feed, enemyTotal, consumable }) {
       ? getConsumable(consumable.id)
       : null;
 
-  // Animação da Poção: o motor marca o evento com fx:"heal". Cada disparo
-  // incrementa o contador, que vira `key` → o @keyframes re-executa.
-  const [healFx, setHealFx] = useState(0);
+  // Contadores de FX: heal só incrementa quando o motor marca fx:"heal".
+  const [fxs, setFxs] = useState({ n: 0, heal: 0 });
   useEffect(() => {
-    if (snap?.fx === "heal") setHealFx((n) => n + 1);
+    if (!snap) return;
+    setFxs((f) => ({ n: f.n + 1, heal: snap.fx === "heal" ? f.heal + 1 : f.heal }));
   }, [snap]);
 
+  /** Animação de cena de um lado ("p" = você, "e" = Elite) neste ato. */
+  const actFor = (me) => {
+    if (snap.k === "faint") return snap.side === me ? "act-faint" : "";
+    if (snap.k === "send")
+      return snap.side === me || snap.side === "both" ? "act-enter" : "";
+    return "";
+  };
+
+  const renderSlot = (me, img, name, spriteCls) => {
+    const act = actFor(me);
+    return (
+      <span className={"mon-slot" + (act ? " " + act : "")}>
+        <Sprite src={img} alt={name} size={52} className={spriteCls} />
+        {act === "act-enter" && (
+          <span key={"ball" + fxs.n} className="fx-ball" aria-hidden="true">
+            <Pokeball />
+          </span>
+        )}
+        {me === "p" && fxs.heal > 0 && (
+          <span key={"heal" + fxs.heal} className="fx-heal-burst" aria-hidden="true">
+            <i className="glow" />
+            <i>＋</i>
+            <i>＋</i>
+            <i>＋</i>
+          </span>
+        )}
+      </span>
+    );
+  };
+
   return (
-    <div className="arena">
+    <div className="arena" style={{ "--tick": tickMs + "ms" }}>
       <div className="duel">
         <div className="fighter side-left">
           <BallTray total={TEAM_SIZE} fainted={yourKO} className="you" />
           <div className="f-head">
-            <Sprite src={snap.pImg} alt={snap.pName} size={52} className="flip" />
-            {healFx > 0 && (
-              <span key={healFx} className="fx-heal" aria-hidden="true">＋</span>
-            )}
+            {renderSlot("p", snap.pImg, snap.pName, "flip")}
             <div className="f-name you">{snap.pName.toUpperCase()}</div>
             {buff?.mod && (
               <span className={"arena-pin item-" + buff.id}>
@@ -71,7 +143,7 @@ export function Arena({ snap, feed, enemyTotal, consumable }) {
           <BallTray total={enemyTotal} fainted={enemyKO} className="foe" />
           <div className="f-head">
             <div className="f-name foe">{snap.eName.toUpperCase()}</div>
-            <Sprite src={snap.eImg} alt={snap.eName} size={52} />
+            {renderSlot("e", snap.eImg, snap.eName, "")}
           </div>
           <HPBar pct={snap.ehp} />
         </div>
@@ -87,10 +159,15 @@ export function Arena({ snap, feed, enemyTotal, consumable }) {
         {feed.slice(-7).map((f, j) => (
           <div key={j} className={"feed-line " + f.kind}>
             <span className="f-turn">{f.turn}'</span>
-            <span className="f-dot">
-              {f.kind === "ko-enemy" ? "◓" : f.kind === "ko-player" ? "✕" : "›"}
+            <span className="f-dot">{FEED_DOT[f.kind] || "›"}</span>
+            <span className="f-text">
+              <FeedText f={f} />
+              {f.score && (
+                <span className="fd-score">
+                  {f.score[0]}×{f.score[1]}
+                </span>
+              )}
             </span>
-            <span>{f.text}</span>
           </div>
         ))}
       </div>

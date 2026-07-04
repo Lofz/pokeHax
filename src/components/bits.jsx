@@ -13,12 +13,13 @@ export function TypeChip({ t: type }) {
 
 export function HPBar({ pct }) {
   const color = pct > 0.5 ? "var(--hpG)" : pct > 0.2 ? "var(--hpY)" : "var(--hpR)";
+  const low = pct > 0 && pct <= 0.2; // zona vermelha: pisca (o "bipe" de HP baixo)
   return (
     <div className="hp-track">
       <span className="hp-label">HP</span>
       <div className="hp-rail">
         <div
-          className="hp-fill"
+          className={"hp-fill" + (low ? " low" : "")}
           style={{ width: `${Math.round(pct * 100)}%`, background: color }}
         />
       </div>

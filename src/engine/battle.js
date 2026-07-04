@@ -100,6 +100,8 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
   let pi = 0, ei = 0, turn = 0, pk = 0, ek = 0;
   const koBy = {};
   const events = [];
+  // 1ª troca de golpes de cada dupla → nota de (des)vantagem de tipo no feed.
+  const seenPairs = new Set();
 
   const snap = () => ({
     pName: pT[pi]?.name ?? "—",
@@ -114,7 +116,7 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
     turn,
   });
 
-  events.push({ k: "send", ...snap() });
+  events.push({ k: "send", side: "both", ...snap() });
 
   while (pi < pT.length && ei < eT.length && turn < TUNING.maxTurns) {
     turn++;
@@ -131,15 +133,15 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
       ? ["p", "e"]
       : ["e", "p"];
 
-    let note = null;
+    const notes = [];
     for (const side of seq) {
       const A = side === "p" ? Pm : Em;
       const D = side === "p" ? Em : Pm;
       if (A.hp <= 0 || D.hp <= 0) continue;
 
-      let eff = bestEff(A.types, D.types);
-      const isSuper = eff >= 2;
-      if (eff === 0) eff = TUNING.immuneFloor;
+      const rawEff = bestEff(A.types, D.types);
+      const isSuper = rawEff >= 2;
+      const eff = rawEff === 0 ? TUNING.immuneFloor : rawEff;
 
       // Lente de Mira: só o jogador tem critBonus (inimigo = 0) → sem rng extra.
       const crit = rng() < TUNING.critChance + (A.critBonus ?? 0);
@@ -147,13 +149,17 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
         A.atk * TUNING.dmg * eff * (0.82 + 0.36 * rng()) * (crit ? TUNING.critMult : 1);
       D.hp -= dmg * (D.dmgTakenMul ?? 1); // X-Defesa tanka parte do dano
 
-      // Nota estruturada (sem idioma): o componente formata com o i18n.
-      if (!note && D.hp > 0) {
-        if (crit && rng() < 0.4) {
-          note = { side, kind: "crit", name: A.name };
-        } else if (isSuper && rng() < 0.22) {
-          note = { side, kind: "super", name: A.name };
-        }
+      // Notas estruturadas (sem idioma; o componente formata com o i18n) e
+      // DETERMINÍSTICAS: crítico sempre vira nota; a (des)vantagem de tipo só
+      // na 1ª troca de golpes de cada dupla, pra não inundar o feed. (Antes
+      // eram sorteadas com rng — tirar os sorteios desloca o stream, mas não
+      // muda nada estatisticamente.)
+      if (crit) notes.push({ side, kind: "crit", name: A.name, target: D.name });
+      const pair = A.id + ">" + D.id;
+      if (!seenPairs.has(pair)) {
+        seenPairs.add(pair);
+        if (isSuper) notes.push({ side, kind: "super", name: A.name, target: D.name });
+        else if (rawEff < 1) notes.push({ side, kind: "weak", name: A.name, target: D.name });
       }
     }
 
@@ -164,22 +170,22 @@ export function simulateBattle(playerTeam, trainer, seedInt, playerLvl = PLAYER_
       Pm.hp = Math.min(Pm.max, Pm.hp + Pm.heal.frac * Pm.max);
       Pm.heal.used = true;
       fx = "heal";
-      if (!note) note = { side: "p", kind: "heal", name: Pm.name };
+      notes.push({ side: "p", kind: "heal", name: Pm.name });
     }
 
-    events.push({ k: "turn", note, fx, ...snap() });
+    events.push({ k: "turn", notes, fx, ...snap() });
 
     if (Em.hp <= 0) {
       pk++;
       koBy[Pm.name] = (koBy[Pm.name] || 0) + 1;
       events.push({ k: "faint", side: "e", name: Em.name, by: Pm.name, ...snap(), score: [pk, ek] });
       ei++;
-      if (ei < eT.length) events.push({ k: "send", ...snap() });
+      if (ei < eT.length) events.push({ k: "send", side: "e", ...snap() });
     } else if (Pm.hp <= 0) {
       ek++;
       events.push({ k: "faint", side: "p", name: Pm.name, by: Em.name, ...snap(), score: [pk, ek] });
       pi++;
-      if (pi < pT.length) events.push({ k: "send", ...snap() });
+      if (pi < pT.length) events.push({ k: "send", side: "p", ...snap() });
     }
   }
 
