@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { newSeed, hashSeed } from "./engine/rng";
 import { simulateBattle } from "./engine/battle";
-import { rollCandidates, TEAM_SIZE, CANDIDATES_PER_ROUND } from "./data/pool";
+import { rollCandidates, evolveMon, TEAM_SIZE, CANDIDATES_PER_ROUND } from "./data/pool";
 import { rollConsumables, getConsumable } from "./data/consumables";
 import { LEAGUES, getLeague, DEFAULT_LEAGUE_ID } from "./data/elite";
 import { getMon } from "./data/dex";
@@ -106,8 +106,23 @@ export default function App() {
   /* --- etapa de consumível: derivada (draft feito, item ainda não escolhido) --- */
   const itemChosen = !!consumable;
   const itemStep = draftComplete && !itemChosen;
-  // 3 opções determinísticas por seed (sem re-sorteio).
-  const itemOptions = useMemo(() => (itemStep ? rollConsumables(seed) : []), [itemStep, seed]);
+  // Alvos válidos do Doce Raro: mon que ainda evolui E cuja evolução NÃO está já
+  // no time (evita dois mons idênticos, o que quebraria a key/reorder/mira).
+  const evoTargets = useMemo(
+    () =>
+      new Set(
+        team
+          .filter((m) => m.evolvesTo != null && !team.some((o) => o.id === m.evolvesTo))
+          .map((m) => m.id)
+      ),
+    [team]
+  );
+  const canEvolve = evoTargets.size > 0;
+  // 3 opções determinísticas por (seed, canEvolve) — sem re-sorteio.
+  const itemOptions = useMemo(
+    () => (itemStep ? rollConsumables(seed, { canEvolve }) : []),
+    [itemStep, seed, canEvolve]
+  );
 
   /* Pulos: Equipe Rocket tem 1 por rodada; Professor Oak tem 1 no draft todo. */
   const totalSkips = skips.reduce((a, b) => a + b, 0);
@@ -139,6 +154,18 @@ export default function App() {
   /** Passo 2: aplica o item pendente ao mon escolhido → avança pra reordenação. */
   function assignItem(monId) {
     if (!pendingItem) return;
+    const it = getConsumable(pendingItem);
+    // Doce Raro (item `evolves`): evolui o mon-alvo na hora (preservando a
+    // condição) em vez de virar buff. O `consumable.target` passa a ser o NOVO id.
+    if (it?.evolves) {
+      const target = team.find((m) => m.id === monId);
+      if (!target || !evoTargets.has(monId)) return; // só evolutivos válidos
+      const evo = evolveMon(target);
+      setTeam((t) => t.map((m) => (m.id === monId ? evo : m)));
+      setConsumable({ id: pendingItem, target: evo.id });
+      setPendingItem(null);
+      return;
+    }
     setConsumable({ id: pendingItem, target: monId });
     setPendingItem(null);
   }
@@ -437,7 +464,9 @@ export default function App() {
                 ? t("roll.hintRound", { n: draftRound + 1, total: TEAM_SIZE })
                 : itemStep
                 ? pendingItem
-                  ? t("items.applyHint")
+                  ? getConsumable(pendingItem)?.evolves
+                    ? t("items.applyHintEvo")
+                    : t("items.applyHint")
                   : t("items.hint")
                 : t("roll.hintDone")}
             </span>
@@ -499,6 +528,7 @@ export default function App() {
               options={itemOptions}
               team={team}
               pending={pendingItem}
+              evoTargets={evoTargets}
               onPick={pickItem}
               onAssign={assignItem}
               onCancel={cancelItem}

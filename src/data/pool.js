@@ -9,7 +9,7 @@
  * Desde a v0.4 o time é montado num DRAFT: 6 rodadas, 5 candidatos por
  * rodada, e o jogador escolhe 1 por rodada.
  */
-import { allMons } from "./dex";
+import { allMons, getMon } from "./dex";
 import { mulberry32, hashSeed } from "../engine/rng";
 
 /** Pokémon lendários/míticos das Gen 1, 2 e 3 (ids da Pokédex nacional). */
@@ -38,6 +38,17 @@ function draw(rng) {
   const potential =
     POTENTIAL_MIN + Math.floor(rng() * (POTENTIAL_MAX - POTENTIAL_MIN + 1));
   return { ...pick, rare: LEGENDARY_IDS.has(pick.id), potential };
+}
+
+/**
+ * Evolui um mon do time para a próxima forma (Doce Raro / Rare Candy),
+ * PRESERVANDO a condição (potencial). Recalcula `rare` para o novo id (na
+ * prática evoluções nunca são lendárias). Se o mon não evolui, devolve ele mesmo.
+ */
+export function evolveMon(mon) {
+  if (mon.evolvesTo == null) return mon;
+  const evo = getMon(mon.evolvesTo);
+  return { ...evo, potential: mon.potential, rare: LEGENDARY_IDS.has(evo.id) };
 }
 
 /**

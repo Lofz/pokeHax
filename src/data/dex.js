@@ -52,6 +52,8 @@ function normalize(entry) {
     species: entry.species,
     /** true quando o Pokémon NÃO possui próxima evolução */
     fullyEvolved: !entry?.evolution?.next,
+    /** id da próxima evolução (resolvido no pós-passo; null = não evolui) */
+    evolvesTo: null,
     image: {
       sprite: localSprite(entry.image?.sprite), // self-hosted (public/mons)
       thumbnail: cdn(entry.image?.thumbnail), // jsDelivr (preload + fallback no Finale)
@@ -62,6 +64,23 @@ function normalize(entry) {
 
 /** Mapa id -> Pokémon normalizado */
 const byId = new Map(pokedex.map((e) => [e.id, normalize(e)]));
+
+/**
+ * Pós-passo: resolve `evolvesTo` — a PRIMEIRA evolução que EXISTE no dataset.
+ * `evolution.next` é `[[idStr, condição], ...]`. Evoluções ramificadas (Eevee)
+ * e as de gerações fora do dataset (ex.: id 470+) são puladas; se nenhuma das
+ * opções existir aqui, o mon é tratado como não-evolutivo (evolvesTo = null).
+ */
+for (const entry of pokedex) {
+  const nexts = entry.evolution?.next ?? [];
+  for (const [idStr] of nexts) {
+    const nid = Number(idStr);
+    if (byId.has(nid)) {
+      byId.get(entry.id).evolvesTo = nid;
+      break;
+    }
+  }
+}
 
 /** Busca por número da Pokédex. Lança erro se o id não existir no dataset. */
 export function getMon(id) {

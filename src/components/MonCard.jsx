@@ -51,7 +51,8 @@ export function MonCard({
     (mon.rare ? " rare" : "") +
     (dragging ? " dragging" : "") +
     (pickable ? " pick" : "") +
-    (itemBadge ? " has-item item-" + itemBadge.id : ""); // heartbeat na cor do item
+    // selo (acento) sempre; heartbeat só se o item for um BUFF de batalha (tem mod)
+    (itemBadge ? " item-" + itemBadge.id + (itemBadge.mod ? " has-item" : "") : "");
 
   return (
     <div

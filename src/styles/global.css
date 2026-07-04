@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    PokéHax — noite de Johto, dialeto Game Boy Color
    ============================================================ */
 
@@ -299,9 +299,6 @@ body { background: var(--night); }
   letter-spacing: 0.18em;
   margin-bottom: 14px;
 }
-.how-steps { margin: 0; padding-left: 26px; display: flex; flex-direction: column; gap: 9px; font-size: 19px; }
-.how-steps li { color: var(--cream); }
-.how-steps b { color: var(--gold); }
 .intro-split { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
 .intro-split > .mon-card { flex: 0 0 240px; }
 .intro-copy { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 10px; }
@@ -1031,6 +1028,247 @@ body { background: var(--night); }
   .modal-body p { font-size: 18px; }
 }
 
+/* ---------- "COMO SE JOGA" — storyboard animado inline ---------- */
+.htp { display: block; }
+.htp-sub { font-size: 18px; color: var(--cream-dim); text-align: center; margin: -4px 0 14px; }
+
+/* a "telinha" onde a cena roda — enquadrada e centrada no bloco */
+.htp-screen {
+  position: relative;
+  max-width: 470px;
+  height: 180px;
+  margin: 0 auto;
+  background: var(--night);
+  border: 3px solid var(--line);
+  border-radius: 8px;
+  box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+.htp-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
+}
+.htp-stage { position: absolute; inset: 0; display: grid; place-items: center; padding: 12px; }
+/* fade-in ao trocar de cena (a key={step} remonta o stage) */
+.htp-stage { animation: htp-in 0.32s ease-out both; }
+@keyframes htp-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.htp-scene { display: grid; place-items: center; }
+
+/* peças reutilizadas */
+.htp-card {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 60px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+}
+.htp-card .sprite,
+.htp-mode-card .sprite,
+.htp-item .item-capsule { image-rendering: pixelated; }
+
+/* 1 · oponente — carrossel de ligas */
+.htp-carousel { display: flex; align-items: center; gap: 14px; }
+.htp-arrow { font-family: "Press Start 2P", monospace; font-size: 16px; color: var(--gold); }
+.htp-arrow.a-l { animation: htp-nudge-l 1.6s ease-in-out infinite; }
+.htp-arrow.a-r { animation: htp-nudge-r 1.6s ease-in-out infinite; }
+@keyframes htp-nudge-l { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
+@keyframes htp-nudge-r { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+.htp-reel { width: 150px; height: 22px; overflow: hidden; }
+.htp-reel-track {
+  display: flex;
+  flex-direction: column;
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  color: var(--cream);
+  animation: htp-reel 3.6s ease-in-out infinite;
+}
+.htp-reel-track span { height: 22px; display: grid; place-items: center; letter-spacing: 0.12em; }
+@keyframes htp-reel {
+  0%, 26% { transform: translateY(0); }
+  33%, 59% { transform: translateY(-22px); }
+  66%, 92% { transform: translateY(-44px); }
+  100% { transform: translateY(-66px); }
+}
+.htp-dots3 { display: flex; gap: 8px; margin-top: 16px; }
+.htp-dots3 i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.htp-dots3 i:nth-child(1) { animation: htp-dot 3.6s infinite; }
+.htp-dots3 i:nth-child(2) { animation: htp-dot 3.6s infinite 1.2s; }
+.htp-dots3 i:nth-child(3) { animation: htp-dot 3.6s infinite 2.4s; }
+@keyframes htp-dot { 0%, 25% { background: var(--gold); } 33%, 100% { background: var(--line); } }
+
+/* 2 · modo */
+.htp-mode { display: flex; gap: 16px; }
+.htp-mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 96px;
+  padding: 10px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  color: var(--cream-dim);
+}
+.htp-mode-card.m-a { animation: htp-sel 3.2s infinite; }
+.htp-mode-card.m-b { animation: htp-sel 3.2s infinite 1.6s; }
+@keyframes htp-sel {
+  0%, 40% { border-color: var(--gold); background: var(--panel2); color: var(--gold); }
+  50%, 100% { border-color: var(--line); background: var(--panel); color: var(--cream-dim); }
+}
+
+/* 3 · draft */
+.htp-draft { grid-auto-flow: row; gap: 10px; }
+.htp-cands { position: relative; display: flex; gap: 10px; }
+.htp-card.pick { animation: htp-pick 3.2s ease-in-out infinite; }
+@keyframes htp-pick {
+  0%, 20% { transform: translateY(0) scale(1); border-color: var(--line); box-shadow: none; }
+  35%, 55% { transform: translateY(-10px) scale(1.06); border-color: var(--gold); box-shadow: 0 0 10px rgba(242, 182, 61, 0.5); }
+  75%, 100% { transform: translateY(0) scale(1); border-color: var(--line); box-shadow: none; }
+}
+.htp-cursor {
+  position: absolute;
+  left: 50%;
+  bottom: -15px;
+  transform: translateX(-50%);
+  color: var(--gold);
+  font-size: 12px;
+  animation: htp-bob 1s ease-in-out infinite;
+}
+@keyframes htp-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+.htp-skip {
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 4px 7px;
+  animation: htp-pulse 1.6s ease-in-out infinite;
+}
+@keyframes htp-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+.htp-slots { display: flex; gap: 6px; }
+.htp-slots i { width: 14px; height: 14px; border-radius: 3px; border: 2px solid var(--line); background: var(--night); }
+.htp-slots i.on { background: var(--gold); border-color: var(--gold); }
+.htp-slots i.fill { animation: htp-fill 3.2s ease-in-out infinite; }
+@keyframes htp-fill {
+  0%, 45% { background: var(--night); border-color: var(--line); }
+  60%, 100% { background: var(--gold); border-color: var(--gold); }
+}
+
+/* 4 · item */
+.htp-item { display: flex; align-items: center; gap: 12px; }
+.htp-items { display: flex; align-items: center; gap: 10px; }
+.htp-items .pick {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  padding: 3px;
+  animation: htp-ring 3s ease-in-out infinite;
+}
+@keyframes htp-ring { 0%, 20% { box-shadow: none; } 40%, 82% { box-shadow: 0 0 0 2px var(--gold); } 100% { box-shadow: none; } }
+.htp-arrow2 {
+  color: var(--gold);
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  animation: htp-slide 3s ease-in-out infinite;
+}
+@keyframes htp-slide {
+  0%, 40% { opacity: 0; transform: translateX(-4px); }
+  55%, 90% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; }
+}
+.htp-item .htp-card.tgt { animation: htp-glow 3s ease-in-out infinite; }
+@keyframes htp-glow {
+  0%, 55% { box-shadow: none; border-color: var(--line); }
+  70%, 95% { box-shadow: 0 0 10px rgba(242, 182, 61, 0.5); border-color: var(--gold); }
+  100% { box-shadow: none; border-color: var(--line); }
+}
+
+/* 5 · ordem (arraste) */
+.htp-row6 { display: flex; gap: 6px; justify-content: center; }
+.htp-mcard {
+  width: 34px;
+  height: 46px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 5px;
+  display: grid;
+  place-items: end center;
+  padding-bottom: 3px;
+}
+.htp-mcard .grip { color: var(--cream-dim); font-size: 12px; line-height: 1; }
+.htp-mcard.move { border-color: var(--gold); position: relative; z-index: 2; animation: htp-drag 3.4s ease-in-out infinite; }
+@keyframes htp-drag {
+  0%, 100% { transform: translateY(0); box-shadow: none; }
+  18% { transform: translateY(-9px) rotate(-3deg); box-shadow: 0 6px 8px rgba(0, 0, 0, 0.45); }
+  50% { transform: translateY(-9px) translateX(-11px) rotate(-3deg); box-shadow: 0 6px 8px rgba(0, 0, 0, 0.45); }
+  82% { transform: translateY(-9px) translateX(11px) rotate(3deg); box-shadow: 0 6px 8px rgba(0, 0, 0, 0.45); }
+}
+
+/* 6 · início */
+.htp-start { grid-auto-flow: row; gap: 12px; }
+.htp-trophy { color: var(--gold); font-size: 22px; line-height: 1; animation: htp-beat 1.4s ease-in-out infinite; }
+.htp-vs { display: flex; align-items: center; gap: 12px; font-family: "Press Start 2P", monospace; font-size: 10px; }
+.htp-vs .you { color: var(--cream); }
+.htp-vs .foe { color: var(--silver); }
+.htp-vs-sep { color: var(--cream-dim); font-family: "VT323", monospace; font-size: 15px; }
+@keyframes htp-beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+.htp-go {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  color: var(--night);
+  background: var(--gold);
+  border-radius: 6px;
+  padding: 9px 13px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+  animation: htp-pulse 1.4s ease-in-out infinite;
+}
+
+/* legenda + navegação */
+.htp-cap { max-width: 470px; margin: 14px auto 0; min-height: 60px; text-align: center; }
+.htp-cap-t {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.htp-cap-d { font-size: 18px; color: var(--cream); line-height: 1.35; }
+.htp-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+.htp-navbtn {
+  font-family: "Press Start 2P", monospace;
+  font-size: 14px;
+  color: var(--cream-dim);
+  background: var(--night);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+  line-height: 1;
+}
+.htp-navbtn:hover { border-color: var(--cream-dim); color: var(--cream); }
+.htp-navbtn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.htp-nav-dots { display: flex; gap: 8px; }
+.htp-nd { width: 9px; height: 9px; border-radius: 50%; border: 0; background: var(--line); cursor: pointer; padding: 0; }
+.htp-nd:hover { background: var(--cream-dim); }
+.htp-nd.on { background: var(--gold); }
+.htp-nd:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+@media (max-width: 560px) {
+  .htp-screen { height: 168px; }
+  .htp-cap-d { font-size: 17px; }
+}
+
 /* ---------- acessibilidade e responsivo ---------- */
 @media (prefers-reduced-motion: reduce) {
   .mark.live, .pause-btn, .support-spr { animation: none; }
@@ -1040,6 +1278,12 @@ body { background: var(--night); }
   .hp-fill { transition: none !important; }
   .fx-heal { display: none; }
   .mon-card.has-item { animation: none; }
+  /* tutorial: sem micro-animações (o autoavanço também é desligado no JS) */
+  .htp-stage, .htp-arrow, .htp-reel-track, .htp-dots3 i, .htp-mode-card,
+  .htp-card.pick, .htp-cursor, .htp-skip, .htp-slots i.fill, .htp-items .pick,
+  .htp-arrow2, .htp-item .htp-card.tgt, .htp-mcard.move, .htp-trophy, .htp-go {
+    animation: none !important;
+  }
 }
 @media (max-width: 560px) {
   .match-eyebrow { min-width: 0; }
@@ -1058,6 +1302,8 @@ body { background: var(--night); }
 .item-xspeed { --item-acc: #6aa0f0; }
 .item-xattack { --item-acc: var(--hpR); }
 .item-xdefense { --item-acc: var(--gold); }
+.item-scopelens { --item-acc: #b06fe6; } /* violeta - critico */
+.item-rarecandy { --item-acc: #ec6fb0; } /* rosa - evolucao */
 
 /* Ícone do item: sprite real (public/items) ou cápsula SVG de fallback.
    O SVG é tingido pelo acento (--item-acc); a sprite é pixelada como as demais. */
@@ -1142,6 +1388,9 @@ img.item-capsule { image-rendering: pixelated; object-fit: contain; }
 .target-mon:hover { border-color: var(--gold); }
 .target-mon:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .target-mon:active { transform: translate(2px, 2px); }
+.target-mon.locked { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.7); box-shadow: inset 0 0 0 3px var(--night), 4px 4px 0 rgba(0,0,0,0.45); }
+.target-mon.locked:hover { border-color: var(--cream); }
+.target-mon.locked .target-cta { color: var(--cream-dim); }
 .target-name { font-family: "Press Start 2P", monospace; font-size: 8px; text-align: center; }
 .target-cta { font-family: "Press Start 2P", monospace; font-size: 7px; color: var(--gold); letter-spacing: 0.08em; }
 

@@ -5,8 +5,8 @@
  * NÃO aparece no rodapé — assim dá para deixar o "Apoiar" desligado até decidir
  * o provedor (Patreon, Ko-fi, etc.).
  *
- * `id` casa com o ícone desenhado em components/About.jsx (x | tiktok | discord
- * | donate). `label` é o texto acessível (aria-label / tooltip).
+ * `id` casa com o ícone desenhado em components/About.jsx (tiktok | discord |
+ * donate). `label` é o texto acessível (aria-label / tooltip).
  *
  * `active: true` num item o torna um LINK clicável de verdade, mesmo com
  * LINKS_ACTIVE global desligado — assim dá para subir um link por vez (ex.: só
@@ -14,9 +14,8 @@
  * LINKS_ACTIVE.
  */
 export const SOCIAL = [
-  { id: "x", label: "X (Twitter)", url: "https://x.com/SEU_PERFIL" },
-  { id: "tiktok", label: "TikTok", url: "https://tiktok.com/@SEU_PERFIL" },
-  { id: "discord", label: "Discord", url: "https://discord.gg/SEU_CONVITE" },
+  { id: "tiktok", label: "TikTok", url: "https://www.tiktok.com/@pokehax1306?_r=1&_t=ZS-97k03sSpPdK", active: true },
+  { id: "discord", label: "Discord", url: "https://discord.gg/CVUt3yumEf", active: true },
   // Apoio: Ko-fi do projeto, já ativo (clicável) mesmo com LINKS_ACTIVE off.
   { id: "donate", label: "Apoiar o projeto", url: "https://ko-fi.com/pokehaxofc", active: true },
 ];

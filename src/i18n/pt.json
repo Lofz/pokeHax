@@ -43,8 +43,11 @@
   "items": {
     "hint": "Escolha 1 item para levar na jornada — vale nas 5 batalhas.",
     "applyHint": "Em qual Pokémon aplicar o item?",
+    "applyHintEvo": "Em qual Pokémon usar o Doce Raro? (só quem ainda evolui)",
     "pickCta": "▸ ESCOLHER",
     "applyCta": "▸ APLICAR",
+    "evolveCta": "▸ EVOLUIR",
+    "evoNote": "não evolui",
     "swap": "‹ TROCAR ITEM",
     "potion": {
       "name": "POÇÃO",
@@ -61,6 +64,14 @@
     "xdefense": {
       "name": "X-DEFESA",
       "desc": "Recebe 20% menos dano em todas as batalhas."
+    },
+    "scopelens": {
+      "name": "LENTE DE MIRA",
+      "desc": "Aumenta a chance de acerto crítico em todas as batalhas."
+    },
+    "rarecandy": {
+      "name": "DOCE RARO",
+      "desc": "Evolui um Pokémon que ainda pode evoluir, mantendo a condição."
     }
   },
   "card": {
@@ -81,11 +92,24 @@
   },
   "intro": {
     "howTitle": "COMO SE JOGA",
-    "step1": "**Drafte seu time.** Seis rodadas: em cada uma saem 3 Pokémon (dos 386 de Kanto, Johto e Hoenn) e você escolhe 1 para a vaga.",
-    "step2": "**Não curtiu os 3? Pule.** O pulo re-sorteia os candidatos da rodada — mas é limitado, e quantos você tem depende do modo.",
-    "stepItem": "**Escolha um item.** Com o time fechado, entra 1 consumível: escolha 1 entre 3 e aplique a um Pokémon — o efeito vale nas 5 batalhas.",
-    "step3": "**Monte a ordem.** Com as 6 vagas preenchidas, arraste as cartas para decidir quem entra primeiro. A sequência é estratégia.",
-    "step4": "**Derrote a Elite dos 4 + o Campeão.** Cinco confrontos, e os inimigos ficam mais fortes a cada um — o Campeão é a parede final. Aplique o **6 a 0**, ou caia tentando.",
+    "tutorial": {
+      "subtitle": "Da escolha do oponente ao desafio final — passo a passo.",
+      "prev": "Anterior",
+      "next": "Próximo",
+      "dotAria": "Ir para o passo {n}",
+      "modeRocket": "ROCKET",
+      "modeOak": "OAK",
+      "skip": "PULAR",
+      "go": "DESAFIAR",
+      "steps": {
+        "opponent": { "t": "1 · ESCOLHA O OPONENTE", "d": "Deslize o carrossel e escolha a Liga: Johto, Kanto ou Hoenn." },
+        "mode": { "t": "2 · ESCOLHA O MODO", "d": "Rocket mostra tudo; Oak esconde o poder. Cada modo dá um nº de pulos." },
+        "draft": { "t": "3 · DRAFTE O TIME", "d": "Seis rodadas: saem 3 Pokémon, você pega 1. Não curtiu? Pule (é limitado)." },
+        "item": { "t": "4 · ESCOLHA UM ITEM", "d": "Com o time fechado, pegue 1 consumível e aplique a um Pokémon." },
+        "order": { "t": "5 · MONTE A ORDEM", "d": "Arraste as cartas pra decidir quem entra primeiro. A ordem é estratégia." },
+        "start": { "t": "6 · DESAFIE A ELITE", "d": "Cinco confrontos contra a Elite dos 4 + o Campeão. Vença todos!" }
+      }
+    },
     "cardEyebrow": "A CARTA",
     "cardP1": "**PODER** é a força-base do Pokémon (a soma dos status). Quanto maior, mais forte ele é por natureza.",
     "cardP2": "**CONDIÇÃO** é a forma daquele indivíduo nesta campanha — de RUIM a EXCELENTE, indicada por uma seta colorida (estilo Winning Eleven). Um azarão em condição excelente pode surpreender a Elite — por isso **todo Pokémon é jogável**.",
