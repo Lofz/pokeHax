@@ -80,10 +80,10 @@
     "condition": "CONDITION",
     "dexNo": "No.",
     "choose": "▸ PICK",
-    "rare": "★ RARE",
     "slotDrag": "SLOT {n} · DRAG",
     "slotAria": "slot {n} — drag to reorder",
     "cond": {
+      "len": "LEGENDARY",
       "exc": "EXCELLENT",
       "boa": "GOOD",
       "pad": "STANDARD",

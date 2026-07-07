@@ -45,9 +45,21 @@ const FULL_POOL = [...byId.values()];
 const TEAM_SIZE = 6;
 const CANDIDATES_PER_ROUND = 3;
 const POTENTIAL_MIN = 50, POTENTIAL_MAX = 100;
+const LEGENDARY_IDS = new Set([
+  144, 145, 146, 150, 151,
+  243, 244, 245, 249, 250, 251,
+  377, 378, 379, 380, 381, 382, 383, 384, 385, 386,
+]);
+const LEGENDARY_POTENTIAL = 110;
+const LEGENDARY_KEEP = 1 / 3;
 function draw(rng) {
-  const pick = FULL_POOL[Math.floor(rng() * FULL_POOL.length)];
-  const potential = POTENTIAL_MIN + Math.floor(rng() * (POTENTIAL_MAX - POTENTIAL_MIN + 1));
+  let pick = FULL_POOL[Math.floor(rng() * FULL_POOL.length)];
+  while (LEGENDARY_IDS.has(pick.id) && rng() >= LEGENDARY_KEEP) {
+    pick = FULL_POOL[Math.floor(rng() * FULL_POOL.length)];
+  }
+  const potential = LEGENDARY_IDS.has(pick.id)
+    ? LEGENDARY_POTENTIAL
+    : POTENTIAL_MIN + Math.floor(rng() * (POTENTIAL_MAX - POTENTIAL_MIN + 1));
   return { ...pick, potential };
 }
 function rollCandidates(seed, round, pickedIds, nonce = 0) {

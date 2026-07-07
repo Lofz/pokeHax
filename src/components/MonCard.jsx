@@ -9,8 +9,13 @@ import { useT } from "../i18n";
  * A seta é UM único triângulo (▲) girado por CSS — mesma forma para todas as
  * condições, só muda a direção. Padroniza o visual e evita o problema de ↑/↓
  * virarem emoji colorido no Windows. O rótulo vem do i18n (`key`).
+ *
+ * LENDÁRIO: todo lendário (`rare`) tem a condição própria, acima de EXCELENTE —
+ * asterisco de 8 pontas (❋, glifo de texto, não emoji) + rótulo arco-íris.
+ * A aura animada da carta fica no CSS (.mon-card.rare).
  */
-function condition(p) {
+function condition(p, rare) {
+  if (rare) return { key: "len", cls: "cond-len", legend: true };
   if (p >= 90) return { key: "exc", deg: 0, cls: "cond-exc" };
   if (p >= 80) return { key: "boa", deg: 45, cls: "cond-boa" };
   if (p >= 70) return { key: "pad", deg: 90, cls: "cond-pad" };
@@ -43,7 +48,7 @@ export function MonCard({
   const { t } = useT();
   const blind = lens === "oak";
   const pct = Math.min(1, Math.max(0, (mon.bst - 300) / 400));
-  const cond = condition(mon.potential ?? 50);
+  const cond = condition(mon.potential ?? 50, !!mon.rare);
   const pickable = typeof onPick === "function";
 
   const cls =
@@ -72,7 +77,6 @@ export function MonCard({
           : undefined
       }
     >
-      {mon.rare && <span className="star">{t("card.rare")}</span>}
       {itemBadge && (
         <span className={"item-badge item-" + itemBadge.id} title={t("items." + itemBadge.id + ".name")}>
           <ItemSprite id={itemBadge.id} size={14} />
@@ -106,9 +110,13 @@ export function MonCard({
       <div className="pow-row">
         <span className="pow-label">{t("card.condition")}</span>
         <span className={"cond " + cond.cls}>
-          <span className="cond-arrow" style={{ transform: `rotate(${cond.deg}deg)` }}>
-            ▲
-          </span>
+          {cond.legend ? (
+            <span className="cond-aster">❋</span>
+          ) : (
+            <span className="cond-arrow" style={{ transform: `rotate(${cond.deg}deg)` }}>
+              ▲
+            </span>
+          )}
           {t("card.cond." + cond.key)}
         </span>
       </div>
