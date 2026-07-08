@@ -80,10 +80,10 @@
     "condition": "CONDIÇÃO",
     "dexNo": "Nº",
     "choose": "▸ ESCOLHER",
-    "rare": "★ RARO",
     "slotDrag": "{n}ª VAGA · ARRASTE",
     "slotAria": "{n}ª vaga — arraste para reordenar",
     "cond": {
+      "len": "LENDÁRIO",
       "exc": "EXCELENTE",
       "boa": "BOA",
       "pad": "PADRÃO",

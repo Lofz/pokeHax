@@ -21,7 +21,8 @@ body { background: var(--night); }
 
 .page {
   min-height: 100vh;
-  background: var(--night);
+  /* o fundo fica SÓ no body: a aura da carta lendária (z-index:-1) precisa
+     pintar acima do fundo da página — um bg aqui a esconderia por completo */
   color: var(--cream);
   font-family: "VT323", monospace;
   font-size: 20px;
@@ -123,17 +124,60 @@ body { background: var(--night); }
   padding: 14px;
   position: relative;
 }
-.mon-card.rare { border-color: var(--gold); }
-.star {
+/* ---------- carta LENDÁRIA: contorno arco-íris girando (substitui o selo RARO) ----------
+   Duas camadas:
+   1) CONTORNO nítido — pintado no PRÓPRIO background da carta: painel no
+      padding-box + conic-gradient no border-box, com a borda transparente.
+      Não depende de z-index/stacking → nunca some, em nenhum contêiner.
+   2) AURA (incandescência) — ::after borrado atrás da carta (z-index: -1).
+      Só aparece sobre o fundo da página (body); um ancestral com background
+      opaco a cobriria — por isso o .page não tem mais bg próprio.
+   O ângulo do gradiente gira via @property (sem suporte: contorno estático). */
+@property --lg-ang {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.mon-card.rare {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--panel), var(--panel)) padding-box,
+    conic-gradient(
+      from var(--lg-ang),
+      #ff5d52, #f49a3c, #f8d030, #7ac74c, #56c8d8, #6aa0f0, #b884d0, #ff5d52
+    ) border-box;
+  animation: lg-spin 5s linear infinite;
+}
+.mon-card.rare::after {
+  content: "";
   position: absolute;
-  top: -11px;
-  right: 10px;
-  background: var(--gold);
-  color: #241a05;
-  font-family: "Press Start 2P", monospace;
-  font-size: 8px;
-  padding: 3px 6px;
-  border-radius: 3px;
+  inset: -5px;
+  border-radius: 11px;
+  background: conic-gradient(
+    from var(--lg-ang),
+    #ff5d52, #f49a3c, #f8d030, #7ac74c, #56c8d8, #6aa0f0, #b884d0, #ff5d52
+  );
+  z-index: -1;
+  filter: blur(10px);
+  opacity: 0.55;
+  animation: lg-spin 5s linear infinite;
+}
+@keyframes lg-spin {
+  to { --lg-ang: 360deg; }
+}
+/* transform/opacity criam stacking context → o z-index:-1 pintaria a aura POR
+   CIMA do fundo da carta. Nesses estados (clique/arrasto) só a aura se apaga;
+   o contorno arco-íris fica (é o background da própria carta). */
+.mon-card.rare.pick:active::after,
+.mon-card.rare.dragging::after {
+  display: none;
+}
+/* hover de candidato: mantém o contorno arco-íris (não o dourado) e acende a aura */
+.mon-card.rare.pick:hover { border-color: transparent; }
+.mon-card.rare.pick:hover::after { opacity: 0.85; }
+@media (prefers-reduced-motion: reduce) {
+  .mon-card.rare,
+  .mon-card.rare::after { animation: none; }
 }
 .mon-top { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
 .mon-dex {
@@ -188,6 +232,19 @@ body { background: var(--night); }
 .cond-pad { color: #f8d030; }  /* amarela — padrão */
 .cond-reg { color: #6aa0f0; }  /* azul — regular */
 .cond-ruim { color: #b884d0; } /* roxa — ruim */
+
+/* condição LENDÁRIO: asterisco 8 pontas + rótulo em arco-íris (mesma paleta
+   das condições comuns). Fallback sem background-clip: dourado sólido. */
+.cond-aster { display: inline-block; font-size: 12px; line-height: 1; }
+.cond-len { color: var(--gold); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .cond-len {
+    background: linear-gradient(90deg, #ff5d52, #f49a3c, #f8d030, #7ac74c, #56c8d8, #6aa0f0, #b884d0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
 
 /* ---------- draft: bandeja de vagas + candidatos ---------- */
 .draft-tray {

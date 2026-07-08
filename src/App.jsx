@@ -33,8 +33,8 @@ const DEBUG_WIN =
 function buildDebugWin() {
   const LEG = new Set([144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251]);
   const picks = [
-    [157, 96], [149, 88], [94, 73], [65, 81], [143, 67], [249, 92],
-    // Typhlosion, Dragonite, Gengar, Alakazam, Snorlax, Lugia
+    [157, 96], [149, 88], [94, 73], [65, 81], [143, 67], [249, 110],
+    // Typhlosion, Dragonite, Gengar, Alakazam, Snorlax, Lugia (lendário = 110)
   ];
   const team = picks.map(([id, potential]) => ({ ...getMon(id), potential, rare: LEG.has(id) }));
   const n = team.map((m) => m.name);

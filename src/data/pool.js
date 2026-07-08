@@ -28,16 +28,34 @@ export const CANDIDATES_PER_ROUND = 3;
 export const POTENTIAL_MIN = 50;
 export const POTENTIAL_MAX = 100;
 
+/**
+ * LENDÁRIOS — condição própria, acima do espectro comum.
+ * Todo lendário chega SEMPRE com potencial fixo LEGENDARY_POTENTIAL (110 =
+ * um degrau acima do teto 100; a condição vira "LENDÁRIO" na carta). Em troca,
+ * ficam mais raros no sorteio: quando um lendário sai, ele só "fica" com
+ * probabilidade LEGENDARY_KEEP — senão o sorteio re-rola (determinístico,
+ * consome o mesmo stream de RNG da seed).
+ */
+export const LEGENDARY_POTENTIAL = 110;
+export const LEGENDARY_KEEP = 1 / 3;
+
 /** Pool único: todos os Pokémon do dataset (386), peso igual. */
 export const FULL_POOL = allMons();
 
-/** Hidrata um Pokémon do pool com seu potencial e a flag de raro. */
+/** Hidrata um Pokémon do pool com seu potencial e a flag de lendário. */
 function draw(rng) {
-  const pick = FULL_POOL[Math.floor(rng() * FULL_POOL.length)];
+  let pick = FULL_POOL[Math.floor(rng() * FULL_POOL.length)];
+  // Raridade: lendário só passa no "pedágio" LEGENDARY_KEEP; senão re-rola.
+  while (LEGENDARY_IDS.has(pick.id) && rng() >= LEGENDARY_KEEP) {
+    pick = FULL_POOL[Math.floor(rng() * FULL_POOL.length)];
+  }
+  const rare = LEGENDARY_IDS.has(pick.id);
   // Potencial: 50 = força canônica do dataset, 100 = indivíduo excepcional.
-  const potential =
-    POTENTIAL_MIN + Math.floor(rng() * (POTENTIAL_MAX - POTENTIAL_MIN + 1));
-  return { ...pick, rare: LEGENDARY_IDS.has(pick.id), potential };
+  // Lendário não rola: vem travado no degrau próprio (condição LENDÁRIO).
+  const potential = rare
+    ? LEGENDARY_POTENTIAL
+    : POTENTIAL_MIN + Math.floor(rng() * (POTENTIAL_MAX - POTENTIAL_MIN + 1));
+  return { ...pick, rare, potential };
 }
 
 /**

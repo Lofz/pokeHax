@@ -31,7 +31,9 @@ const TUNING = {
 };
 
 /**
- * POTENTIAL — a "sorte" de cada indivíduo (50 = canônico, 100 = excepcional).
+ * POTENTIAL — a "sorte" de cada indivíduo (50 = canônico, 100 = excepcional;
+ * lendários vêm travados em 110 = condição LENDÁRIO, ver pool.js — p vira 1.2
+ * e as fórmulas abaixo lidam com isso naturalmente).
  * É RUBBER-BAND: os fortes ganham só um bônus suave (global), enquanto os
  * fracos recuperam parte da lacuna até o "teto de campeão". É isso que faz um
  * Charmander sortudo ter chance — e um Dragonite continuar Dragonite.
